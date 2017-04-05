@@ -636,14 +636,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
         		dataBos.write(fileContentBytes);
         		                
                 sendDataToSystemAdapter(dataBos.toByteArray());
-                
-                // test
-    			BufferedReader reader = new BufferedReader(new FileReader(file));
-    			int lines = 0;
-    			while (reader.readLine() != null) lines++;
-    			reader.close();
-
-    			LOGGER.info(file.getAbsolutePath() + " of size " + file.length() + " sent to System Adapter with " + lines + " lines.");
+    			LOGGER.info(file.getAbsolutePath() + " sent to System Adapter (size: " + (double) file.length() / 1000 + " KB");
         	}
         	LOGGER.info("All ontologies and generated data successfully sent to System Adapter.");
         	
