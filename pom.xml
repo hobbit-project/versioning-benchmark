@@ -1,0 +1,127 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.hobbit.workpackage5</groupId>
+  <artifactId>versioning</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>versioning</name>
+  <description>Source code for workpackage 5.2</description>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  
+  <repositories>
+  	<repository>
+        <id>maven.aksw.internal</id>
+        <name>University Leipzig, AKSW Maven2 Repository</name>
+        <url>http://maven.aksw.org/repository/internal</url>
+    </repository>
+  	<repository>
+        <id>maven.aksw.snapshots</id>
+        <name>University Leipzig, AKSW Maven2 Repository</name>
+        <url>http://maven.aksw.org/repository/snapshots</url>
+        <snapshots>
+            <updatePolicy>always</updatePolicy>
+        </snapshots>
+        <releases>
+            <updatePolicy>always</updatePolicy>
+        </releases>
+    </repository>
+    <repository>
+ 		<id>local repository</id>
+   		<url>file://${project.basedir}/lib</url>
+  	</repository>
+  </repositories>
+
+  <dependencies>
+    <!-- JUnit -->
+    <dependency>
+		<groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+		<version>3.8.1</version>
+		<scope>test</scope>
+    </dependency>
+    <!-- RabbitMQ -->
+	<dependency>
+		<groupId>com.rabbitmq</groupId>
+		<artifactId>amqp-client</artifactId>
+		<version>3.6.0</version>
+	</dependency>
+	<!-- Hobbit core -->
+    <dependency>
+    	<groupId>org.hobbit</groupId>
+    	<artifactId>core</artifactId>
+    	<version>1.0.0</version>
+    </dependency>
+    <!-- LDBC Semantic Publishing Benchmark -->
+    <dependency>
+		<groupId>eu.ldbc</groupId>
+		<artifactId>semanticpublishing</artifactId>
+		<version>0.1</version>
+    </dependency>
+    
+    <dependency>
+		<groupId>org.aksw.jena-sparql-api</groupId>
+		<artifactId>jena-sparql-api-core</artifactId>
+		<version>3.1.0-2-SNAPSHOT</version>
+		<exclusions>
+			<exclusion>
+				<artifactId>slf4j-api</artifactId>
+				<groupId>org.slf4j</groupId>
+			</exclusion>
+			<exclusion>
+				<artifactId>slf4j-log4j12</artifactId>
+				<groupId>org.slf4j</groupId>
+			</exclusion>
+			<exclusion>
+				<artifactId>slf4j-ext</artifactId>
+				<groupId>org.slf4j</groupId>
+			</exclusion>
+		</exclusions>
+	</dependency>
+    
+  </dependencies>
+  
+  <build>
+  	<plugins>
+  		<plugin>
+  			<groupId>org.apache.maven.plugins</groupId>
+  			<artifactId>maven-shade-plugin</artifactId>
+  			<version>2.4.3</version>
+                <configuration>
+                	<filters>
+                		<filter>
+                			<artifact>*:*</artifact>
+                			<excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                		</filter>
+                	</filters>
+                	<transformers>
+                        <transformer
+                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <manifestEntries>
+                                <X-Compile-Source-JDK>${maven.compile.source}</X-Compile-Source-JDK>
+                                <X-Compile-Target-JDK>${maven.compile.target}</X-Compile-Target-JDK>
+                            </manifestEntries>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                    </transformers>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+  		</plugin>
+  	</plugins>
+  </build>
+</project>

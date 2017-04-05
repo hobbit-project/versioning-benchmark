@@ -1,0 +1,33 @@
+#  Query Name : query8.1
+#  Query Type: 8, Cross-version structured queries
+#  Query Description : 
+#  Retrieve the 10 most recent creative works, that are about or mention different topics from a set of specific past versions. 
+
+#  Query Answering Choke Points : 
+#    - join ordering based on cardinality of functional property cwork:dateCreated
+#      Optimizer should use an efficient cost evaluation method for choosing the optimal join tree
+#    - A sub-select which aggregates results. Optimizer should recognize it and execute it first
+#    - OPTIONAL and nested OPTIONAL clauses (treated by query optimizer as nested sub-queries)
+#      Optimizer should decide to put optional triples on top of the join tree 
+#      (i.e. delay their execution to the last possible moment) because OPTIONALs are treated as a left join
+#    - Reasoning: rdfs:subClassOf, rdf:type
+
+PREFIX cwork:<http://www.bbc.co.uk/ontologies/creativework/> 
+
+SELECT ?creativeWork
+FROM {{{graphVi}}}
+{{{fromIntermediateVersionsClauses}}}
+FROM {{{graphVj}}}
+WHERE {
+      ?creativeWork {{{cwAboutOrMentions}}} {{{cwAboutOrMentionsUri}}} .
+      ?creativeWork a cwork:CreativeWork ;
+                    cwork:dateCreated ?dateCreated ;
+                    cwork:description ?description ; 
+                    cwork:primaryFormat ?primaryFormat ;
+                    cwork:title ?title .
+      OPTIONAL { ?creativeWork cwork:shortTitle ?shortTitle . }
+      OPTIONAL { ?creativeWork cwork:mentions ?mentions . }
+      OPTIONAL { ?creativeWork cwork:altText ?altText . }
+}
+ORDER BY DESC(?dateCreated)
+LIMIT 10

@@ -1,0 +1,9 @@
+#  Query Name : query3
+#  Query Type: 3, Historical version materialization
+#  Query Description : 
+#  A full past version of the dataset is retreived  
+
+SELECT ?s ?p ?o
+WHERE {
+  GRAPH {{{graphVxMinusGraphVmax}}} { ?s ?p ?o }
+}

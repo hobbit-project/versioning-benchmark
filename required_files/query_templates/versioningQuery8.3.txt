@@ -1,0 +1,23 @@
+#  Query name : query8.3
+#  Query Type: 8, Cross-version structured queries
+#  Query Description : 
+#  Retreive all creative works, of a specific type from set of specific versions, that are tagged with a topic and order 
+#  them by creation date. The size of the resultset is limited by a random number between 5 and 20.
+
+#  Query Answering Choke Points : 
+#    - Optimizer could consider the possibility to choose a query plan that would facilitate the ordering (ORDER BY) of result
+
+PREFIX cwork:<http://www.bbc.co.uk/ontologies/creativework/> 
+
+SELECT DISTINCT ?creativeWork 
+FROM {{{graphVi}}}
+{{{fromIntermediateVersionsClauses}}}
+FROM {{{graphVj}}}
+WHERE {
+      ?creativeWork cwork:about {{{cwAboutUri}}} ;
+	  cwork:dateCreated ?created ;
+	  cwork:primaryFormat {{{cwFormat}}} ;    
+	  a {{{cwType}}} .
+}
+ORDER BY DESC(?created)
+LIMIT {{{randomLimit}}}

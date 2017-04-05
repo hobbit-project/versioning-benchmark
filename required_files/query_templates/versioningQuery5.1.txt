@@ -1,0 +1,15 @@
+#  Query Name : query5
+#  Query Type: 5, Delta materialization
+#  Query Description : 
+#  Retreive the differences between two given versions. 
+
+SELECT * WHERE { 
+{ 
+   SELECT * WHERE { 
+      GRAPH {{{graphVx}}} { ?s ?p ?o } 
+      MINUS { GRAPH {{{graphVyExcludeVx}}} { ?s ?p ?o } } }
+} UNION { 
+   SELECT * WHERE { 
+      GRAPH {{{graphVyExcludeVx}}} { ?s ?p ?o } 
+      MINUS { GRAPH {{{graphVx}}} { ?s ?p ?o } } }
+} }

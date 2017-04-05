@@ -1,0 +1,22 @@
+#  Query Name : query7
+#  Query Type: 7, Cross-delta structured queries (queries performed on changes of several versions (multiple deltas))
+#  Query Description : 
+#  Retrieve the average number of added News Items from one version to another between versions Vi and Vj.
+
+PREFIX cwork:<http://www.bbc.co.uk/ontologies/creativework/> 
+
+SELECT ((?ViPlus1_news_items_added + {{{intermediateCounts}}} ?Vj_news_items_added) / {{{graphsRange}}} AS ?avg_added_news_items)
+WHERE {
+{ 
+   SELECT (COUNT(*) AS ?ViPlus1_news_items_added )
+   WHERE { 
+   	GRAPH {{{graphViPlus1}}} { ?creativeWork a cwork:NewsItem } 
+   	MINUS { GRAPH {{{graphVi}}} { ?creativeWork a cwork:NewsItem } } }
+} . 
+{{{nestedSelectNewsItemsCount}}}
+{ 
+   SELECT (COUNT(*) AS ?Vj_news_items_added)
+   WHERE { 
+   	GRAPH {{{graphVj}}} { ?creativeWork a cwork:NewsItem } 
+   	MINUS { GRAPH {{{graphVjMinus1}}} { ?creativeWork a cwork:NewsItem } } }
+} . }

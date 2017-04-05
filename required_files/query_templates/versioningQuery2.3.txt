@@ -1,0 +1,21 @@
+#  Query name : query2.3
+#  Query Type: 2, Modern single-version structured query
+#  Query Description : 
+#  Retreive all creative works, of a specific type from the current version, that are tagged with a topic and order 
+#  them by creation date. The size of the resultset is limited by a random number between 5 and 20.
+
+#  Query Answering Choke Points : 
+#    - Optimizer could consider the possibility to choose a query plan that would facilitate the ordering (ORDER BY) of result
+
+PREFIX cwork:<http://www.bbc.co.uk/ontologies/creativework/> 
+
+SELECT DISTINCT ?creativeWork 
+FROM {{{graphVmax}}}
+WHERE {
+      ?creativeWork cwork:about {{{cwAboutUri}}} ;
+	  cwork:dateCreated ?created ;
+	  cwork:primaryFormat {{{cwFormat}}} ;    
+	  a {{{cwType}}} .
+}
+ORDER BY DESC(?created)
+LIMIT {{{randomLimit}}}
