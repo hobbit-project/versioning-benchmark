@@ -18,6 +18,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "versioning_task-generator";
 	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "versioning_evaluation-module";
 
+	
 	@Override
 	public void init() throws Exception {
         LOGGER.info("Initilalizing Benchmark Controller...");
