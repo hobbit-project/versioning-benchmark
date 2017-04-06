@@ -50,22 +50,14 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	 */
 	public void receiveGeneratedData(byte[] data) {
 		
-		ByteArrayInputStream bis = new ByteArrayInputStream(data);
-
-		// get the received file name
-		int fileNameLength = bis.read();
-		byte[] fileNameBytes = new byte[fileNameLength];
-		bis.read(fileNameBytes, 0, fileNameLength);
-
-		// get the received file content
-		int contentLength = bis.available();
-		byte[] fileContentBytes = new byte[contentLength];
-		bis.read(fileContentBytes, 0, contentLength);
-
+		ByteBuffer dataBuffer = ByteBuffer.wrap(data);
+		// read the file path
+		String receivedFilePath = RabbitMQUtils.readString(dataBuffer);
+		// read the file contents
+		byte[] fileContentBytes = RabbitMQUtils.readByteArray(dataBuffer);
+		
 		FileOutputStream fos = null;
 		try {
-			String receivedFilePath = new String(fileNameBytes);
-
 			File outputFile = new File(receivedFilePath);
 			fos = FileUtils.openOutputStream(outputFile, false);
 			IOUtils.write(fileContentBytes, fos);
@@ -75,7 +67,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			int lines = 0;
 			while (reader.readLine() != null) lines++;
 			reader.close();
-			LOGGER.info(receivedFilePath + " of size " + new File(receivedFilePath).length() + " received from Data Generator with " + lines + " lines.");
+			LOGGER.info(receivedFilePath + " (" + (double) new File(receivedFilePath).length() / 1000 + " KB) received from Data Generator with " + lines + " lines.");
 
 		} catch (FileNotFoundException e) {
 			LOGGER.error("Exception while creating/opening files to write received data.", e);

@@ -28,6 +28,7 @@ import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.core.components.AbstractDataGenerator;
+import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -621,22 +622,20 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		List<File> files = new ArrayList<File>(ontologiesFiles);
 		files.addAll(dataFiles);
 		
-		ByteArrayOutputStream dataBos = null;		
         try {
         	// send the ontologies to system adapter
         	// send generated data to system adapter
         	// all data have to be sent before sending the first query to system adapter
         	for (File file : files) {
-        		byte[] fileNameBytes = file.getAbsolutePath().getBytes();
-        		byte[] fileContentBytes = FileUtils.readFileToByteArray(file);
-
-        		dataBos = new ByteArrayOutputStream();
-        		dataBos.write(fileNameBytes.length);
-        		dataBos.write(fileNameBytes);
-        		dataBos.write(fileContentBytes);
-        		                
-                sendDataToSystemAdapter(dataBos.toByteArray());
-    			LOGGER.info(file.getAbsolutePath() + " sent to System Adapter (size: " + (double) file.length() / 1000 + " KB");
+        		byte[][] generatedFileArray = new byte[2][];
+        		// send the file name and its content
+        		generatedFileArray[0] = RabbitMQUtils.writeString(file.getAbsolutePath());
+        		generatedFileArray[1] = FileUtils.readFileToByteArray(file);
+        		// convert them to byte[]
+        		byte[] generatedFile = RabbitMQUtils.writeByteArrays(generatedFileArray);
+        		// send data to system
+                sendDataToSystemAdapter(generatedFile);
+    			LOGGER.info(file.getAbsolutePath() + " (" + (double) file.length() / 1000 + " KB) sent to System Adapter.");
         	}
         	LOGGER.info("All ontologies and generated data successfully sent to System Adapter.");
         	
