@@ -264,34 +264,38 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		for (Task task : tasks) {
 			String taskId = task.getTaskId();
 			String taskQuery = task.getQuery();
-			String ingestionPattern = "Version \\d+, Ingestion task";
+			String taskType = task.getTaskType();
+			
 			long queryStart = 0;
 			long queryEnd = 0;
 			ResultSet results = null;
 			
+			switch(Integer.parseInt(taskType)) {
+			// ingestion task
 			// compute the number of triples that expected to be loaded.
-			if(taskQuery.matches(ingestionPattern)) {
+			case 1:
 				int version = Integer.parseInt(taskQuery.substring(8, taskQuery.indexOf(",")));
 				String sparqlQueryString = ""
 						+ "SELECT (COUNT(*) AS ?cnt) "
 						+ "FROM <http://graph.version." + version + "> "
 						+ "WHERE { ?s ?p ?o }";
-				Query query = QueryFactory.create(sparqlQueryString);
-				QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", query);
-				results = qexec.execSelect();
+				Query countQuery = QueryFactory.create(sparqlQueryString);
+				QueryExecution cQexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", countQuery);
+				queryStart = System.currentTimeMillis();
+				results = cQexec.execSelect();
+				queryEnd = System.currentTimeMillis();
 				if(results.hasNext()) {
 					String triplesToBeInserted = results.next().get("cnt").toString();
 					task.setExpectedAnswers(triplesToBeInserted.getBytes());
 					tasks.set(Integer.parseInt(taskId), task);
 					LOGGER.info("Ingestion task " + taskId + " triples : " + triplesToBeInserted);
-
 				}
-
-			// skip the storage space task	
-			} else if(taskQuery.matches("Storage space task")) {
+				break;
+			// skip the storage space task
+			case 2:
 				continue;
-			// continue to SPARQL tasks	
-			} else {
+			// query performance task
+			case 3:
 				// for query types query1 and query3, that refer to entire versions, we don't
 				// evaluate the query due to extra time cost and expected answer length, but we 
 				// send the number of expected results
@@ -299,20 +303,22 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 						taskQuery.contains("#  Query Name : query3")) {
 					taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
 				}
-
+				
 				// execute the query on top of virtuoso to compute the expected answers
 				Query query = QueryFactory.create(taskQuery);
 				QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", query);
 				queryStart = System.currentTimeMillis();
 				results = qexec.execSelect();
+				queryEnd = System.currentTimeMillis();
+
 				// update the task by setting its expected results
 				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 				ResultSetFormatter.outputAsJSON(outputStream, results);
 				task.setExpectedAnswers(outputStream.toByteArray());
 				tasks.set(Integer.parseInt(taskId), task);
-				queryEnd = System.currentTimeMillis();
+				break;
 			}
-			
+						
 			// TODO: for debugging purposes, delete it
 			File expectedAnswersFile = new File(System.getProperty("user.dir") + File.separator + "expected_answers" + File.separator + "task" + taskId + "_results.json");
 			FileOutputStream fos = null;
