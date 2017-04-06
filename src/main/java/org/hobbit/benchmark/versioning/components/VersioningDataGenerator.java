@@ -270,23 +270,29 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			long queryEnd = 0;
 			ResultSet results = null;
 			
+			byte[][] expectedAnswers = null;
+					
 			switch(Integer.parseInt(taskType)) {
 			// ingestion task
-			// compute the number of triples that expected to be loaded.
+			// compute the number of triples that expected to be loaded by the system.
 			case 1:
 				int version = Integer.parseInt(taskQuery.substring(8, taskQuery.indexOf(",")));
 				String sparqlQueryString = ""
 						+ "SELECT (COUNT(*) AS ?cnt) "
 						+ "FROM <http://graph.version." + version + "> "
 						+ "WHERE { ?s ?p ?o }";
+				
 				Query countQuery = QueryFactory.create(sparqlQueryString);
 				QueryExecution cQexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", countQuery);
 				queryStart = System.currentTimeMillis();
 				results = cQexec.execSelect();
 				queryEnd = System.currentTimeMillis();
+				
 				if(results.hasNext()) {
 					String triplesToBeInserted = results.next().get("cnt").toString();
-					task.setExpectedAnswers(triplesToBeInserted.getBytes());
+					expectedAnswers = new byte[1][];
+					expectedAnswers[0] = RabbitMQUtils.writeString(triplesToBeInserted);
+					task.setExpectedAnswers(RabbitMQUtils.writeByteArrays(expectedAnswers));
 					tasks.set(Integer.parseInt(taskId), task);
 					LOGGER.info("Ingestion task " + taskId + " triples : " + triplesToBeInserted);
 				}
@@ -298,7 +304,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			case 3:
 				// for query types query1 and query3, that refer to entire versions, we don't
 				// evaluate the query due to extra time cost and expected answer length, but we 
-				// send the number of expected results
+				// only send the number of expected results
 				if(taskQuery.contains("#  Query Name : query1") ||
 						taskQuery.contains("#  Query Name : query3")) {
 					taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
@@ -311,10 +317,16 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				results = qexec.execSelect();
 				queryEnd = System.currentTimeMillis();
 
+				// track the number of expected answers, as long as the answers themselves
+				expectedAnswers = new byte[2][];
+				
 				// update the task by setting its expected results
 				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 				ResultSetFormatter.outputAsJSON(outputStream, results);
-				task.setExpectedAnswers(outputStream.toByteArray());
+				expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(results.getRowNumber()));
+				expectedAnswers[1] = outputStream.toByteArray();
+
+				task.setExpectedAnswers(RabbitMQUtils.writeByteArrays(expectedAnswers));
 				tasks.set(Integer.parseInt(taskId), task);
 				break;
 			}
