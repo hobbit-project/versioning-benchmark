@@ -117,7 +117,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 
 				resultsArray = new byte[3][];
 				resultsArray[0] = RabbitMQUtils.writeString(taskType);
-				resultsArray[0] = RabbitMQUtils.writeString(loadedTriples);
+				resultsArray[1] = RabbitMQUtils.writeString(loadedTriples);
 				resultsArray[2] = RabbitMQUtils.writeLong(loadingTime);
 				break;
 			case 2:
@@ -146,9 +146,9 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				
 				resultsArray = new byte[4][];
 				resultsArray[0] = RabbitMQUtils.writeString(taskType);
-				resultsArray[0] = RabbitMQUtils.writeString(queryType);
+				resultsArray[1] = RabbitMQUtils.writeString(queryType);
 				resultsArray[2] = RabbitMQUtils.writeLong(excecutionTime);
-				resultsArray[2] = queryResponseBos.toByteArray();
+				resultsArray[3] = queryResponseBos.toByteArray();
 				break;
 		}
 		
