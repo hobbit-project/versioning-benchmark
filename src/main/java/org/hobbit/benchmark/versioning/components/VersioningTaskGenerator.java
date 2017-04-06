@@ -1,7 +1,6 @@
 package org.hobbit.benchmark.versioning.components;
 
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
+import java.io.IOException;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.hobbit.benchmark.versioning.Task;
@@ -9,8 +8,6 @@ import org.hobbit.core.components.AbstractTaskGenerator;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import eu.ldbc.semanticpublishing.util.RdfUtils;
 
 public class VersioningTaskGenerator extends AbstractTaskGenerator {
 	
@@ -63,5 +60,12 @@ public class VersioningTaskGenerator extends AbstractTaskGenerator {
 	    } catch (Exception e) {
 			LOGGER.error("Exception caught while reading the tasks and their expected answers", e);
 		}
+	}
+	
+	@Override
+    public void close() throws IOException {
+		LOGGER.info("Closign Task Generator...");
+		super.close();
+		LOGGER.info("Task Genererator closed successfully.");
 	}
 }

@@ -62,11 +62,9 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	/**
      * A generic method for loading parameters from the benchmark parameter model
      * 
-     * @param property
-     *            the property that we want to load
-     * @param defaultValue
-     *            the default value that will be used in case of an error while
-     *            loading the property
+     * @param property		the property that we want to load
+     * @param defaultValue	the default value that will be used in case of an error while loading the property
+     * @return				the value of requested parameter
      */
 	@SuppressWarnings("unchecked")
 	private <T> T getProperty(String property, T defaultValue) {
