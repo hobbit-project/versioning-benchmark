@@ -136,11 +136,12 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
 				ResultSetFormatter.outputAsJSON(queryResponseBos, results);
 				
-				resultsArray = new byte[4][];
+				resultsArray = new byte[5][];
 				resultsArray[0] = RabbitMQUtils.writeString(taskType);
 				resultsArray[1] = RabbitMQUtils.writeString(queryType);
 				resultsArray[2] = RabbitMQUtils.writeLong(excecutionTime);
-				resultsArray[3] = queryResponseBos.toByteArray();
+				resultsArray[3] = RabbitMQUtils.writeString(Integer.toString(results.getRowNumber()));
+				resultsArray[4] = queryResponseBos.toByteArray();
 				break;
 		}
 		

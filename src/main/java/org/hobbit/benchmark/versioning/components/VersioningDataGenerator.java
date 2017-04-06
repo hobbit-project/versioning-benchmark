@@ -289,9 +289,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				queryEnd = System.currentTimeMillis();
 				
 				if(results.hasNext()) {
-					String triplesToBeInserted = results.next().get("cnt").toString();
-					expectedAnswers = new byte[1][];
-					expectedAnswers[0] = RabbitMQUtils.writeString(triplesToBeInserted);
+					int triplesToBeInserted = results.next().getLiteral("cnt").getInt();
+					expectedAnswers = new byte[2][];
+					expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(version));
+					expectedAnswers[1] = RabbitMQUtils.writeString(Integer.toString(triplesToBeInserted));
 					task.setExpectedAnswers(RabbitMQUtils.writeByteArrays(expectedAnswers));
 					tasks.set(Integer.parseInt(taskId), task);
 					LOGGER.info("Ingestion task " + taskId + " triples : " + triplesToBeInserted);
