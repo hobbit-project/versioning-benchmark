@@ -37,8 +37,11 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		
 	private static final Logger LOGGER = LoggerFactory.getLogger(VirtuosoSystemAdapter.class);
 
-	private String serializationFormat = "n-triples";
-	
+	// must match the "Generated data format" property given when starting the experiment
+	private String generatedDataFormat = "n-triples";
+	// must match the "Generated data directory" property given when starting the experiment
+	private String generatedDataDir = "data";
+
 	@Override
     public void init() throws Exception {
 		LOGGER.info("Initializing virtuoso test system...");
@@ -170,7 +173,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		String loadedTriples = null;
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "virtuoso_system_load_triples.sh";
-			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(serializationFormat), Integer.toString(versionNum)};
+			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(generatedDataFormat), Integer.toString(versionNum), "/versioning/" + generatedDataDir};
 			Process p = new ProcessBuilder(command).redirectErrorStream(true).start();
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
