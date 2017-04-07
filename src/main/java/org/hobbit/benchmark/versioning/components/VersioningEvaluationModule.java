@@ -54,15 +54,34 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 	private double avgAppliedChangesPS = 0;
 	private double totalAppliedChangesPS = 0;
 	private double storageCost = 0;
-	private double queryType1AvgExecTime;
-	private double queryType2AvgExecTime;
-	private double queryType3AvgExecTime;
-	private double queryType4AvgExecTime;
-	private double queryType5AvgExecTime;
-	private double queryType6AvgExecTime;
-	private double queryType7AvgExecTime;
-	private double queryType8AvgExecTime;
+	private double queryType1AvgExecTime = 0;
+	private double queryType2AvgExecTime = 0;
+	private double queryType3AvgExecTime = 0;
+	private double queryType4AvgExecTime = 0;
+	private double queryType5AvgExecTime = 0;
+	private double queryType6AvgExecTime = 0;
+	private double queryType7AvgExecTime = 0;
+	private double queryType8AvgExecTime = 0;
 	
+	private long queryType1Sum = 0;
+	private long queryType2Sum = 0;
+	private long queryType3Sum = 0;
+	private long queryType4Sum = 0;
+	private long queryType5Sum = 0;
+	private long queryType6Sum = 0;
+	private long queryType7Sum = 0;
+	private long queryType8Sum = 0;
+	
+	
+	private int queryType1Count = 0;
+	private int queryType2Count = 0;
+	private int queryType3Count = 0;
+	private int queryType4Count = 0;
+	private int queryType5Count = 0;
+	private int queryType6Count = 0;
+	private int queryType7Count = 0;
+	private int queryType8Count = 0;
+
 	@Override
     public void init() throws Exception {
         // Always init the super class first!
@@ -169,17 +188,41 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						RabbitMQUtils.readString(receivedBuffer).getBytes(StandardCharsets.UTF_8));
 //				ResultSet received = ResultSetFactory.fromJSON(inReceived);
 				
-//				switch (queryType) {
-//					case 1:	
-//						
-//					case 2:	
-//					case 3:	
-//					case 4:	
-//					case 5:	
-//					case 6:	
-//					case 7:	
-//					case 8:	
-//				}
+				// TODO check for results completness
+				switch (queryType) {
+					case 1:
+						queryType1Sum += execTime;
+						queryType1AvgExecTime = queryType1Sum / ++queryType1Count;
+						break;
+					case 2:	
+						queryType2Sum += execTime;
+						queryType2AvgExecTime = queryType2Sum / ++queryType2Count;
+						break;
+					case 3:	
+						queryType3Sum += execTime;
+						queryType3AvgExecTime = queryType3Sum / ++queryType3Count;
+						break;
+					case 4:	
+						queryType4Sum += execTime;
+						queryType4AvgExecTime = queryType4Sum / ++queryType4Count;
+						break;
+					case 5:	
+						queryType5Sum += execTime;
+						queryType5AvgExecTime = queryType5Sum / ++queryType5Count;
+						break;
+					case 6:	
+						queryType6Sum += execTime;
+						queryType6AvgExecTime = queryType6Sum / ++queryType6Count;
+						break;
+					case 7:	
+						queryType7Sum += execTime;
+						queryType7AvgExecTime = queryType7Sum / ++queryType7Count;
+						break;
+					case 8:	
+						queryType8Sum += execTime;
+						queryType8AvgExecTime = queryType8Sum / ++queryType8Count;
+						break;
+				}
 				LOGGER.info("Query task of type: " + queryType + " executed in " + execTime + " ms and returned " + resultRowCount + "/" + expectedResultsNum + "results.");
 
 				break;
