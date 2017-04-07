@@ -15,20 +15,22 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator";
 	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule";
 	
+    private String[] envVariablesEvaluationModule = null;
+
 	@Override
 	public void init() throws Exception {
         LOGGER.info("Initilalizing Benchmark Controller...");
 		super.init();
         
-		int numberOfDataGenerators = (Integer) getProperty("http://example.org/hasNumberOfGenerators", 1);
-		int datasetSize =  (Integer) getProperty("http://example.org/datasetSizeInTriples", 1000000);
-		int generatorSeed =  (Integer) getProperty("http://example.org/generatorSeed", 0);
-		int numOfVersions =  (Integer) getProperty("http://example.org/numberOfVersions", 12);
-		int seedYear =  (Integer) getProperty("http://example.org/seedYear", 2010);
-		int dataGenInYears =  (Integer) getProperty("http://example.org/generationPeriodInYears", 1);
-		String generatedDataDir = (String) getProperty("http://example.org/generatedDataDir", "generated");
-		String serializationFormat = (String) getProperty("http://example.org/generatedDataFormat", "n-triples");
-		int subsParametersAmount = (Integer) getProperty("http://example.org/querySubstitutionParameters", 10);
+		int numberOfDataGenerators = (Integer) getProperty("http://w3id.org/bench#hasNumberOfGenerators", 1);
+		int datasetSize =  (Integer) getProperty("http://w3id.org/bench#datasetSizeInTriples", 1000000);
+		int generatorSeed =  (Integer) getProperty("http://w3id.org/bench#generatorSeed", 0);
+		int numOfVersions =  (Integer) getProperty("http://w3id.org/bench#numberOfVersions", 12);
+		int seedYear =  (Integer) getProperty("http://w3id.org/bench#seedYear", 2010);
+		int dataGenInYears =  (Integer) getProperty("http://w3id.org/bench#generationPeriodInYears", 1);
+		String generatedDataDir = (String) getProperty("http://w3id.org/bench#generatedDataDir", "generated");
+		String serializationFormat = (String) getProperty("http://w3id.org/bench#generatedDataFormat", "n-triples");
+		int subsParametersAmount = (Integer) getProperty("http://w3id.org/bench#querySubstitutionParameters", 10);
 		
 		// data generators environmental values
 		String[] envVariablesDataGenerator = new String[] {
@@ -41,6 +43,21 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 				VersioningConstants.GENERATED_DATA_DIR + "=" + generatedDataDir,
 				VersioningConstants.GENERATED_DATA_FORMAT + "=" + serializationFormat,
 				VersioningConstants.SUBSTITUTION_PARAMETERS_AMOUNT  + "=" + subsParametersAmount
+		};
+		
+		// evaluation module environmental values
+		envVariablesEvaluationModule = new String[] {
+				VersioningConstants.INITIAL_VERSION_INGESTION_SPEED + "=" + "http://w3id.org/bench#initialVersionIngestionSpeed",
+				VersioningConstants.AVG_APPLIED_CHANGES_PS + "=" + "http://w3id.org/bench#avgAppliedChangesPS",
+				VersioningConstants.STORAGE_COST + "=" + "http://w3id.org/bench#storageCost",
+				VersioningConstants.QT_1_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType1AvgExecTime",
+				VersioningConstants.QT_2_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType2AvgExecTime",
+				VersioningConstants.QT_3_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType3AvgExecTime",
+				VersioningConstants.QT_4_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType4AvgExecTime",
+				VersioningConstants.QT_5_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType5AvgExecTime",
+				VersioningConstants.QT_6_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType6AvgExecTime",
+				VersioningConstants.QT_7_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType7AvgExecTime",
+				VersioningConstants.QT_8_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType8AvgExecTime"
 		};
 		
 		// Create data generators
@@ -123,7 +140,6 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         LOGGER.info("System terminated.");
         
         // create the evaluation module
-        String[] envVariablesEvaluationModule = new String[] { };
         createEvaluationModule(EVALUATION_MODULE_CONTAINER_IMAGE, envVariablesEvaluationModule);
         
         // wait for the evaluation to finish
