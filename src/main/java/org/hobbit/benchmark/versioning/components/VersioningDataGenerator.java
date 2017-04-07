@@ -535,12 +535,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	/**
      * A generic method for initialize benchmark parameters from environment variables
      * 
-     * @param env
-     *            a map of all available environment variables
-     * @param parameter
-     *            the property that we want to get
-     * @param paramType
-     *            a dummy parameter to recognize property's type
+     * @param env		a map of all available environment variables
+     * @param parameter	the property that we want to get
+     * @param paramType	a dummy parameter to recognize property's type
      */
 	@SuppressWarnings("unchecked")
 	private <T> T getFromEnv(Map<String, String> env, String parameter, T paramType) {
