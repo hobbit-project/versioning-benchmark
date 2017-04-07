@@ -4,7 +4,6 @@
 package org.hobbit.benchmark.versioning.systems;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,7 +12,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -37,9 +35,9 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		
 	private static final Logger LOGGER = LoggerFactory.getLogger(VirtuosoSystemAdapter.class);
 
-	// must match the "Generated data format" property given when starting the experiment
+	// must match the "Generated data format" parameter given when starting the experiment
 	private String generatedDataFormat = "n-triples";
-	// must match the "Generated data directory" property given when starting the experiment
+	// must match the "Generated data directory" parameter given when starting the experiment
 	private String generatedDataDir = "data";
 
 	@Override
