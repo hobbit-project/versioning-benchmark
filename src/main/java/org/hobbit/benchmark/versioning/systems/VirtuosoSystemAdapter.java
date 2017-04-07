@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -107,6 +108,9 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				long loadingTime = loadEnd - loadStart;
 				LOGGER.info("Version " + version + " loaded successfully in "+ loadingTime + " ms.");
 
+				// TODO 
+				// in v2.0 of the benchmark the number of changes should be reported instead of 
+				// loaded triples, as we will also have deletions except of additions of triples
 				resultsArray = new byte[3][];
 				resultsArray[0] = RabbitMQUtils.writeString(taskType);
 				resultsArray[1] = RabbitMQUtils.writeString(loadedTriples);
@@ -160,6 +164,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	}
 	
 	// returns the number of loaded triples to check if all version's triples loaded successfully.
+	// have to return the total number of changes with respect to previous version in v2.0 of the benchmark 
 	private String loadVersion(int versionNum) {
 		LOGGER.info("Loading version " + versionNum + "...");
 		String loadedTriples = null;
