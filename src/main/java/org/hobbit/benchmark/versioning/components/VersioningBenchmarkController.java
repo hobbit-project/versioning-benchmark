@@ -28,7 +28,6 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		int numOfVersions =  (Integer) getProperty("http://w3id.org/bench#numberOfVersions", 12);
 		int seedYear =  (Integer) getProperty("http://w3id.org/bench#seedYear", 2010);
 		int dataGenInYears =  (Integer) getProperty("http://w3id.org/bench#generationPeriodInYears", 1);
-		String generatedDataDir = (String) getProperty("http://w3id.org/bench#generatedDataDir", "generated");
 		String serializationFormat = (String) getProperty("http://w3id.org/bench#generatedDataFormat", "n-triples");
 		int subsParametersAmount = (Integer) getProperty("http://w3id.org/bench#querySubstitutionParameters", 10);
 		
@@ -40,7 +39,6 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 				VersioningConstants.NUMBER_OF_VERSIONS + "=" + numOfVersions,
 				VersioningConstants.SEED_YEAR + "=" + seedYear,
 				VersioningConstants.GENERATION_PERIOD_IN_YEARS + "=" + dataGenInYears,
-				VersioningConstants.GENERATED_DATA_DIR + "=" + generatedDataDir,
 				VersioningConstants.GENERATED_DATA_FORMAT + "=" + serializationFormat,
 				VersioningConstants.SUBSTITUTION_PARAMETERS_AMOUNT  + "=" + subsParametersAmount
 		};
