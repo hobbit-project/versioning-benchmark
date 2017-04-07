@@ -30,9 +30,7 @@ public final class VersioningConstants {
 	public static final String GENERATED_DATA_FORMAT = "generated_data_format";
 	
 	public static final String NUMBER_OF_VERSIONS = "number_of_versions";
-	
-	public static final String GENERATED_DATA_DIR = "generated_data_dir";
-	
+		
 	public static final String CREATIVE_WORKS_INFO = "creative_works_info";
 	
 	public static final String MAX_GENERATED_TRIPLES_PER_FILE = "max_generated_triples_per_file";

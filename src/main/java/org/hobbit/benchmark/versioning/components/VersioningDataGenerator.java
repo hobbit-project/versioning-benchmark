@@ -82,7 +82,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int generorPeriodYears;
 	private int subGeneratorSeed;
 	private int subsParametersAmount;
-	private String generatedDatasetPath;
+	private String generatedDatasetPath = "/versioning/data";
+	private String ontologiesPath = "/versioning/ontologies";
 	private String serializationFormat;
 	private int taskId = 0;
 	
@@ -306,8 +307,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				// for query types query1 and query3, that refer to entire versions, we don't
 				// evaluate the query due to extra time cost and expected answer length, but we 
 				// only send the number of expected results
-				if(taskQuery.contains("#  Query Name : query1") ||
-						taskQuery.contains("#  Query Name : query3")) {
+				if(taskQuery.startsWith("#  Query Name : query1") ||
+						taskQuery.startsWith("#  Query Name : query3")) {
 					taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
 				}
 				
@@ -573,7 +574,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		subGeneratorSeed = (Integer) getFromEnv(env, VersioningConstants.DATA_GENERATOR_SEED, 0) + getGeneratorId();
 		seedYear = (Integer) getFromEnv(env, VersioningConstants.SEED_YEAR, 0);
 		generorPeriodYears = (Integer) getFromEnv(env, VersioningConstants.GENERATION_PERIOD_IN_YEARS, 0);
-		generatedDatasetPath = System.getProperty("user.dir") + File.separator + (String) getFromEnv(env, VersioningConstants.GENERATED_DATA_DIR, "");
 		serializationFormat = (String) getFromEnv(env, VersioningConstants.GENERATED_DATA_FORMAT, "");
 		subsParametersAmount = (Integer) getFromEnv(env, VersioningConstants.SUBSTITUTION_PARAMETERS_AMOUNT, 0);
 	}	
@@ -628,8 +628,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	// to the appropriate components.
 	protected void generateData() throws Exception {
 		
-		File ontologiesPath = new File("/versioning/ontologies");
-		List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPath, new String[] { "ttl" }, true);
+		File ontologiesPathFile = new File(ontologiesPath);
+		List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "ttl" }, true);
 
 		File dataPath = new File(generatedDatasetPath);
 		String[] extensions = new String[] { RDFUtils.getFileExtensionFromRdfFormat(serializationFormat) };

@@ -37,8 +37,6 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 
 	// must match the "Generated data format" parameter given when starting the experiment
 	private String generatedDataFormat = "n-triples";
-	// must match the "Generated data directory" parameter given when starting the experiment
-	private String generatedDataDir = "data";
 
 	@Override
     public void init() throws Exception {
@@ -171,7 +169,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		String loadedTriples = null;
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "virtuoso_system_load_triples.sh";
-			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(generatedDataFormat), Integer.toString(versionNum), "/versioning/" + generatedDataDir};
+			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(generatedDataFormat), Integer.toString(versionNum) };
 			Process p = new ProcessBuilder(command).redirectErrorStream(true).start();
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
