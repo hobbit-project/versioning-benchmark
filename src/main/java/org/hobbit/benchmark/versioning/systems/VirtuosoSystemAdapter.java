@@ -113,7 +113,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				resultsArray = new byte[3][];
 				resultsArray[0] = RabbitMQUtils.writeString(taskType);
 				resultsArray[1] = RabbitMQUtils.writeString(loadedTriples);
-				resultsArray[2] = RabbitMQUtils.writeLong(loadingTime);
+				resultsArray[2] = RabbitMQUtils.writeString(Long.toString(loadingTime));
 				break;
 			case 2:
 				// get the storage space required for all versions to be stored in virtuoso
@@ -123,7 +123,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 
 				resultsArray = new byte[2][];
 				resultsArray[0] = RabbitMQUtils.writeString(taskType);
-				resultsArray[1] = RabbitMQUtils.writeLong(storageSpaceCost);
+				resultsArray[1] = RabbitMQUtils.writeString(Long.toString(storageSpaceCost));
 				break;
 			case 3:
 				String queryType = queryText.substring(21, 22);
@@ -142,7 +142,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				resultsArray = new byte[5][];
 				resultsArray[0] = RabbitMQUtils.writeString(taskType);
 				resultsArray[1] = RabbitMQUtils.writeString(queryType);
-				resultsArray[2] = RabbitMQUtils.writeLong(excecutionTime);
+				resultsArray[2] = RabbitMQUtils.writeString(Long.toString(excecutionTime));
 				resultsArray[3] = RabbitMQUtils.writeString(Integer.toString(results.getRowNumber()));
 				resultsArray[4] = queryResponseBos.toByteArray();
 				break;
@@ -174,7 +174,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
 			while ((line = in.readLine()) != null) {
-				if(line.matches("loaded triples ")) {
+				if(line.startsWith("loaded triples ")) {
 					loadedTriples = line.substring(15);
 					continue;
 				}
@@ -201,4 +201,19 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 
     }
 
+//	@Override
+//    public void close() throws IOException {
+//		LOGGER.info("Closing System Adapter...");
+//		try {
+//			Thread.sleep(1000 * 60 * 2);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//        // Always close the super class after yours!
+//        super.close();
+//        //
+//		LOGGER.info("System Adapter closed successfully.");
+//
+//    }
 }
