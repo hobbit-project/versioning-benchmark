@@ -72,5 +72,6 @@ end_size=$(($(date +%s%N)/1000000))
 loadingtime=$(($end_size - $start_load))
 sizetime=$(($end_size - $start_size))
 
+echo "loaded triples "$result
 echo $(echo $result | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') "triples loaded to graph <"$GRAPH_NAME$VERSION_NUMBER">, using" $rdf_loaders "rdf loaders, for version v"$VERSION_NUMBER". Time :" $loadingtime "ms"
 
