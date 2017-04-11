@@ -7,34 +7,6 @@ ONTOLOGIES_PATH=/versioning/ontologies/
 SERIALIZATION_FORMAT=$1
 VERSION_NUMBER=$2
 
-<<COMMENT1
-# wait until loading tasks of previous versions have completed
-previous_version=$((VERSION_NUMBER-1))
-echo "previous version: "$previous_version
-
-while true 
-do
-   echo "mpike sto while true"
-   if [ $previous_version -lt 0 ]; then
-      echo "itan to prwto version, ekane break"
-      break
-   fi
-
-   echo "itan epomeno version"
-   previous_existing_tasks=$($VIRTUOSO_BIN/isql-v 1111 dba dba exec="select count(*) from load_list where ll_graph = 'http://graph.version."$previous_version"';" | sed -n 9p)
-   previous_finished_tasks=$($VIRTUOSO_BIN/isql-v 1111 dba dba exec="select count(*) from load_list where ll_state = 2 and ll_graph = 'http://graph.version."$previous_version"';" | sed -n 9p)
-
-   if [ "$revious_existing_tasks" = "$previous_finished_tasks" ]; then 
-      echo "DEN einai idia: previous_existing_tasks: "$previous_existing_tasks" previous_finished_tasks: "$previous_finished_tasks
-      sleep 1
-      previous_finished_tasks=$($VIRTUOSO_BIN/isql-v 1111 dba dba exec="select count(*) from load_list where ll_state = 2 and ll_graph = 'http://graph.version."$previous_version"';" | sed -n 9p)
-   else
-      echo "EINAI idia: previous_existing_tasks: "$previous_existing_tasks" previous_finished_tasks: "$previous_finished_tasks", ekane break"
-      break
-   fi
-done
-COMMENT1
-
 # set the recommended number of rdf loaders (total number of cores / 2.5)
 total_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
 rdf_loaders=$(awk "BEGIN {printf \"%d\", $total_cores/2.5}")
@@ -73,5 +45,6 @@ sizetime=$(($end_size - $start_size))
 # from this line system adapter gets the number of loaded triples as long the time required for loading them
 echo "triples:"$result",time:"$loadingtime
 
+# logging
 echo $(echo $result | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') "triples loaded to graph <"$GRAPH_NAME$VERSION_NUMBER">, using" $rdf_loaders "rdf loaders, for version v"$VERSION_NUMBER". Time :" $loadingtime "ms"
 
