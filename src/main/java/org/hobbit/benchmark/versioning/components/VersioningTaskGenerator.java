@@ -15,9 +15,9 @@ public class VersioningTaskGenerator extends AbstractTaskGenerator {
    		
 	@Override
     public void init() throws Exception {
-        LOGGER.info("Initializing Task Generators...");
+        LOGGER.info("Initializing Task Generator...");
 		super.init();
-        LOGGER.info("Task Generators initialized successfully.");
+        LOGGER.info("Task Generator initialized successfully.");
     }
 	
 	@Override
@@ -62,9 +62,22 @@ public class VersioningTaskGenerator extends AbstractTaskGenerator {
 		}
 	}
 	
+//	@Override
+//    public void close() throws IOException {
+//		LOGGER.info("Closign Task Generator...");
+//		super.close();
+//		LOGGER.info("Task Genererator closed successfully.");
+//	}
+	
 	@Override
     public void close() throws IOException {
 		LOGGER.info("Closign Task Generator...");
+		try {
+			Thread.sleep(1000 * 60 * 1);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		super.close();
 		LOGGER.info("Task Genererator closed successfully.");
 	}
