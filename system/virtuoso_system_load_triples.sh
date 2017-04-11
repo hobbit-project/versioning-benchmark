@@ -70,7 +70,7 @@ $VIRTUOSO_BIN/isql-v 1111 dba dba exec="checkpoint;" > /dev/null
 end_size=$(($(date +%s%N)/1000000))
 sizetime=$(($end_size - $start_size))
 
-#
+# from this line system adapter gets the number of loaded triples as long the time required for loading them
 echo "triples:"$result",time:"$loadingtime
 
 echo $(echo $result | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') "triples loaded to graph <"$GRAPH_NAME$VERSION_NUMBER">, using" $rdf_loaders "rdf loaders, for version v"$VERSION_NUMBER". Time :" $loadingtime "ms"
