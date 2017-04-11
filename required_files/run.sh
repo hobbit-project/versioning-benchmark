@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 rm virtuoso_run.log 2> /dev/null
 
