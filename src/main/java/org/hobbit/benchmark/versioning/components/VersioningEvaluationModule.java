@@ -4,9 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.rdf.model.Literal;
@@ -15,6 +13,8 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
+import org.hobbit.benchmark.versioning.IngestionStatistics;
+import org.hobbit.benchmark.versioning.QueryTypeStatistics;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractEvaluationModule;
@@ -40,43 +40,18 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
     private Property QT_6_AVG_EXEC_TIME = null;
     private Property QT_7_AVG_EXEC_TIME = null;
     private Property QT_8_AVG_EXEC_TIME = null;
-
-    private HashMap<Integer,Integer> changesPerVersion = new HashMap<Integer,Integer>(); 
     
-    private AtomicLong ingestionTasksErrors;
-    private AtomicLong storageSpaceTasksErrors;
-    private AtomicLong queryPerformanceTasksErrors;
+    private IngestionStatistics is = new IngestionStatistics();
+    private QueryTypeStatistics qts1 = new QueryTypeStatistics(1);
+    private QueryTypeStatistics qts2 = new QueryTypeStatistics(2);
+    private QueryTypeStatistics qts3 = new QueryTypeStatistics(3);
+    private QueryTypeStatistics qts4 = new QueryTypeStatistics(4);
+    private QueryTypeStatistics qts5 = new QueryTypeStatistics(5);
+    private QueryTypeStatistics qts6 = new QueryTypeStatistics(6);
+    private QueryTypeStatistics qts7 = new QueryTypeStatistics(7);
+    private QueryTypeStatistics qts8 = new QueryTypeStatistics(8);
     
-	private double initialVersionIngestionSpeed = 0;
-	private double avgAppliedChangesPS = 0;
-	private double totalAppliedChangesPS = 0;
-	private double storageCost = 0;
-	private double queryType1AvgExecTime = 0;
-	private double queryType2AvgExecTime = 0;
-	private double queryType3AvgExecTime = 0;
-	private double queryType4AvgExecTime = 0;
-	private double queryType5AvgExecTime = 0;
-	private double queryType6AvgExecTime = 0;
-	private double queryType7AvgExecTime = 0;
-	private double queryType8AvgExecTime = 0;
-	
-	private long queryType1Sum = 0;
-	private long queryType2Sum = 0;
-	private long queryType3Sum = 0;
-	private long queryType4Sum = 0;
-	private long queryType5Sum = 0;
-	private long queryType6Sum = 0;
-	private long queryType7Sum = 0;
-	private long queryType8Sum = 0;
-	
-	private int queryType1Count = 0;
-	private int queryType2Count = 0;
-	private int queryType3Count = 0;
-	private int queryType4Count = 0;
-	private int queryType5Count = 0;
-	private int queryType6Count = 0;
-	private int queryType7Count = 0;
-	private int queryType8Count = 0;
+	private float storageCost = 0;
 
 	@Override
     public void init() throws Exception {
@@ -88,7 +63,8 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         INITIAL_VERSION_INGESTION_SPEED = initFinalModelFromEnv(env, VersioningConstants.INITIAL_VERSION_INGESTION_SPEED);
         AVG_APPLIED_CHANGES_PS = initFinalModelFromEnv(env, VersioningConstants.AVG_APPLIED_CHANGES_PS);
         STORAGE_COST = initFinalModelFromEnv(env, VersioningConstants.STORAGE_COST);
-        QT_1_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_1_AVG_EXEC_TIME);
+        
+        QT_1_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_1_AVG_EXEC_TIME);        
         QT_2_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_2_AVG_EXEC_TIME);
         QT_3_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_3_AVG_EXEC_TIME);
         QT_4_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_4_AVG_EXEC_TIME);
@@ -126,34 +102,33 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		
 		// get the task type
 		String taskType = RabbitMQUtils.readString(receivedBuffer);
-				
+		LOGGER.info("TASK TYPE: "+taskType);
+
 		switch (Integer.parseInt(taskType)) {
 			case 1:
 				LOGGER.info("Evaluating response of an ingestion time task...");
 				// get the loaded version
 				int version = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
+				LOGGER.info("version: "+version);
+
 				// get the triples that had to be loaded by the system
 				int expectedLoadedTriples = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
-				
+				LOGGER.info("expectedLoadedTriples: "+expectedLoadedTriples);
+
 				// get the changes that successfully applied by the system
 				int loadedTriples = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
+				LOGGER.info("loadedTriples: "+loadedTriples);
+
 				// get the time, system requires to load the aformentioned triples
 				long loadingTime = Long.parseLong(RabbitMQUtils.readString(receivedBuffer));
-				
+				LOGGER.info("loadingTime: "+loadingTime);
+
 				if(loadedTriples != expectedLoadedTriples) {
-					LOGGER.error(String.format("Total of %,d triples exist in the database, instead "
+					is.reportFailure();
+					LOGGER.error(String.format("Total of %,d triples existed in the database, instead "
 							+ "of %,d after loading of version %d", loadedTriples, expectedLoadedTriples, version));
-					ingestionTasksErrors.incrementAndGet();
 				} else {
-					if(version == 0) {
-						changesPerVersion.put(version, loadedTriples);
-						// speed has to computed in seconds (triples/second)
-						initialVersionIngestionSpeed =  (double) loadedTriples / (loadingTime / 1000);
-					} else {
-						int currentAppliedChanges = loadedTriples - changesPerVersion.get(version - 1);
-						changesPerVersion.put(version, currentAppliedChanges);
-						totalAppliedChangesPS += (double) currentAppliedChanges / (loadingTime / 1000);
-					}
+					is.reportSuccess(version, loadedTriples, loadingTime);
 				}
 				
 				LOGGER.info("Ingestion task's response - Total triples after loading version " + version + ": " +
@@ -162,7 +137,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 			case 2:
 				LOGGER.info("Evaluating response of storage space task...");
 				// get the disk space used in KB
-				storageCost = Long.parseLong(RabbitMQUtils.readString(receivedBuffer)) / 1000;
+				storageCost = Long.parseLong(RabbitMQUtils.readString(receivedBuffer)) / 1000f;
 				LOGGER.info("Response: " + storageCost + " KB.");
 				break;
 			case 3:	
@@ -170,6 +145,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 
 				// get the expected result's row number
 				int expectedResultsNum = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
+				LOGGER.info("expectedResultsNum: "+expectedResultsNum);
 				// get the expected results
 				InputStream inExpected = new ByteArrayInputStream(
 						RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8));
@@ -177,48 +153,51 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				
 				// get the query type
 				int queryType = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
+				LOGGER.info("queryType: "+queryType);
 				// get its execution time
 				long execTime = Long.parseLong(RabbitMQUtils.readString(receivedBuffer));
+				LOGGER.info("execTime: "+execTime);
 				// get the results row count
 				int resultRowCount = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
+				LOGGER.info("resultRowCount: "+resultRowCount);
 				// get the received results
 				InputStream inReceived = new ByteArrayInputStream(
 						RabbitMQUtils.readString(receivedBuffer).getBytes(StandardCharsets.UTF_8));
 //				ResultSet received = ResultSetFactory.fromJSON(inReceived);
 				
-				// TODO check for results completness
+				// TODO extend check for completness: do not only check the number of results
 				switch (queryType) {
 					case 1:
-						queryType1Sum += execTime;
-						queryType1AvgExecTime = queryType1Sum / ++queryType1Count;
+						if(resultRowCount == expectedResultsNum) {  qts1.reportSuccess(execTime); } 
+						else { qts1.reportFailure(); }
 						break;
 					case 2:	
-						queryType2Sum += execTime;
-						queryType2AvgExecTime = queryType2Sum / ++queryType2Count;
+						if(resultRowCount == expectedResultsNum) {  qts2.reportSuccess(execTime); } 
+						else { qts2.reportFailure(); }
 						break;
 					case 3:	
-						queryType3Sum += execTime;
-						queryType3AvgExecTime = queryType3Sum / ++queryType3Count;
+						if(resultRowCount == expectedResultsNum) {  qts3.reportSuccess(execTime); } 
+						else { qts3.reportFailure(); }
 						break;
 					case 4:	
-						queryType4Sum += execTime;
-						queryType4AvgExecTime = queryType4Sum / ++queryType4Count;
+						if(resultRowCount == expectedResultsNum) {  qts4.reportSuccess(execTime); } 
+						else { qts4.reportFailure(); }
 						break;
 					case 5:	
-						queryType5Sum += execTime;
-						queryType5AvgExecTime = queryType5Sum / ++queryType5Count;
+						if(resultRowCount == expectedResultsNum) {  qts5.reportSuccess(execTime); } 
+						else { qts5.reportFailure(); }
 						break;
 					case 6:	
-						queryType6Sum += execTime;
-						queryType6AvgExecTime = queryType6Sum / ++queryType6Count;
+						if(resultRowCount == expectedResultsNum) {  qts6.reportSuccess(execTime); } 
+						else { qts6.reportFailure(); }
 						break;
 					case 7:	
-						queryType7Sum += execTime;
-						queryType7AvgExecTime = queryType7Sum / ++queryType7Count;
+						if(resultRowCount == expectedResultsNum) {  qts7.reportSuccess(execTime); } 
+						else { qts7.reportFailure(); }
 						break;
 					case 8:	
-						queryType8Sum += execTime;
-						queryType8AvgExecTime = queryType8Sum / ++queryType8Count;
+						if(resultRowCount == expectedResultsNum) {  qts8.reportSuccess(execTime); } 
+						else { qts8.reportFailure(); }
 						break;
 				}
 				LOGGER.info("Query task of type: " + queryType + " executed in " + execTime + " ms and returned " + resultRowCount + "/" + expectedResultsNum + "results.");
@@ -236,45 +215,42 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
             this.experimentUri = env.get(Constants.HOBBIT_EXPERIMENT_URI_KEY);
         }
 		
-		// compute the avgAppliedChangesPS
-		avgAppliedChangesPS = totalAppliedChangesPS / changesPerVersion.size() - 1;
-				
 		// write the summarized results into a Jena model and send it to the benchmark controller.
 		Model model = createDefaultModel();
 		Resource experimentResource = model.getResource(experimentUri);
 		model.add(experimentResource , RDF.type, HOBBIT.Experiment);
 		
-		Literal initialVersionIngestionSpeedLiteral = finalModel.createTypedLiteral(initialVersionIngestionSpeed, XSDDatatype.XSDdouble);
+		Literal initialVersionIngestionSpeedLiteral = finalModel.createTypedLiteral(is.getInitialVersionIngestionSpeed(), XSDDatatype.XSDdouble);
         finalModel.add(experimentResource, INITIAL_VERSION_INGESTION_SPEED, initialVersionIngestionSpeedLiteral);
 
-		Literal avgAppliedChangesPSLiteral = finalModel.createTypedLiteral(avgAppliedChangesPS, XSDDatatype.XSDdouble);
+		Literal avgAppliedChangesPSLiteral = finalModel.createTypedLiteral(is.getAvgChangesPS(), XSDDatatype.XSDdouble);
         finalModel.add(experimentResource, AVG_APPLIED_CHANGES_PS, avgAppliedChangesPSLiteral);
 
         Literal storageCostLiteral = finalModel.createTypedLiteral(storageCost, XSDDatatype.XSDdouble);
         finalModel.add(experimentResource, STORAGE_COST, storageCostLiteral);
 
-        Literal queryType1AvgExecTimeLiteral = finalModel.createTypedLiteral(queryType1AvgExecTime, XSDDatatype.XSDdouble);
+        Literal queryType1AvgExecTimeLiteral = finalModel.createTypedLiteral(qts1.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
         finalModel.add(experimentResource, QT_1_AVG_EXEC_TIME, queryType1AvgExecTimeLiteral);
         
-        Literal queryType2AvgExecTimeLiteral = finalModel.createTypedLiteral(queryType2AvgExecTime, XSDDatatype.XSDdouble);
+        Literal queryType2AvgExecTimeLiteral = finalModel.createTypedLiteral(qts2.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
         finalModel.add(experimentResource, QT_2_AVG_EXEC_TIME, queryType2AvgExecTimeLiteral);
         
-        Literal queryType3AvgExecTimeLiteral = finalModel.createTypedLiteral(queryType3AvgExecTime, XSDDatatype.XSDdouble);
+        Literal queryType3AvgExecTimeLiteral = finalModel.createTypedLiteral(qts3.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
         finalModel.add(experimentResource, QT_3_AVG_EXEC_TIME, queryType3AvgExecTimeLiteral);
         
-        Literal queryType4AvgExecTimeLiteral = finalModel.createTypedLiteral(queryType4AvgExecTime, XSDDatatype.XSDdouble);
+        Literal queryType4AvgExecTimeLiteral = finalModel.createTypedLiteral(qts4.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
         finalModel.add(experimentResource, QT_4_AVG_EXEC_TIME, queryType4AvgExecTimeLiteral);
         
-        Literal queryType5AvgExecTimeLiteral = finalModel.createTypedLiteral(queryType5AvgExecTime, XSDDatatype.XSDdouble);
+        Literal queryType5AvgExecTimeLiteral = finalModel.createTypedLiteral(qts5.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
         finalModel.add(experimentResource, QT_5_AVG_EXEC_TIME, queryType5AvgExecTimeLiteral);
         
-        Literal queryType6AvgExecTimeLiteral = finalModel.createTypedLiteral(queryType6AvgExecTime, XSDDatatype.XSDdouble);
+        Literal queryType6AvgExecTimeLiteral = finalModel.createTypedLiteral(qts6.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
         finalModel.add(experimentResource, QT_6_AVG_EXEC_TIME, queryType6AvgExecTimeLiteral);
         
-        Literal queryType7AvgExecTimeLiteral = finalModel.createTypedLiteral(queryType7AvgExecTime, XSDDatatype.XSDdouble);
+        Literal queryType7AvgExecTimeLiteral = finalModel.createTypedLiteral(qts7.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
         finalModel.add(experimentResource, QT_7_AVG_EXEC_TIME, queryType7AvgExecTimeLiteral);
         
-        Literal queryType8AvgExecTimeLiteral = finalModel.createTypedLiteral(queryType8AvgExecTime, XSDDatatype.XSDdouble);
+        Literal queryType8AvgExecTimeLiteral = finalModel.createTypedLiteral(qts8.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
         finalModel.add(experimentResource, QT_8_AVG_EXEC_TIME, queryType8AvgExecTimeLiteral);
         
         return model;
