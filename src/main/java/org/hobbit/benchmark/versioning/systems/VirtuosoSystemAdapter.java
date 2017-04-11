@@ -37,11 +37,14 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 
 	// must match the "Generated data format" parameter given when starting the experiment
 	private String generatedDataFormat = "n-triples";
+	long initialDatasetsSize = 0;
 
 	@Override
     public void init() throws Exception {
 		LOGGER.info("Initializing virtuoso test system...");
         super.init();
+        // get the disk space used by the system before any data is loaded to it
+     	initialDatasetsSize = getDatasetSize();		
 		LOGGER.info("Virtuoso initialized successfully .");
     }
 
@@ -88,9 +91,6 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		// read the query
 		String queryText = RabbitMQUtils.readString(taskBuffer);
 		
-		// get the disk space used by the system before any data is loaded to it
-		long initialDatasetsSize = getDatasetSize();		
-		
 		byte[][] resultsArray = null;
 		// 1 stands for ingestion task
 		// 2 for storage space task
@@ -119,7 +119,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				// get the storage space required for all versions to be stored in virtuoso
 				long finalDatasetsSize = getDatasetSize();
 				long storageSpaceCost = finalDatasetsSize - initialDatasetsSize;
-				LOGGER.info("Total datasets size: "+ storageSpaceCost / 1000 + " Kbytes.");
+				LOGGER.info("Total datasets size: "+ storageSpaceCost / 1000f + " Kbytes.");
 
 				resultsArray = new byte[2][];
 				resultsArray[0] = RabbitMQUtils.writeString(taskType);
@@ -200,20 +200,4 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		LOGGER.info("System Adapter closed successfully.");
 
     }
-
-//	@Override
-//    public void close() throws IOException {
-//		LOGGER.info("Closing System Adapter...");
-//		try {
-//			Thread.sleep(1000 * 60 * 2);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//        // Always close the super class after yours!
-//        super.close();
-//        //
-//		LOGGER.info("System Adapter closed successfully.");
-//
-//    }
 }
