@@ -6,11 +6,17 @@ package org.hobbit.benchmark.versioning;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.hobbit.benchmark.versioning.components.VersioningEvaluationModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author papv
  *
  */
 public class IngestionStatistics {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningEvaluationModule.class);
 
 	// the total number of triples up to every version
 	private HashMap<Integer,Integer> totalTriples = new HashMap<Integer,Integer>();
@@ -33,10 +39,10 @@ public class IngestionStatistics {
 	}
 	
 	public float getInitialVersionIngestionSpeed() {
-		float initVersionLoadingTimeMS = loadingTimes.get(0);
+		long initVersionLoadingTimeMS = loadingTimes.get(0);
 		int initVersionTriples = totalTriples.get(0);
 		// result should be returned in seconds
-		return  initVersionTriples / (initVersionLoadingTimeMS / 1000);
+		return  initVersionTriples / (initVersionLoadingTimeMS / 1000f);
 	}
 	
 	private void computeChanges() {
@@ -44,7 +50,8 @@ public class IngestionStatistics {
 		// there will be deletions, or changes too
 		for(int i=1; i<totalTriples.size(); i++) {
 			int changedTriples = getVersionTriples(i) - getVersionTriples(i-1);
-			avgChangesPS += (float) changedTriples / loadingTimes.get(i);
+			float loadingTime = loadingTimes.get(i) / 1000f;
+			avgChangesPS += changedTriples / loadingTime;
 		}
 		changesComputed = true;
 	}
@@ -53,7 +60,7 @@ public class IngestionStatistics {
 		if(!changesComputed) {
 			computeChanges();
 		}
-		return avgChangesPS / loadingTimes.size() - 1;
+		return avgChangesPS / (loadingTimes.size() - 1);
 	}
 	
 	public int getVersionTriples(int version) {
