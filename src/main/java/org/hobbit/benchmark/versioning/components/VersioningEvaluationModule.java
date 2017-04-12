@@ -216,43 +216,75 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         }
 		
 		// write the summarized results into a Jena model and send it to the benchmark controller.
-		Model model = createDefaultModel();
-		Resource experimentResource = model.getResource(experimentUri);
-		model.add(experimentResource , RDF.type, HOBBIT.Experiment);
+		Resource experimentResource = finalModel.getResource(experimentUri);
+		finalModel.add(experimentResource , RDF.type, HOBBIT.Experiment);
 		
-		Literal initialVersionIngestionSpeedLiteral = finalModel.createTypedLiteral(is.getInitialVersionIngestionSpeed(), XSDDatatype.XSDdouble);
+		Literal initialVersionIngestionSpeedLiteral = finalModel.createTypedLiteral(is.getInitialVersionIngestionSpeed(), XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, INITIAL_VERSION_INGESTION_SPEED, initialVersionIngestionSpeedLiteral);
+		LOGGER.info("INITIAL_VERSION_INGESTION_SPEED: " + 
+				is.getInitialVersionIngestionSpeed() + "\n" + 
+				initialVersionIngestionSpeedLiteral);
 
-		Literal avgAppliedChangesPSLiteral = finalModel.createTypedLiteral(is.getAvgChangesPS(), XSDDatatype.XSDdouble);
+		Literal avgAppliedChangesPSLiteral = finalModel.createTypedLiteral(is.getAvgChangesPS(), XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, AVG_APPLIED_CHANGES_PS, avgAppliedChangesPSLiteral);
-
-        Literal storageCostLiteral = finalModel.createTypedLiteral(storageCost, XSDDatatype.XSDdouble);
+        LOGGER.info("AVG_APPLIED_CHANGES_PS: " + 
+        		is.getAvgChangesPS() + "\n" + 
+        		avgAppliedChangesPSLiteral);
+        
+        Literal storageCostLiteral = finalModel.createTypedLiteral(storageCost, XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, STORAGE_COST, storageCostLiteral);
-
-        Literal queryType1AvgExecTimeLiteral = finalModel.createTypedLiteral(qts1.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
+        LOGGER.info("STORAGE_COST: " + 
+        		storageCost + "\n" + 
+        		storageCostLiteral);
+        
+        Literal queryType1AvgExecTimeLiteral = finalModel.createTypedLiteral(qts1.getAvgExecutionTimeMs(), XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, QT_1_AVG_EXEC_TIME, queryType1AvgExecTimeLiteral);
+        LOGGER.info("QT_1_AVG_EXEC_TIME: " + 
+        		qts1.getAvgExecutionTimeMs() + "\n" + 
+				queryType1AvgExecTimeLiteral);
         
-        Literal queryType2AvgExecTimeLiteral = finalModel.createTypedLiteral(qts2.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
+        Literal queryType2AvgExecTimeLiteral = finalModel.createTypedLiteral(qts2.getAvgExecutionTimeMs(), XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, QT_2_AVG_EXEC_TIME, queryType2AvgExecTimeLiteral);
-        
-        Literal queryType3AvgExecTimeLiteral = finalModel.createTypedLiteral(qts3.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
+        LOGGER.info("QT_2_AVG_EXEC_TIME: " + 
+        		qts2.getAvgExecutionTimeMs() + "\n" + 
+				queryType2AvgExecTimeLiteral);
+
+        Literal queryType3AvgExecTimeLiteral = finalModel.createTypedLiteral(qts3.getAvgExecutionTimeMs(), XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, QT_3_AVG_EXEC_TIME, queryType3AvgExecTimeLiteral);
-        
-        Literal queryType4AvgExecTimeLiteral = finalModel.createTypedLiteral(qts4.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
+        LOGGER.info("QT_3_AVG_EXEC_TIME: " + 
+        		qts3.getAvgExecutionTimeMs() + "\n" + 
+				queryType3AvgExecTimeLiteral);
+
+        Literal queryType4AvgExecTimeLiteral = finalModel.createTypedLiteral(qts4.getAvgExecutionTimeMs(), XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, QT_4_AVG_EXEC_TIME, queryType4AvgExecTimeLiteral);
+        LOGGER.info("QT_4_AVG_EXEC_TIME: " + 
+        		qts4.getAvgExecutionTimeMs() + "\n" + 
+				queryType4AvgExecTimeLiteral);
         
-        Literal queryType5AvgExecTimeLiteral = finalModel.createTypedLiteral(qts5.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
+        Literal queryType5AvgExecTimeLiteral = finalModel.createTypedLiteral(qts5.getAvgExecutionTimeMs(), XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, QT_5_AVG_EXEC_TIME, queryType5AvgExecTimeLiteral);
+        LOGGER.info("QT_5_AVG_EXEC_TIME: " + 
+        		qts5.getAvgExecutionTimeMs() + "\n" + 
+				queryType5AvgExecTimeLiteral);
         
-        Literal queryType6AvgExecTimeLiteral = finalModel.createTypedLiteral(qts6.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
+        Literal queryType6AvgExecTimeLiteral = finalModel.createTypedLiteral(qts6.getAvgExecutionTimeMs(), XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, QT_6_AVG_EXEC_TIME, queryType6AvgExecTimeLiteral);
+        LOGGER.info("QT_6_AVG_EXEC_TIME: " + 
+        		qts6.getAvgExecutionTimeMs() + "\n" + 
+				queryType6AvgExecTimeLiteral);
         
-        Literal queryType7AvgExecTimeLiteral = finalModel.createTypedLiteral(qts7.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
+        Literal queryType7AvgExecTimeLiteral = finalModel.createTypedLiteral(qts7.getAvgExecutionTimeMs(), XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, QT_7_AVG_EXEC_TIME, queryType7AvgExecTimeLiteral);
+        LOGGER.info("QT_7_AVG_EXEC_TIME: " + 
+        		qts7.getAvgExecutionTimeMs() + "\n" + 
+				queryType7AvgExecTimeLiteral);
         
-        Literal queryType8AvgExecTimeLiteral = finalModel.createTypedLiteral(qts8.getAvgExecutionTimeMs(), XSDDatatype.XSDdouble);
+        Literal queryType8AvgExecTimeLiteral = finalModel.createTypedLiteral(qts8.getAvgExecutionTimeMs(), XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, QT_8_AVG_EXEC_TIME, queryType8AvgExecTimeLiteral);
-        
-        return model;
+        LOGGER.info("QT_8_AVG_EXEC_TIME: " + 
+        		qts8.getAvgExecutionTimeMs() + "\n" + 
+				queryType8AvgExecTimeLiteral);
+
+        return finalModel;
 	}
 }
