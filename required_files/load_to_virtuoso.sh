@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 VIRTUOSO_BIN=/opt/virtuoso-opensource/bin
 GRAPH_NAME=http://graph.version.
