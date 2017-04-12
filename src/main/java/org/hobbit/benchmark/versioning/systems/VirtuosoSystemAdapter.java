@@ -100,11 +100,11 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				// get the version that will be loaded.
 				int version = Integer.parseInt(queryText.substring(8, queryText.indexOf(",")));
 				
-				// load the version and measure the required time.
-				long loadStart = System.currentTimeMillis();
-				String loadedTriples = loadVersion(version);
-				long loadEnd = System.currentTimeMillis();
-				long loadingTime = loadEnd - loadStart;
+				// answer of loading is of type: "triples:xxx,time:xxx"
+				// so we parse it to get the loaded triples and the time required for loading them
+				String answer = loadVersion(version);
+				long loadedTriples = Long.parseLong(answer.split(",")[0].split(":")[1]);
+				long loadingTime = Long.parseLong(answer.split(",")[1].split(":")[1]);
 				LOGGER.info("Version " + version + " loaded successfully in "+ loadingTime + " ms.");
 
 				// TODO 
@@ -112,7 +112,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				// loaded triples, as we will also have deletions except of additions of triples
 				resultsArray = new byte[3][];
 				resultsArray[0] = RabbitMQUtils.writeString(taskType);
-				resultsArray[1] = RabbitMQUtils.writeString(loadedTriples);
+				resultsArray[1] = RabbitMQUtils.writeString(Long.toString(loadedTriples));
 				resultsArray[2] = RabbitMQUtils.writeString(Long.toString(loadingTime));
 				break;
 			case 2:
@@ -127,6 +127,9 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				break;
 			case 3:
 				String queryType = queryText.substring(21, 22);
+				LOGGER.info("queryType: " + queryType);
+//				LOGGER.info("queryText: " + queryText);
+
 				Query query = QueryFactory.create(queryText);
 				QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
 				long queryStart = System.currentTimeMillis();
@@ -166,7 +169,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	// have to return the total number of changes with respect to previous version in v2.0 of the benchmark 
 	private String loadVersion(int versionNum) {
 		LOGGER.info("Loading version " + versionNum + "...");
-		String loadedTriples = null;
+		String answer = null;
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "virtuoso_system_load_triples.sh";
 			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(generatedDataFormat), Integer.toString(versionNum) };
@@ -174,8 +177,8 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
 			while ((line = in.readLine()) != null) {
-				if(line.startsWith("loaded triples ")) {
-					loadedTriples = line.substring(15);
+				if(line.startsWith("triples")) {
+					answer = line;
 					continue;
 				}
 				LOGGER.info(line);		
@@ -188,7 +191,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		} catch (InterruptedException e) {
             LOGGER.error("Exception while executing script for loading data.", e);
 		}	
-		return loadedTriples;
+		return answer;
 	}
 	
 	@Override
