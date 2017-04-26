@@ -1,6 +1,14 @@
 package org.hobbit.benchmark.versioning.components;
 
+import java.io.IOException;
+import java.util.Properties;
+
+import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.NodeIterator;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.vocabulary.RDFS;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.core.Commands;
 import org.hobbit.core.components.AbstractBenchmarkController;
@@ -15,6 +23,8 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator";
 	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule";
 	
+	private static final String PREFIX = "http://w3id.org/hobbit/versioning-benchmark/vocab#";
+	
     private String[] envVariablesEvaluationModule = null;
 
 	@Override
@@ -22,14 +32,15 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         LOGGER.info("Initilalizing Benchmark Controller...");
 		super.init();
         
-		int numberOfDataGenerators = (Integer) getProperty("http://w3id.org/bench#hasNumberOfGenerators", 1);
-		int datasetSize =  (Integer) getProperty("http://w3id.org/bench#datasetSizeInTriples", 1000000);
-		int generatorSeed =  (Integer) getProperty("http://w3id.org/bench#generatorSeed", 0);
-		int numOfVersions =  (Integer) getProperty("http://w3id.org/bench#numberOfVersions", 12);
-		int seedYear =  (Integer) getProperty("http://w3id.org/bench#seedYear", 2010);
-		int dataGenInYears =  (Integer) getProperty("http://w3id.org/bench#generationPeriodInYears", 1);
-		String serializationFormat = (String) getProperty("http://w3id.org/bench#generatedDataFormat", "n-triples");
-		int subsParametersAmount = (Integer) getProperty("http://w3id.org/bench#querySubstitutionParameters", 10);
+		int numberOfDataGenerators = (Integer) getProperty(PREFIX + "hasNumberOfGenerators", 1);
+		int datasetSize =  (Integer) getProperty(PREFIX + "datasetSizeInTriples", 1000000);
+		int generatorSeed =  (Integer) getProperty(PREFIX + "generatorSeed", 0);
+		int numOfVersions =  (Integer) getProperty(PREFIX + "numberOfVersions", 12);
+		int seedYear =  (Integer) getProperty(PREFIX + "seedYear", 2010);
+		int dataGenInYears =  (Integer) getProperty(PREFIX + "generationPeriodInYears", 1);
+		String serializationFormat = (String) getProperty(PREFIX + "generatedDataFormat", "n-triples");
+		LOGGER.info("serializationFormat..." + serializationFormat);
+		int subsParametersAmount = (Integer) getProperty(PREFIX + "querySubstitutionParameters", 10);
 		
 		// data generators environmental values
 		String[] envVariablesDataGenerator = new String[] {
@@ -45,17 +56,17 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		
 		// evaluation module environmental values
 		envVariablesEvaluationModule = new String[] {
-				VersioningConstants.INITIAL_VERSION_INGESTION_SPEED + "=" + "http://w3id.org/bench#initialVersionIngestionSpeed",
-				VersioningConstants.AVG_APPLIED_CHANGES_PS + "=" + "http://w3id.org/bench#avgAppliedChangesPS",
-				VersioningConstants.STORAGE_COST + "=" + "http://w3id.org/bench#storageCost",
-				VersioningConstants.QT_1_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType1AvgExecTime",
-				VersioningConstants.QT_2_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType2AvgExecTime",
-				VersioningConstants.QT_3_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType3AvgExecTime",
-				VersioningConstants.QT_4_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType4AvgExecTime",
-				VersioningConstants.QT_5_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType5AvgExecTime",
-				VersioningConstants.QT_6_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType6AvgExecTime",
-				VersioningConstants.QT_7_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType7AvgExecTime",
-				VersioningConstants.QT_8_AVG_EXEC_TIME + "=" + "http://w3id.org/bench#queryType8AvgExecTime"
+				VersioningConstants.INITIAL_VERSION_INGESTION_SPEED + "=" + PREFIX + "initialVersionIngestionSpeed",
+				VersioningConstants.AVG_APPLIED_CHANGES_PS + "=" + PREFIX + "avgAppliedChangesPS",
+				VersioningConstants.STORAGE_COST + "=" + PREFIX + "storageCost",
+				VersioningConstants.QT_1_AVG_EXEC_TIME + "=" + PREFIX + "queryType1AvgExecTime",
+				VersioningConstants.QT_2_AVG_EXEC_TIME + "=" + PREFIX + "queryType2AvgExecTime",
+				VersioningConstants.QT_3_AVG_EXEC_TIME + "=" + PREFIX + "queryType3AvgExecTime",
+				VersioningConstants.QT_4_AVG_EXEC_TIME + "=" + PREFIX + "queryType4AvgExecTime",
+				VersioningConstants.QT_5_AVG_EXEC_TIME + "=" + PREFIX + "queryType5AvgExecTime",
+				VersioningConstants.QT_6_AVG_EXEC_TIME + "=" + PREFIX + "queryType6AvgExecTime",
+				VersioningConstants.QT_7_AVG_EXEC_TIME + "=" + PREFIX + "queryType7AvgExecTime",
+				VersioningConstants.QT_8_AVG_EXEC_TIME + "=" + PREFIX + "queryType8AvgExecTime"
 		};
 		
 		// Create data generators
@@ -91,7 +102,17 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		if (iterator.hasNext()) {
 			try {
 				if (defaultValue instanceof String) {
-					return (T) iterator.next().asLiteral().getString();
+					if(((String) defaultValue).equals("n-triples")) {
+						Properties serializationFormats = new Properties();
+						try {
+							serializationFormats.load(ClassLoader.getSystemResource("formats.properties").openStream());
+						} catch (IOException e) {
+							LOGGER.error("Exception while parsing serialization format.");
+						}
+						return (T) serializationFormats.getProperty(iterator.next().asResource().getLocalName());
+					} else {
+						return (T) iterator.next().asLiteral().getString();
+					}
 				} else if (defaultValue instanceof Integer) {
 					return (T) ((Integer) iterator.next().asLiteral().getInt());
 				} else if (defaultValue instanceof Long) {
@@ -134,7 +155,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 
         // wait for the system to terminate
         LOGGER.info("Waiting for the system to terminate.");
-        waitForSystemToFinish();
+        waitForSystemToFinish(1000 * 60 * 2);
         LOGGER.info("System terminated.");
         
         // create the evaluation module
