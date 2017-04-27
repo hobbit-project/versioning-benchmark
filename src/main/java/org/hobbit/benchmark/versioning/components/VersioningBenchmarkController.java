@@ -39,7 +39,6 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		int seedYear =  (Integer) getProperty(PREFIX + "seedYear", 2010);
 		int dataGenInYears =  (Integer) getProperty(PREFIX + "generationPeriodInYears", 1);
 		String serializationFormat = (String) getProperty(PREFIX + "generatedDataFormat", "n-triples");
-		LOGGER.info("serializationFormat..." + serializationFormat);
 		int subsParametersAmount = (Integer) getProperty(PREFIX + "querySubstitutionParameters", 10);
 		
 		// data generators environmental values
