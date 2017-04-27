@@ -57,11 +57,11 @@ public class QueryTypeStatistics {
 		return maxExecutionTimeMs;
 	}
 	
-	public long getAvgExecutionTimeMs() {
+	public float getAvgExecutionTimeMs() {
 		if (runsCount.get() == 0) {
 			return 0;
 		}
-		return avgExecutionTimeMs / runsCount.get();
+		return avgExecutionTimeMs / runsCount.floatValue();
 	}
 	
 	public long getNewQueryId() {
