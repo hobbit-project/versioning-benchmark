@@ -292,7 +292,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				// only send the number of expected results
 				if(taskQuery.startsWith("#  Query Name : query1") ||
 						taskQuery.startsWith("#  Query Name : query3")) {
-					taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
+					taskQuery = taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
 				}
 				
 				// execute the query on top of virtuoso to compute the expected answers
@@ -500,7 +500,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		// get available cores to let data generated through multiple threads. 
 		int cores = Runtime.getRuntime().availableProcessors();
-		
+		dataGeneratorWorkers = cores / 2;
+
 		// re-initialize test.properties file that is required for data generation
 		configuration.setIntProperty("datasetSize", currDataGeneratorDatasetSizeInTriples);
 		configuration.setIntProperty("numberOfVersions", numberOfVersions);
@@ -510,7 +511,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		configuration.setStringProperty("creativeWorksPath", generatedDatasetPath);
 		configuration.setStringProperty("generateCreativeWorksFormat", serializationFormat);
 		configuration.setIntProperty("querySubstitutionParameters", subsParametersAmount);
-		configuration.setIntProperty("dataGeneratorWorkers", cores);
+		configuration.setIntProperty("dataGeneratorWorkers", dataGeneratorWorkers);
+		
 
 		// re-initialize definitions.properties file that is required for data generation
 		definitions.setIntProperty("seedYear", seedYear);
