@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -34,7 +35,8 @@ import org.slf4j.LoggerFactory;
 public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		
 	private static final Logger LOGGER = LoggerFactory.getLogger(VirtuosoSystemAdapter.class);
-
+	private ArrayList<byte[][]> ingestionResultsArrays = new ArrayList<byte[][]>();
+	
 	// must match the "Generated data format" parameter given when starting the experiment
 	private String generatedDataFormat = "n-triples";
 	long initialDatasetsSize = 0;
@@ -84,7 +86,8 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	 */
 	public void receiveGeneratedTask(String tId, byte[] data) {
 		LOGGER.info("Task " + tId + " received from task generator");
-
+		boolean taskExecutedSuccesfully = true;
+		
 		ByteBuffer taskBuffer = ByteBuffer.wrap(data);
 		// read the query type
 		String taskType = RabbitMQUtils.readString(taskBuffer);
@@ -126,35 +129,46 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				resultsArray[1] = RabbitMQUtils.writeString(Long.toString(storageSpaceCost));
 				break;
 			case 3:
+				
 				String queryType = queryText.substring(21, 22);
 				LOGGER.info("queryType: " + queryType);
-//				LOGGER.info("queryText: " + queryText);
 
 				Query query = QueryFactory.create(queryText);
 				QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
+				ResultSet results = null;
+
 				long queryStart = System.currentTimeMillis();
-				ResultSet results = qexec.execSelect();
-				LOGGER.info("Results: " + results.getRowNumber());
-				LOGGER.info("Exei: " + results.hasNext());
+				try {
+					results = qexec.execSelect();
+				} catch (Exception e) {
+					taskExecutedSuccesfully = false;
+				}
 				long queryEnd = System.currentTimeMillis();
 				long excecutionTime = queryEnd - queryStart;
-				
-				ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
-				ResultSetFormatter.outputAsJSON(queryResponseBos, results);
-				
+
 				resultsArray = new byte[5][];
 				resultsArray[0] = RabbitMQUtils.writeString(taskType);
 				resultsArray[1] = RabbitMQUtils.writeString(queryType);
 				resultsArray[2] = RabbitMQUtils.writeString(Long.toString(excecutionTime));
-				resultsArray[3] = RabbitMQUtils.writeString(Integer.toString(results.getRowNumber()));
-				resultsArray[4] = queryResponseBos.toByteArray();
+				
+				if(taskExecutedSuccesfully) {
+					ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
+					ResultSetFormatter.outputAsJSON(queryResponseBos, results);
+					
+					resultsArray[3] = RabbitMQUtils.writeString(Integer.toString(results.getRowNumber()));
+					resultsArray[4] = queryResponseBos.toByteArray();
+
+				} else {
+					resultsArray[3] = RabbitMQUtils.writeString("-1");
+					resultsArray[4] = RabbitMQUtils.writeString("-1");
+				}
 				break;
 		}
 		
 		byte[] results = RabbitMQUtils.writeByteArrays(resultsArray);
 		try {
 			sendResultToEvalStorage(tId, results);
-			LOGGER.info("Results sent to evaluation storage.");
+			LOGGER.info("Results sent to evaluation storage" + (taskExecutedSuccesfully ? "." : " for unsuccessful executed task."));
 		} catch (IOException e) {
 			LOGGER.error("Exception while sending storage space cost to evaluation storage.", e);
 		}

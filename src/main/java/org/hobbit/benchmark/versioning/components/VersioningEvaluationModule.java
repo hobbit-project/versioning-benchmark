@@ -165,42 +165,54 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						RabbitMQUtils.readString(receivedBuffer).getBytes(StandardCharsets.UTF_8));
 //				ResultSet received = ResultSetFactory.fromJSON(inReceived);
 				
+				boolean resultCompletness = resultRowCount == expectedResultsNum;
+				boolean queryExecutedSuccesfully = resultRowCount != -1;
+				boolean expAnswersComputedSuccesfuly = expectedResultsNum != -1;
+
 				// TODO extend check for completness: do not only check the number of results
 				switch (queryType) {
 					case 1:
-						if(resultRowCount == expectedResultsNum) {  qts1.reportSuccess(execTime); } 
+						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+							qts1.reportSuccess(execTime); } 
 						else { qts1.reportFailure(); }
 						break;
 					case 2:	
-						if(resultRowCount == expectedResultsNum) {  qts2.reportSuccess(execTime); } 
+						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+							qts2.reportSuccess(execTime); } 
 						else { qts2.reportFailure(); }
 						break;
 					case 3:	
-						if(resultRowCount == expectedResultsNum) {  qts3.reportSuccess(execTime); } 
+						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+							qts3.reportSuccess(execTime); } 
 						else { qts3.reportFailure(); }
 						break;
 					case 4:	
-						if(resultRowCount == expectedResultsNum) {  qts4.reportSuccess(execTime); } 
+						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+							qts4.reportSuccess(execTime); } 
 						else { qts4.reportFailure(); }
 						break;
 					case 5:	
-						if(resultRowCount == expectedResultsNum) {  qts5.reportSuccess(execTime); } 
+						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+							qts5.reportSuccess(execTime); } 
 						else { qts5.reportFailure(); }
 						break;
 					case 6:	
-						if(resultRowCount == expectedResultsNum) {  qts6.reportSuccess(execTime); } 
+						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+							qts6.reportSuccess(execTime); } 
 						else { qts6.reportFailure(); }
 						break;
 					case 7:	
-						if(resultRowCount == expectedResultsNum) {  qts7.reportSuccess(execTime); } 
+						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+							qts7.reportSuccess(execTime); } 
 						else { qts7.reportFailure(); }
 						break;
 					case 8:	
-						if(resultRowCount == expectedResultsNum) {  qts8.reportSuccess(execTime); } 
+						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+							qts8.reportSuccess(execTime); } 
 						else { qts8.reportFailure(); }
 						break;
 				}
-				LOGGER.info("Query task of type: " + queryType + " executed in " + execTime + " ms and returned " + resultRowCount + "/" + expectedResultsNum + "results.");
+				LOGGER.info("Query task of type: " + queryType + " executed in " + execTime + " ms and returned " + resultRowCount + "/" + expectedResultsNum + " results.");
 
 				break;
 		}

@@ -17,12 +17,14 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.jena.atlas.web.HttpException;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.sparql.resultset.ResultSetMem;
 import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
@@ -272,63 +274,82 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				results = cQexec.execSelect();
 				queryEnd = System.currentTimeMillis();
 				
+				int triplesToBeInserted = 0;
 				if(results.hasNext()) {
-					int triplesToBeInserted = results.next().getLiteral("cnt").getInt();
+					triplesToBeInserted = results.next().getLiteral("cnt").getInt();
 					expectedAnswers = new byte[2][];
 					expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(version));
 					expectedAnswers[1] = RabbitMQUtils.writeString(Integer.toString(triplesToBeInserted));
 					task.setExpectedAnswers(RabbitMQUtils.writeByteArrays(expectedAnswers));
 					tasks.set(Integer.parseInt(taskId), task);
-					LOGGER.info("Ingestion task " + taskId + " triples : " + triplesToBeInserted);
 				}
+				LOGGER.info("Number of triples for ingestion task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Number of triples: " + triplesToBeInserted);
+				cQexec.close();
 				break;
 			// skip the storage space task
 			case 2:
 				continue;
 			// query performance task
 			case 3:
-				// for query types query1 and query3, that refer to entire versions, we don't
+				boolean countComputed = false;
+				boolean compExpAnswersFailed = false;
+				// for query types 1 and 3, that refer to entire versions, we don't
 				// evaluate the query due to extra time cost and expected answer length, but we 
 				// only send the number of expected results
+				// TODO: have to be changed in the 2nd version of the benchmark
 				if(taskQuery.startsWith("#  Query Name : query1") ||
 						taskQuery.startsWith("#  Query Name : query3")) {
-					taskQuery = taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
+					countComputed = true;
+					taskQuery = taskQuery.replace("SELECT ?s ?p ?o", "SELECT (COUNT(*) AS ?cnt) ");
 				}
 				
 				// execute the query on top of virtuoso to compute the expected answers
 				Query query = QueryFactory.create(taskQuery);
 				QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", query);
 				queryStart = System.currentTimeMillis();
-				results = qexec.execSelect();
+				
+				try {
+					results = qexec.execSelect();
+				} catch (Exception e) {
+					compExpAnswersFailed = true;
+					LOGGER.error("Exception caught during the computation of task " + taskId + " expected answers.", e);
+				}
 				queryEnd = System.currentTimeMillis();
-
+				
 				// track the number of expected answers, as long as the answers themselves
 				expectedAnswers = new byte[2][];
 				
-				// update the task by setting its expected results
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				ResultSetFormatter.outputAsJSON(outputStream, results);
-				expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(results.getRowNumber()));
-				expectedAnswers[1] = outputStream.toByteArray();
+				if(!compExpAnswersFailed) {
+					ResultSetMem rsm = new ResultSetMem(results);
 
+					// update the task by setting its expected results
+					ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+					ResultSetFormatter.outputAsJSON(outputStream, results);
+					if(countComputed) {
+						int count = 0;
+						if(rsm.hasNext()) {
+						    count = rsm.next().getLiteral("cnt").getInt();
+						}
+						expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(count));
+						LOGGER.info("Expected number of results (instead of the results themselves) for task " + taskId + " computed: " + count );
+					} else {
+						expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(results.getRowNumber()));
+					}
+					expectedAnswers[1] = outputStream.toByteArray();
+					
+					LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + results.getRowNumber());
+					qexec.close();
+				} else {
+					expectedAnswers[0] = RabbitMQUtils.writeString("-1");
+					expectedAnswers[1] = RabbitMQUtils.writeString("-1");
+					LOGGER.error("Eror code (-1) set as expected answers.");
+				}
+				
 				task.setExpectedAnswers(RabbitMQUtils.writeByteArrays(expectedAnswers));
 				tasks.set(Integer.parseInt(taskId), task);
+				
 				break;
 			}
-						
-			// TODO: for debugging purposes, delete it
-			File expectedAnswersFile = new File(System.getProperty("user.dir") + File.separator + "expected_answers" + File.separator + "task" + taskId + "_results.json");
-			FileOutputStream fos = null;
-			try {
-				fos = FileUtils.openOutputStream(expectedAnswersFile);
-			} catch (IOException e) {
-				LOGGER.error("Exception caught during the saving of task's: " + taskId + " expected answers: ", e);
-			}
-			
-			ResultSetFormatter.outputAsJSON(fos, results) ;
-
-			
-			LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + results.getRowNumber());
 		}	
 	}
 	
