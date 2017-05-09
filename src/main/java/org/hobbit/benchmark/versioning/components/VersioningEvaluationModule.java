@@ -172,42 +172,42 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				// TODO extend check for completness: do not only check the number of results
 				switch (queryType) {
 					case 1:
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts1.reportSuccess(execTime); } 
 						else { qts1.reportFailure(); }
 						break;
 					case 2:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts2.reportSuccess(execTime); } 
 						else { qts2.reportFailure(); }
 						break;
 					case 3:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts3.reportSuccess(execTime); } 
 						else { qts3.reportFailure(); }
 						break;
 					case 4:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts4.reportSuccess(execTime); } 
 						else { qts4.reportFailure(); }
 						break;
 					case 5:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts5.reportSuccess(execTime); } 
 						else { qts5.reportFailure(); }
 						break;
 					case 6:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts6.reportSuccess(execTime); } 
 						else { qts6.reportFailure(); }
 						break;
 					case 7:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts7.reportSuccess(execTime); } 
 						else { qts7.reportFailure(); }
 						break;
 					case 8:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts8.reportSuccess(execTime); } 
 						else { qts8.reportFailure(); }
 						break;
@@ -221,6 +221,17 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 	@Override
 	protected Model summarizeEvaluation() throws Exception {
 		LOGGER.info("Summarizing evaluation...");
+		
+		LOGGER.info("Ingestion tasks errors: " + is.getFailuresCount());
+		LOGGER.info("Query type 1 errors: " + qts1.getFailuresCount());
+		LOGGER.info("Query type 2 errors: " + qts2.getFailuresCount());
+		LOGGER.info("Query type 3 errors: " + qts3.getFailuresCount());
+		LOGGER.info("Query type 4 errors: " + qts4.getFailuresCount());
+		LOGGER.info("Query type 5 errors: " + qts5.getFailuresCount());
+		LOGGER.info("Query type 6 errors: " + qts6.getFailuresCount());
+		LOGGER.info("Query type 7 errors: " + qts7.getFailuresCount());
+		LOGGER.info("Query type 8 errors: " + qts8.getFailuresCount());
+
 		
 		if (experimentUri == null) {
             Map<String, String> env = System.getenv();

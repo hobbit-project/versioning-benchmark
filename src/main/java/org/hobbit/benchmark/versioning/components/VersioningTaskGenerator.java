@@ -49,11 +49,10 @@ public class VersioningTaskGenerator extends AbstractTaskGenerator {
 	
 			// Send the expected answers to the evaluation storage
 			// (note that, storage space task has no expected answers)
-			if(!taskType.equals("2")) {
-				byte[] expectedAnswersData = task.getExpectedAnswers();
-		        sendTaskToEvalStorage(taskId, timestamp, expectedAnswersData);
-			} else {
+			if(taskType.equals("2")) {
 				sendTaskToEvalStorage(taskId, timestamp, new byte[] {});
+			} else {
+		        sendTaskToEvalStorage(taskId, timestamp, task.getExpectedAnswers());
 			}
 			LOGGER.info("Expected answers of task " + taskId + " sent to Evaluation Storage.");
 
@@ -73,7 +72,7 @@ public class VersioningTaskGenerator extends AbstractTaskGenerator {
     public void close() throws IOException {
 		LOGGER.info("Closign Task Generator...");
 		try {
-			Thread.sleep(1000 * 30 * 1);
+			Thread.sleep(1000 * 60 * 2);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
