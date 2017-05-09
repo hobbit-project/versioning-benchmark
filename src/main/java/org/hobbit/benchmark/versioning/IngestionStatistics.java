@@ -28,6 +28,11 @@ public class IngestionStatistics {
 	
 	private boolean changesComputed = false;
 	private float avgChangesPS = 0;
+	
+	public IngestionStatistics() {
+		runsCount = new AtomicLong(0);
+		failuresCount = new AtomicLong(0);
+	}
 		
 	public synchronized void reportSuccess(int version, int loadedTriples, long currentLoadingTimeMs) {
 		loadingTimes.put(version, currentLoadingTimeMs);
