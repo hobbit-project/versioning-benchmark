@@ -172,42 +172,42 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				// TODO extend check for completness: do not only check the number of results
 				switch (queryType) {
 					case 1:
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts1.reportSuccess(execTime); } 
 						else { qts1.reportFailure(); }
 						break;
 					case 2:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts2.reportSuccess(execTime); } 
 						else { qts2.reportFailure(); }
 						break;
 					case 3:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts3.reportSuccess(execTime); } 
 						else { qts3.reportFailure(); }
 						break;
 					case 4:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts4.reportSuccess(execTime); } 
 						else { qts4.reportFailure(); }
 						break;
 					case 5:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts5.reportSuccess(execTime); } 
 						else { qts5.reportFailure(); }
 						break;
 					case 6:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts6.reportSuccess(execTime); } 
 						else { qts6.reportFailure(); }
 						break;
 					case 7:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts7.reportSuccess(execTime); } 
 						else { qts7.reportFailure(); }
 						break;
 					case 8:	
-						if(!resultCompletness || !queryExecutedSuccesfully || !expAnswersComputedSuccesfuly) {  
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts8.reportSuccess(execTime); } 
 						else { qts8.reportFailure(); }
 						break;

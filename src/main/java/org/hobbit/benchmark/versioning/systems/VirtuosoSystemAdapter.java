@@ -154,13 +154,16 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				if(taskExecutedSuccesfully) {
 					ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
 					ResultSetFormatter.outputAsJSON(queryResponseBos, results);
+					int returnedResults = results.getRowNumber();
 					
-					resultsArray[3] = RabbitMQUtils.writeString(Integer.toString(results.getRowNumber()));
-					resultsArray[4] = queryResponseBos.toByteArray();
-
+					resultsArray[3] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
+//					resultsArray[4] = queryResponseBos.toByteArray();
+					resultsArray[4] = RabbitMQUtils.writeString("insteadOfQueryResponse");
+					LOGGER.info("Task " + tId + " executed successfully and returned "+ returnedResults + " results.");
 				} else {
 					resultsArray[3] = RabbitMQUtils.writeString("-1");
 					resultsArray[4] = RabbitMQUtils.writeString("-1");
+					LOGGER.info("Task " + tId + " failed to executed. Error code (-1) set as result.");
 				}
 				break;
 		}

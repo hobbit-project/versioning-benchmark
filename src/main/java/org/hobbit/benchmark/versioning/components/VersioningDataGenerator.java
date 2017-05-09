@@ -17,7 +17,6 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.jena.atlas.web.HttpException;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -274,17 +273,15 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				results = cQexec.execSelect();
 				queryEnd = System.currentTimeMillis();
 				
-				int triplesToBeInserted = 0;
 				if(results.hasNext()) {
-					triplesToBeInserted = results.next().getLiteral("cnt").getInt();
+					int triplesToBeInserted = results.next().getLiteral("cnt").getInt();
 					expectedAnswers = new byte[2][];
 					expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(version));
 					expectedAnswers[1] = RabbitMQUtils.writeString(Integer.toString(triplesToBeInserted));
 					task.setExpectedAnswers(RabbitMQUtils.writeByteArrays(expectedAnswers));
 					tasks.set(Integer.parseInt(taskId), task);
+					LOGGER.info("Ingestion task " + taskId + " triples : " + triplesToBeInserted);
 				}
-				LOGGER.info("Number of triples for ingestion task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Number of triples: " + triplesToBeInserted);
-				cQexec.close();
 				break;
 			// skip the storage space task
 			case 2:
@@ -293,61 +290,60 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			case 3:
 				boolean countComputed = false;
 				boolean compExpAnswersFailed = false;
-				// for query types 1 and 3, that refer to entire versions, we don't
+				// for query types query1 and query3, that refer to entire versions, we don't
 				// evaluate the query due to extra time cost and expected answer length, but we 
 				// only send the number of expected results
-				// TODO: have to be changed in the 2nd version of the benchmark
 				if(taskQuery.startsWith("#  Query Name : query1") ||
 						taskQuery.startsWith("#  Query Name : query3")) {
 					countComputed = true;
-					taskQuery = taskQuery.replace("SELECT ?s ?p ?o", "SELECT (COUNT(*) AS ?cnt) ");
+					taskQuery = taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
 				}
 				
 				// execute the query on top of virtuoso to compute the expected answers
 				Query query = QueryFactory.create(taskQuery);
 				QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", query);
 				queryStart = System.currentTimeMillis();
-				
 				try {
 					results = qexec.execSelect();
 				} catch (Exception e) {
 					compExpAnswersFailed = true;
 					LOGGER.error("Exception caught during the computation of task " + taskId + " expected answers.", e);
-				}
-				queryEnd = System.currentTimeMillis();
-				
+				}				queryEnd = System.currentTimeMillis();
+
 				// track the number of expected answers, as long as the answers themselves
 				expectedAnswers = new byte[2][];
 				
 				if(!compExpAnswersFailed) {
 					ResultSetMem rsm = new ResultSetMem(results);
-
+					
 					// update the task by setting its expected results
 					ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 					ResultSetFormatter.outputAsJSON(outputStream, results);
+					
 					if(countComputed) {
 						int count = 0;
 						if(rsm.hasNext()) {
 						    count = rsm.next().getLiteral("cnt").getInt();
 						}
 						expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(count));
+//						expectedAnswers[1] = outputStream.toByteArray();
+						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
 						LOGGER.info("Expected number of results (instead of the results themselves) for task " + taskId + " computed: " + count );
 					} else {
 						expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(results.getRowNumber()));
+//						expectedAnswers[1] = outputStream.toByteArray();
+						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
+						LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + results.getRowNumber());
 					}
-					expectedAnswers[1] = outputStream.toByteArray();
-					
-					LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + results.getRowNumber());
-					qexec.close();
 				} else {
 					expectedAnswers[0] = RabbitMQUtils.writeString("-1");
 					expectedAnswers[1] = RabbitMQUtils.writeString("-1");
-					LOGGER.error("Eror code (-1) set as expected answers.");
-				}
-				
+					LOGGER.error("Couldn't compute expected answers. Error code (-1) set as an expected answer.");
+
+				}				
+
 				task.setExpectedAnswers(RabbitMQUtils.writeByteArrays(expectedAnswers));
 				tasks.set(Integer.parseInt(taskId), task);
-				
 				break;
 			}
 		}	
@@ -520,9 +516,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					+ "\n\t\t\t" + currDataGeneratorCorrelations + " correlations of total " + adjustedCorrelations);
 
 		// get available cores to let data generated through multiple threads. 
-		int cores = Runtime.getRuntime().availableProcessors();
-		dataGeneratorWorkers = cores / 2;
-
+		dataGeneratorWorkers = Runtime.getRuntime().availableProcessors();
+		
 		// re-initialize test.properties file that is required for data generation
 		configuration.setIntProperty("datasetSize", currDataGeneratorDatasetSizeInTriples);
 		configuration.setIntProperty("numberOfVersions", numberOfVersions);
@@ -533,7 +528,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		configuration.setStringProperty("generateCreativeWorksFormat", serializationFormat);
 		configuration.setIntProperty("querySubstitutionParameters", subsParametersAmount);
 		configuration.setIntProperty("dataGeneratorWorkers", dataGeneratorWorkers);
-		
 
 		// re-initialize definitions.properties file that is required for data generation
 		definitions.setIntProperty("seedYear", seedYear);
