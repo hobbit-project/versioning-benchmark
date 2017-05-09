@@ -308,7 +308,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				} catch (Exception e) {
 					compExpAnswersFailed = true;
 					LOGGER.error("Exception caught during the computation of task " + taskId + " expected answers.", e);
-				}				queryEnd = System.currentTimeMillis();
+				}				
+				queryEnd = System.currentTimeMillis();
 
 				// track the number of expected answers, as long as the answers themselves
 				expectedAnswers = new byte[2][];

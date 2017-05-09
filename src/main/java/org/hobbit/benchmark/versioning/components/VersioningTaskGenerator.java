@@ -72,7 +72,7 @@ public class VersioningTaskGenerator extends AbstractTaskGenerator {
     public void close() throws IOException {
 		LOGGER.info("Closign Task Generator...");
 		try {
-			Thread.sleep(1000 * 60 * 2);
+			Thread.sleep(1000 * 60 * 4);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

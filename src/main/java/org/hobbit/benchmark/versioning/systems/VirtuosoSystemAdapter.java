@@ -159,7 +159,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 					resultsArray[3] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
 //					resultsArray[4] = queryResponseBos.toByteArray();
 					resultsArray[4] = RabbitMQUtils.writeString("insteadOfQueryResponse");
-					LOGGER.info("Task " + tId + " executed successfully and returned "+ returnedResults + " results.");
+					LOGGER.info("Task " + tId + " executed successfully in " + excecutionTime + " ms and returned "+ returnedResults + " results.");
 				} else {
 					resultsArray[3] = RabbitMQUtils.writeString("-1");
 					resultsArray[4] = RabbitMQUtils.writeString("-1");
