@@ -55,7 +55,7 @@ DisableTcpSocket		= 0
 ;X509ClientVerify		= 0
 ;X509ClientVerifyDepth		= 0
 ;X509ClientVerifyCAFile		= ca.pem
-MaxClientConnections		= 10
+MaxClientConnections		= 25
 CheckpointInterval		= 60
 O_DIRECT			= 0
 CaseMode			= 2
@@ -93,7 +93,7 @@ NumberOfBuffers          = 170000
 MaxDirtyBuffers          = 130000
 ;; Uncomment next two lines if there is 4 GB system memory free
 ;NumberOfBuffers          = 340000
-; MaxDirtyBuffers          = 250000
+;MaxDirtyBuffers          = 250000
 ;; Uncomment next two lines if there is 8 GB system memory free
 ;NumberOfBuffers          = 680000
 ;MaxDirtyBuffers          = 500000
@@ -126,7 +126,7 @@ EnabledDavVSP			= 0
 HTTPProxyEnabled		= 0
 TempASPXDir			= 0
 DefaultMailServer		= localhost:25
-ServerThreads			= 10
+ServerThreads			= 20
 MaxKeepAlives			= 10
 KeepAliveTimeout		= 10
 MaxCachedProxyConnections	= 10
