@@ -242,7 +242,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		Resource experimentResource = finalModel.getResource(experimentUri);
 		finalModel.add(experimentResource , RDF.type, HOBBIT.Experiment);
 		
-		Literal initialVersionIngestionSpeedLiteral = finalModel.createTypedLiteral(is.getInitialVersionIngestionSpeed(), XSDDatatype.XSDfloat);
+		Literal initialVersionIngestionSpeedLiteral = finalModel.createTypedLiteral((is.getFailuresCount() == 0) ? is.getInitialVersionIngestionSpeed() : 0f, XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, INITIAL_VERSION_INGESTION_SPEED, initialVersionIngestionSpeedLiteral);
 		LOGGER.info("INITIAL_VERSION_INGESTION_SPEED: " + 
 				is.getInitialVersionIngestionSpeed() + "\n" + 

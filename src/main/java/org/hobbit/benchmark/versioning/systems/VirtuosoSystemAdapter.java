@@ -188,7 +188,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		LOGGER.info("Loading version " + versionNum + "...");
 		String answer = null;
 		try {
-			String scriptFilePath = System.getProperty("user.dir") + File.separator + "virtuoso_system_load_triples.sh";
+			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load.sh";
 			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(generatedDataFormat), Integer.toString(versionNum) };
 			Process p = new ProcessBuilder(command).redirectErrorStream(true).start();
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
