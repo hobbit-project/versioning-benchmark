@@ -178,8 +178,23 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	}
 	
 	private long getDatasetSize() {
+		checkpoint();
 		File dbFile = new File("/usr/local/virtuoso-opensource/var/lib/virtuoso/db/virtuoso.db");
 		return dbFile.length();
+	}
+	
+	private void checkpoint() {
+		String scriptFilePath = System.getProperty("user.dir") + File.separator + "checkpoint.sh";
+		String[] command = {"/bin/bash", scriptFilePath };
+		try {
+			LOGGER.info("Executing checkpoint...");
+			Process p = new ProcessBuilder(command).redirectErrorStream(true).start();
+			p.waitFor();
+		} catch (IOException e) {
+			LOGGER.error("Exception while executing checkpoint on virtuoso database.", e);
+		} catch (InterruptedException e) {
+			LOGGER.error("Exception while executing checkpoint on virtuoso database.", e);
+		}
 	}
 	
 	// returns the number of loaded triples to check if all version's triples loaded successfully.
