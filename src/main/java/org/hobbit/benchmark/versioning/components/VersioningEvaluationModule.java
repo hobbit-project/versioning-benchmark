@@ -40,6 +40,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
     private Property QT_6_AVG_EXEC_TIME = null;
     private Property QT_7_AVG_EXEC_TIME = null;
     private Property QT_8_AVG_EXEC_TIME = null;
+    private Property QUERY_FAILURES = null;
     
     private IngestionStatistics is = new IngestionStatistics();
     private QueryTypeStatistics qts1 = new QueryTypeStatistics(1);
@@ -52,6 +53,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
     private QueryTypeStatistics qts8 = new QueryTypeStatistics(8);
     
 	private float storageCost = 0;
+	private int queryFailures = 0;
 
 	@Override
     public void init() throws Exception {
@@ -72,7 +74,8 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         QT_6_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_6_AVG_EXEC_TIME);
         QT_7_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_7_AVG_EXEC_TIME);
         QT_8_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_8_AVG_EXEC_TIME);
-        
+        QUERY_FAILURES = initFinalModelFromEnv(env, VersioningConstants.QUERY_FAILURES);
+
 		LOGGER.info("Evaluation Module initialized successfully.");
     }
 	
@@ -174,42 +177,66 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 					case 1:
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts1.reportSuccess(execTime); } 
-						else { qts1.reportFailure(); }
+						else { 
+							qts1.reportFailure(); 
+							queryFailures++;
+						}
 						break;
 					case 2:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts2.reportSuccess(execTime); } 
-						else { qts2.reportFailure(); }
+						else { 
+							qts2.reportFailure(); 
+							queryFailures++;
+						}
 						break;
 					case 3:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts3.reportSuccess(execTime); } 
-						else { qts3.reportFailure(); }
+						else { 
+							qts3.reportFailure(); 
+							queryFailures++;
+						}
 						break;
 					case 4:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts4.reportSuccess(execTime); } 
-						else { qts4.reportFailure(); }
+						else { 
+							qts4.reportFailure(); 
+							queryFailures++;
+						}
 						break;
 					case 5:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts5.reportSuccess(execTime); } 
-						else { qts5.reportFailure(); }
+						else { 
+							qts5.reportFailure(); 
+							queryFailures++;
+						}
 						break;
 					case 6:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts6.reportSuccess(execTime); } 
-						else { qts6.reportFailure(); }
+						else { 
+							qts6.reportFailure(); 
+							queryFailures++;
+						}
 						break;
 					case 7:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts7.reportSuccess(execTime); } 
-						else { qts7.reportFailure(); }
+						else { 
+							qts7.reportFailure(); 
+							queryFailures++;
+						}
 						break;
 					case 8:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts8.reportSuccess(execTime); } 
-						else { qts8.reportFailure(); }
+						else { 
+							qts8.reportFailure(); 
+							queryFailures++;
+						}
 						break;
 				}
 				LOGGER.info("Query task of type: " + queryType + " executed in " + execTime + " ms and returned " + resultRowCount + "/" + expectedResultsNum + " results.");
@@ -231,6 +258,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		LOGGER.info("Query type 6 errors: " + qts6.getFailuresCount());
 		LOGGER.info("Query type 7 errors: " + qts7.getFailuresCount());
 		LOGGER.info("Query type 8 errors: " + qts8.getFailuresCount());
+		LOGGER.info("Total query errors: " + queryFailures);
 
 		
 		if (experimentUri == null) {
@@ -307,6 +335,12 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         LOGGER.info("QT_8_AVG_EXEC_TIME: " + 
         		qts8.getAvgExecutionTimeMs() + "\n" + 
 				queryType8AvgExecTimeLiteral);
+        
+        Literal queryFailuresLiteral = finalModel.createTypedLiteral(queryFailures, XSDDatatype.XSDunsignedInt);
+        finalModel.add(experimentResource, QUERY_FAILURES, queryFailuresLiteral);
+        LOGGER.info("QUERY_FAILURES: " + 
+        		queryFailures + "\n" + 
+        		queryFailuresLiteral);
 
         return finalModel;
 	}

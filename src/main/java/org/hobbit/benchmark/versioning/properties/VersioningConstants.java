@@ -65,5 +65,6 @@ public final class VersioningConstants {
 
 	public static final String QT_8_AVG_EXEC_TIME = "query-type-8_avgerage_execution_time";
 
+	public static final String QUERY_FAILURES = "query-failures";
 
 }
