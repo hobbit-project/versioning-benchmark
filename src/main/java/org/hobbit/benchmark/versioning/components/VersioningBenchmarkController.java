@@ -3,6 +3,7 @@ package org.hobbit.benchmark.versioning.components;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.apache.jena.rdf.model.RDFNode;
@@ -11,6 +12,7 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDFS;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.core.Commands;
+import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractBenchmarkController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +27,9 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	
 	private static final String PREFIX = "http://w3id.org/hobbit/versioning-benchmark/vocab#";
 	
-    private String[] envVariablesEvaluationModule = null;
+    private String[] evalModuleEnvVariables = null;
+    private String[] dataGenEnvVariables = null;
+    private String[] evalStorageEnvVariables = null;
 
 	@Override
 	public void init() throws Exception {
@@ -42,7 +46,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		int subsParametersAmount = (Integer) getProperty(PREFIX + "querySubstitutionParameters", 10);
 		
 		// data generators environmental values
-		String[] envVariablesDataGenerator = new String[] {
+		dataGenEnvVariables = new String[] {
 				VersioningConstants.NUMBER_OF_DATA_GENERATORS + "=" + numberOfDataGenerators,
 				VersioningConstants.DATA_GENERATOR_SEED + "=" + generatorSeed,
 				VersioningConstants.DATASET_SIZE_IN_TRIPLES + "=" + datasetSize,
@@ -54,7 +58,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		};
 		
 		// evaluation module environmental values
-		envVariablesEvaluationModule = new String[] {
+		evalModuleEnvVariables = new String[] {
 				VersioningConstants.INITIAL_VERSION_INGESTION_SPEED + "=" + PREFIX + "initialVersionIngestionSpeed",
 				VersioningConstants.AVG_APPLIED_CHANGES_PS + "=" + PREFIX + "avgAppliedChangesPS",
 				VersioningConstants.STORAGE_COST + "=" + PREFIX + "storageCost",
@@ -68,8 +72,13 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 				VersioningConstants.QT_8_AVG_EXEC_TIME + "=" + PREFIX + "queryType8AvgExecTime"
 		};
 		
+		
+		evalStorageEnvVariables = ArrayUtils.add(DEFAULT_EVAL_STORAGE_PARAMETERS,
+                Constants.RABBIT_MQ_HOST_NAME_KEY + "=" + this.rabbitMQHostName);
+		evalStorageEnvVariables = ArrayUtils.add(evalStorageEnvVariables, "ACKNOWLEDGEMENT_FLAG=true");
+		
 		// Create data generators
-		createDataGenerators(DATA_GENERATOR_CONTAINER_IMAGE, numberOfDataGenerators, envVariablesDataGenerator);
+		createDataGenerators(DATA_GENERATOR_CONTAINER_IMAGE, numberOfDataGenerators, dataGenEnvVariables);
 		LOGGER.info("Data Generators created successfully.");
 
 		// Create task generators
@@ -77,7 +86,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		LOGGER.info("Task Generators created successfully.");
 
 		// Create evaluation storage
-		createEvaluationStorage();
+		createEvaluationStorage(DEFAULT_EVAL_STORAGE_IMAGE, evalStorageEnvVariables);
 		LOGGER.info("Evaluation Storage created successfully.");
 		
 		waitForComponentsToInitialize();
@@ -154,11 +163,11 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 
         // wait for the system to terminate
         LOGGER.info("Waiting for the system to terminate.");
-        waitForSystemToFinish(1000 * 60 * 2);
+        waitForSystemToFinish(1000 * 60 * 5);
         LOGGER.info("System terminated.");
         
         // create the evaluation module
-        createEvaluationModule(EVALUATION_MODULE_CONTAINER_IMAGE, envVariablesEvaluationModule);
+        createEvaluationModule(EVALUATION_MODULE_CONTAINER_IMAGE, evalModuleEnvVariables);
         
         // wait for the evaluation to finish
         LOGGER.info("Waiting for the evaluation to finish.");

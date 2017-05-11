@@ -4,12 +4,12 @@ import java.io.IOException;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.hobbit.benchmark.versioning.Task;
-import org.hobbit.core.components.AbstractTaskGenerator;
+import org.hobbit.core.components.AbstractSequencingTaskGenerator;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VersioningTaskGenerator extends AbstractTaskGenerator {
+public class VersioningTaskGenerator extends AbstractSequencingTaskGenerator {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningTaskGenerator.class);
    		
@@ -61,23 +61,10 @@ public class VersioningTaskGenerator extends AbstractTaskGenerator {
 		}
 	}
 	
-//	@Override
-//    public void close() throws IOException {
-//		LOGGER.info("Closign Task Generator...");
-//		super.close();
-//		LOGGER.info("Task Genererator closed successfully.");
-//	}
-	
 	@Override
     public void close() throws IOException {
-		LOGGER.info("Closign Task Generator...");
-		try {
-			Thread.sleep(1000 * 60 * 2);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		LOGGER.info("Closing Task Generator...");
 		super.close();
-		LOGGER.info("Task Genererator closed successfully.");
+		LOGGER.info("Task Generator closed successfully.");
 	}
 }
