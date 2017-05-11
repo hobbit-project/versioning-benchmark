@@ -141,6 +141,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				try {
 					results = qexec.execSelect();
 				} catch (Exception e) {
+					LOGGER.error("Task " + tId + " failed to execute.", e);
 					taskExecutedSuccesfully = false;
 				}
 				long queryEnd = System.currentTimeMillis();

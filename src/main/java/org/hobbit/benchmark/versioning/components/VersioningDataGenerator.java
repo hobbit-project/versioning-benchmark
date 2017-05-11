@@ -517,7 +517,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					+ "\n\t\t\t" + currDataGeneratorCorrelations + " correlations of total " + adjustedCorrelations);
 
 		// get available cores to let data generated through multiple threads. 
-		dataGeneratorWorkers = Runtime.getRuntime().availableProcessors();
+		dataGeneratorWorkers = Runtime.getRuntime().availableProcessors() / 2;
 		
 		// re-initialize test.properties file that is required for data generation
 		configuration.setIntProperty("datasetSize", currDataGeneratorDatasetSizeInTriples);
