@@ -27,6 +27,7 @@ import org.apache.jena.sparql.resultset.ResultSetMem;
 import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
+import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
 import org.hobbit.core.components.AbstractDataGenerator;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
@@ -282,6 +283,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					tasks.set(Integer.parseInt(taskId), task);
 					LOGGER.info("Ingestion task " + taskId + " triples : " + triplesToBeInserted);
 				}
+				cQexec.close();
 				break;
 			// skip the storage space task
 			case 2:
@@ -331,10 +333,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
 						LOGGER.info("Expected number of results (instead of the results themselves) for task " + taskId + " computed: " + count );
 					} else {
-						expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(results.getRowNumber()));
+						int rowNum = results.getRowNumber();
+						expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(rowNum));
 //						expectedAnswers[1] = outputStream.toByteArray();
 						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
-						LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + results.getRowNumber());
+						LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + rowNum);
 					}
 				} else {
 					expectedAnswers[0] = RabbitMQUtils.writeString("-1");
@@ -345,6 +348,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 				task.setExpectedAnswers(RabbitMQUtils.writeByteArrays(expectedAnswers));
 				tasks.set(Integer.parseInt(taskId), task);
+				qexec.close();
 				break;
 			}
 		}	
@@ -518,6 +522,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		// get available cores to let data generated through multiple threads. 
 		dataGeneratorWorkers = Runtime.getRuntime().availableProcessors() / 2;
+//		dataGeneratorWorkers = 1;
 		
 		// re-initialize test.properties file that is required for data generation
 		configuration.setIntProperty("datasetSize", currDataGeneratorDatasetSizeInTriples);
@@ -659,7 +664,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
     			LOGGER.info(file.getAbsolutePath() + " (" + (double) file.length() / 1000 + " KB) sent to System Adapter.");
         	}
         	LOGGER.info("All ontologies and generated data successfully sent to System Adapter.");
-        	
+        	sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED);
+			LOGGER.info("Signal that all data generated successfully sent to System Adapter");
+
         	// send generated tasks along with their expected answers to task generator
         	for (Task task : tasks) {
         		byte[] data = SerializationUtils.serialize(task);       			

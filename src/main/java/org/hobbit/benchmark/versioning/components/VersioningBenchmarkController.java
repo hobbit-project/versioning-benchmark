@@ -1,6 +1,7 @@
 package org.hobbit.benchmark.versioning.components;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.Properties;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -34,7 +35,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	@Override
 	public void init() throws Exception {
         LOGGER.info("Initilalizing Benchmark Controller...");
-		super.init();
+        super.init();
         
 		int numberOfDataGenerators = (Integer) getProperty(PREFIX + "hasNumberOfGenerators", 1);
 		int datasetSize =  (Integer) getProperty(PREFIX + "datasetSizeInTriples", 1000000);

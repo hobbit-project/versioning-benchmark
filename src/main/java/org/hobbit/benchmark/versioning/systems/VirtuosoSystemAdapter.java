@@ -23,6 +23,7 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
+import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
 import org.hobbit.core.components.AbstractSystemAdapter;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
@@ -36,6 +37,8 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		
 	private static final Logger LOGGER = LoggerFactory.getLogger(VirtuosoSystemAdapter.class);
 	private ArrayList<byte[][]> ingestionResultsArrays = new ArrayList<byte[][]>();
+	private boolean dataGenFinished = false;
+	private boolean dataLoadingFinished = false;
 	
 	// must match the "Generated data format" parameter given when starting the experiment
 	private String generatedDataFormat = "n-triples";
@@ -100,23 +103,25 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		// 3 for SPARQL query task
 		switch (Integer.parseInt(taskType)) {
 			case 1:
-				// get the version that will be loaded.
-				int version = Integer.parseInt(queryText.substring(8, queryText.indexOf(",")));
-				
-				// answer of loading is of type: "triples:xxx,time:xxx"
-				// so we parse it to get the loaded triples and the time required for loading them
-				String answer = loadVersion(version);
-				long loadedTriples = Long.parseLong(answer.split(",")[0].split(":")[1]);
-				long loadingTime = Long.parseLong(answer.split(",")[1].split(":")[1]);
-				LOGGER.info("Version " + version + " loaded successfully in "+ loadingTime + " ms.");
-
-				// TODO 
-				// in v2.0 of the benchmark the number of changes should be reported instead of 
-				// loaded triples, as we will also have deletions except of additions of triples
-				resultsArray = new byte[3][];
-				resultsArray[0] = RabbitMQUtils.writeString(taskType);
-				resultsArray[1] = RabbitMQUtils.writeString(Long.toString(loadedTriples));
-				resultsArray[2] = RabbitMQUtils.writeString(Long.toString(loadingTime));
+				if(dataGenFinished) {
+					// get the version that will be loaded.
+					int version = Integer.parseInt(queryText.substring(8, queryText.indexOf(",")));
+					
+					// answer of loading is of type: "triples:xxx,time:xxx"
+					// so we parse it to get the loaded triples and the time required for loading them
+					String answer = loadVersion(version);
+					long loadedTriples = Long.parseLong(answer.split(",")[0].split(":")[1]);
+					long loadingTime = Long.parseLong(answer.split(",")[1].split(":")[1]);
+					LOGGER.info("Version " + version + " loaded successfully in "+ loadingTime + " ms.");
+	
+					// TODO 
+					// in v2.0 of the benchmark the number of changes should be reported instead of 
+					// loaded triples, as we will also have deletions except of additions of triples
+					resultsArray = new byte[3][];
+					resultsArray[0] = RabbitMQUtils.writeString(taskType);
+					resultsArray[1] = RabbitMQUtils.writeString(Long.toString(loadedTriples));
+					resultsArray[2] = RabbitMQUtils.writeString(Long.toString(loadingTime));
+				}
 				break;
 			case 2:
 				// get the storage space required for all versions to be stored in virtuoso
@@ -129,42 +134,44 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				resultsArray[1] = RabbitMQUtils.writeString(Long.toString(storageSpaceCost));
 				break;
 			case 3:
-				
-				String queryType = queryText.substring(21, 22);
-				LOGGER.info("queryType: " + queryType);
-
-				Query query = QueryFactory.create(queryText);
-				QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
-				ResultSet results = null;
-
-				long queryStart = System.currentTimeMillis();
-				try {
-					results = qexec.execSelect();
-				} catch (Exception e) {
-					LOGGER.error("Task " + tId + " failed to execute.", e);
-					taskExecutedSuccesfully = false;
-				}
-				long queryEnd = System.currentTimeMillis();
-				long excecutionTime = queryEnd - queryStart;
-
-				resultsArray = new byte[5][];
-				resultsArray[0] = RabbitMQUtils.writeString(taskType);
-				resultsArray[1] = RabbitMQUtils.writeString(queryType);
-				resultsArray[2] = RabbitMQUtils.writeString(Long.toString(excecutionTime));
-				
-				if(taskExecutedSuccesfully) {
-					ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
-					ResultSetFormatter.outputAsJSON(queryResponseBos, results);
-					int returnedResults = results.getRowNumber();
+				if(dataLoadingFinished) {
+					String queryType = queryText.substring(21, 22);
+					LOGGER.info("queryType: " + queryType);
+	
+					Query query = QueryFactory.create(queryText);
+					QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
+					ResultSet results = null;
+	
+					long queryStart = System.currentTimeMillis();
+					try {
+						results = qexec.execSelect();
+					} catch (Exception e) {
+						LOGGER.error("Task " + tId + " failed to execute.", e);
+						taskExecutedSuccesfully = false;
+					}
+					long queryEnd = System.currentTimeMillis();
+					long excecutionTime = queryEnd - queryStart;
+	
+					resultsArray = new byte[5][];
+					resultsArray[0] = RabbitMQUtils.writeString(taskType);
+					resultsArray[1] = RabbitMQUtils.writeString(queryType);
+					resultsArray[2] = RabbitMQUtils.writeString(Long.toString(excecutionTime));
 					
-					resultsArray[3] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
-//					resultsArray[4] = queryResponseBos.toByteArray();
-					resultsArray[4] = RabbitMQUtils.writeString("insteadOfQueryResponse");
-					LOGGER.info("Task " + tId + " executed successfully in " + excecutionTime + " ms and returned "+ returnedResults + " results.");
-				} else {
-					resultsArray[3] = RabbitMQUtils.writeString("-1");
-					resultsArray[4] = RabbitMQUtils.writeString("-1");
-					LOGGER.info("Task " + tId + " failed to executed. Error code (-1) set as result.");
+					if(taskExecutedSuccesfully) {
+						ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
+						ResultSetFormatter.outputAsJSON(queryResponseBos, results);
+						int returnedResults = results.getRowNumber();
+						
+						resultsArray[3] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
+	//					resultsArray[4] = queryResponseBos.toByteArray();
+						resultsArray[4] = RabbitMQUtils.writeString("insteadOfQueryResponse");
+						LOGGER.info("Task " + tId + " executed successfully in " + excecutionTime + " ms and returned "+ returnedResults + " results.");
+					} else {
+						resultsArray[3] = RabbitMQUtils.writeString("-1");
+						resultsArray[4] = RabbitMQUtils.writeString("-1");
+						LOGGER.info("Task " + tId + " failed to executed. Error code (-1) set as result.");
+					}
+					qexec.close();
 				}
 				break;
 		}
@@ -226,6 +233,18 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		}	
 		return answer;
 	}
+	
+	@Override
+    public void receiveCommand(byte command, byte[] data) {
+    	if (VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED == command) {
+			LOGGER.info("Received signal from Data Generator that data generation finished.");
+    		dataGenFinished = true;
+    	} else if(VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED == command) {
+			LOGGER.info("Received signal that all generated data loaded successfully.");
+    		dataLoadingFinished = true;
+    	}
+    	super.receiveCommand(command, data);
+    }
 	
 	@Override
     public void close() throws IOException {
