@@ -48,13 +48,13 @@ public class VersioningTaskGenerator extends AbstractSequencingTaskGenerator {
 					LOGGER.error("An error occured while sending message to cmd queue.", e1);
 				}
 			}
-			long timestamp = System.currentTimeMillis();
 			byte[][] taskDataArray = new byte[2][];
 			taskDataArray[0] = RabbitMQUtils.writeString(taskType);
 			taskDataArray[1] = RabbitMQUtils.writeString(taskQuery);
 
 			// Send the task to the system
 			byte[] taskData = RabbitMQUtils.writeByteArrays(taskDataArray);
+			long timestamp = System.currentTimeMillis();
 	        sendTaskToSystemAdapter(taskId, taskData);
 			LOGGER.info("Task " + taskId + " sent to System Adapter.");
 	

@@ -142,30 +142,27 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 					QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
 					ResultSet results = null;
 	
-					long queryStart = System.currentTimeMillis();
 					try {
 						results = qexec.execSelect();
 					} catch (Exception e) {
 						LOGGER.error("Task " + tId + " failed to execute.", e);
 						taskExecutedSuccesfully = false;
 					}
-					long queryEnd = System.currentTimeMillis();
-					long excecutionTime = queryEnd - queryStart;
 	
-					resultsArray = new byte[5][];
+					resultsArray = new byte[4][];
 					resultsArray[0] = RabbitMQUtils.writeString(taskType);
 					resultsArray[1] = RabbitMQUtils.writeString(queryType);
-					resultsArray[2] = RabbitMQUtils.writeString(Long.toString(excecutionTime));
 					
 					if(taskExecutedSuccesfully) {
 						ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
 						ResultSetFormatter.outputAsJSON(queryResponseBos, results);
 						int returnedResults = results.getRowNumber();
 						
-						resultsArray[3] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
-	//					resultsArray[4] = queryResponseBos.toByteArray();
-						resultsArray[4] = RabbitMQUtils.writeString("insteadOfQueryResponse");
-						LOGGER.info("Task " + tId + " executed successfully in " + excecutionTime + " ms and returned "+ returnedResults + " results.");
+						resultsArray[2] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
+						// comment out when big messages can be retrieved from evalstorage
+//						resultsArray[4] = queryResponseBos.toByteArray();
+						resultsArray[3] = RabbitMQUtils.writeString("insteadOfQueryResponse");
+						LOGGER.info("Task " + tId + " executed successfully and returned "+ returnedResults + " results.");
 					} else {
 						resultsArray[3] = RabbitMQUtils.writeString("-1");
 						resultsArray[4] = RabbitMQUtils.writeString("-1");

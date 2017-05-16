@@ -158,7 +158,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				int queryType = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
 				LOGGER.info("queryType: "+queryType);
 				// get its execution time
-				long execTime = Long.parseLong(RabbitMQUtils.readString(receivedBuffer));
+				long execTime = responseReceivedTimestamp - taskSentTimestamp;
 				LOGGER.info("execTime: "+execTime);
 				// get the results row count
 				int resultRowCount = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
