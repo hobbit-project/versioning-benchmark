@@ -154,12 +154,12 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Loading generating data, in order to compute gold standard...");
 		// load generated creative works to virtuoso, in order to compute the gold standard
 		loadGeneratedData();
+		Thread.sleep(1000 * 60);
 
 		// compute expected answers for all tasks
 		LOGGER.info("Computing expected answers for generated SPRQL tasks...");
 		computeExpectedAnswers();
 		LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");	
-		Thread.sleep(1000 * 60);
 	}
 	
 	// get the query strings after compiling the mustache templates
@@ -521,8 +521,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					+ "\n\t\t\t" + currDataGeneratorCorrelations + " correlations of total " + adjustedCorrelations);
 
 		// get available cores to let data generated through multiple threads. 
-		dataGeneratorWorkers = Runtime.getRuntime().availableProcessors() / 2;
-//		dataGeneratorWorkers = 1;
+//		dataGeneratorWorkers = Runtime.getRuntime().availableProcessors() / 2;
+		dataGeneratorWorkers = 1;
 		
 		// re-initialize test.properties file that is required for data generation
 		configuration.setIntProperty("datasetSize", currDataGeneratorDatasetSizeInTriples);
