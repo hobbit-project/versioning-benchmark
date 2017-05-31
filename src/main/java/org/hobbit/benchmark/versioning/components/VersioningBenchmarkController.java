@@ -1,17 +1,11 @@
 package org.hobbit.benchmark.versioning.components;
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.NodeIterator;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.vocabulary.RDFS;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.core.Commands;
 import org.hobbit.core.Constants;
