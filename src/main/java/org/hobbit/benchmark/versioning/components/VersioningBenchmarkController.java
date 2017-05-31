@@ -2,6 +2,7 @@ package org.hobbit.benchmark.versioning.components;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -28,7 +29,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	
 	private static final String PREFIX = "http://w3id.org/hobbit/versioning-benchmark/vocab#";
 	
-    private String[] evalModuleEnvVariables = null;
+    private ArrayList<String> evalModuleEnvVariables = new ArrayList<String>();
     private String[] dataGenEnvVariables = null;
     private String[] evalStorageEnvVariables = null;
 
@@ -59,20 +60,18 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		};
 		
 		// evaluation module environmental values
-		evalModuleEnvVariables = new String[] {
-				VersioningConstants.INITIAL_VERSION_INGESTION_SPEED + "=" + PREFIX + "initialVersionIngestionSpeed",
-				VersioningConstants.AVG_APPLIED_CHANGES_PS + "=" + PREFIX + "avgAppliedChangesPS",
-				VersioningConstants.STORAGE_COST + "=" + PREFIX + "storageCost",
-				VersioningConstants.QT_1_AVG_EXEC_TIME + "=" + PREFIX + "queryType1AvgExecTime",
-				VersioningConstants.QT_2_AVG_EXEC_TIME + "=" + PREFIX + "queryType2AvgExecTime",
-				VersioningConstants.QT_3_AVG_EXEC_TIME + "=" + PREFIX + "queryType3AvgExecTime",
-				VersioningConstants.QT_4_AVG_EXEC_TIME + "=" + PREFIX + "queryType4AvgExecTime",
-				VersioningConstants.QT_5_AVG_EXEC_TIME + "=" + PREFIX + "queryType5AvgExecTime",
-				VersioningConstants.QT_6_AVG_EXEC_TIME + "=" + PREFIX + "queryType6AvgExecTime",
-				VersioningConstants.QT_7_AVG_EXEC_TIME + "=" + PREFIX + "queryType7AvgExecTime",
-				VersioningConstants.QT_8_AVG_EXEC_TIME + "=" + PREFIX + "queryType8AvgExecTime",
-				VersioningConstants.QUERY_FAILURES + "=" + PREFIX + "queryFailures"
-		};
+		evalModuleEnvVariables.add(VersioningConstants.INITIAL_VERSION_INGESTION_SPEED + "=" + PREFIX + "initialVersionIngestionSpeed");
+		evalModuleEnvVariables.add(VersioningConstants.AVG_APPLIED_CHANGES_PS + "=" + PREFIX + "avgAppliedChangesPS");
+		evalModuleEnvVariables.add(VersioningConstants.STORAGE_COST + "=" + PREFIX + "storageCost");
+		evalModuleEnvVariables.add(VersioningConstants.QT_1_AVG_EXEC_TIME + "=" + PREFIX + "queryType1AvgExecTime");
+		evalModuleEnvVariables.add(VersioningConstants.QT_2_AVG_EXEC_TIME + "=" + PREFIX + "queryType2AvgExecTime");
+		evalModuleEnvVariables.add(VersioningConstants.QT_3_AVG_EXEC_TIME + "=" + PREFIX + "queryType3AvgExecTime");
+		evalModuleEnvVariables.add(VersioningConstants.QT_4_AVG_EXEC_TIME + "=" + PREFIX + "queryType4AvgExecTime");
+		evalModuleEnvVariables.add(VersioningConstants.QT_5_AVG_EXEC_TIME + "=" + PREFIX + "queryType5AvgExecTime");
+		evalModuleEnvVariables.add(VersioningConstants.QT_6_AVG_EXEC_TIME + "=" + PREFIX + "queryType6AvgExecTime");
+		evalModuleEnvVariables.add(VersioningConstants.QT_7_AVG_EXEC_TIME + "=" + PREFIX + "queryType7AvgExecTime");
+		evalModuleEnvVariables.add(VersioningConstants.QT_8_AVG_EXEC_TIME + "=" + PREFIX + "queryType8AvgExecTime");
+		evalModuleEnvVariables.add(VersioningConstants.QUERY_FAILURES + "=" + PREFIX + "queryFailures");
 		
 		
 		evalStorageEnvVariables = ArrayUtils.add(DEFAULT_EVAL_STORAGE_PARAMETERS,
@@ -169,7 +168,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         LOGGER.info("System terminated.");
         
         // create the evaluation module
-        createEvaluationModule(EVALUATION_MODULE_CONTAINER_IMAGE, evalModuleEnvVariables);
+        createEvaluationModule(EVALUATION_MODULE_CONTAINER_IMAGE, evalModuleEnvVariables.toArray(new String[evalModuleEnvVariables.size()]));
         
         // wait for the evaluation to finish
         LOGGER.info("Waiting for the evaluation to finish.");

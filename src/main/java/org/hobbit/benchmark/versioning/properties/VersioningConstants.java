@@ -67,4 +67,8 @@ public final class VersioningConstants {
 
 	public static final String QUERY_FAILURES = "query-failures";
 
+	public static final String INITIAL_VERSION_LOADING_TIME = "initial_version_loading-time";
+	
+//	public static final ArrayList<String> Ci_LOADING_TIME = "v0_loading-time";
+
 }
