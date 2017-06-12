@@ -1,9 +1,23 @@
-FROM java
+FROM tenforce/virtuoso
 
+# get java 8
+RUN apt-get update && \
+  apt-get -y upgrade && \
+  apt-get -y install software-properties-common && \
+  add-apt-repository ppa:webupd8team/java -y && \
+  apt-get update
+
+RUN (echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections) && \
+  apt-get install -y oracle-java8-installer oracle-java8-set-default
+
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+ENV PATH $JAVA_HOME/bin:$PATH
+
+# benchmark
 ADD target/versioning-0.0.1-SNAPSHOT.jar /versioning/versioning.jar
 
-#COPY required_files/* /versioning/
+COPY gold-standard_required-files/ /versioning/
 
 WORKDIR /versioning
 
-CMD java -cp versioning.jar org.hobbit.core.run.ComponentStarter org.hobbit.benchmark.versioning.gs.VirtuosoGoldStandard
+CMD ["/versioning/run.sh"]

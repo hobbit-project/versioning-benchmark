@@ -90,35 +90,6 @@ public class VirtuosoGoldStandard extends AbstractPlatformConnectorComponent
         expectedAnswers2DataGenSender = DataSenderImpl.builder().queue(getFactoryForOutgoingDataQueues(),
                 generateSessionQueueName(VersioningConstants.GOLD_STD_2_DATA_GEN_QUEUE_NAME)).build();
         
-        String[] envVariablesVirtuoso = new String[] { 
-        		"SPARQL_UPDATE=true",
-        		"DEFAULT_GRAPH=http://www.virtuoso-graph.com/" };
-        
-        String virtuosoContName = createContainer("tenforce/virtuoso:latest", envVariablesVirtuoso);
-        
-        QueryExecutionFactory qef = FluentQueryExecutionFactory
-                .http("http://" + virtuosoContName + ":8890/sparql")
-                .config()
-                .withPagination(50000)
-                .end()
-                .create();
-
-
-        ResultSet testResults = null;
-        while (testResults == null) {
-            LOGGER.info("Using " + "http://" + virtuosoContName + ":8890/sparql" + " to run test select query");
-
-            QueryExecution qe = qef.createQueryExecution("SELECT * { ?s a <http://ex.org/foo/bar> } LIMIT 1");
-            try {
-                TimeUnit.SECONDS.sleep(2);
-                testResults = qe.execSelect();
-            } catch (Exception e) {
-            } finally {
-                qe.close();
-            }
-        }
-        qef.close();
-        
         LOGGER.info("Virtuoso Component initialized successfully.");
     }
 
