@@ -667,6 +667,13 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
         	sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED);
 			LOGGER.info("Signal that all data generated successfully sent to System Adapter");
 
+        	// responsible component for computing gold standard knows when to "download"
+        	// the generated data
+			// the localhost address also send in order to know from where to download
+//			String localhost = "";
+//        	sendToCmdQueue(VersioningConstants.DATA_GEN_DATA_GENERATION_FINISHED, RabbitMQUtils.writeString(Integer.toString(getGeneratorId())));
+//			LOGGER.info("Signal that all data generated successfully sent to Gold Standard component");
+
         	// send generated tasks along with their expected answers to task generator
         	for (Task task : tasks) {
         		byte[] data = SerializationUtils.serialize(task);       			

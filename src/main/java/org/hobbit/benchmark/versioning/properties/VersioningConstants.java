@@ -8,7 +8,15 @@ package org.hobbit.benchmark.versioning.properties;
  *
  */
 public final class VersioningConstants {
-	
+
+	// =============== COMMAND QUEUE CONSTANTS ===============
+
+    public static final byte DATA_GEN_DATA_GENERATION_FINISHED = (byte) 301;
+
+    public static final byte DATA_GEN_DATA_GENERATION_STARTED = (byte) 302;
+
+    public static final byte VIRTUOSO_GS_READY_SIGNAL = (byte) 303;
+
 	// =============== DATA GENERATOR CONSTANTS ===============
 
 	public static final String DATA_GENERATOR_SEED = "data-generator_seed";
@@ -70,5 +78,16 @@ public final class VersioningConstants {
 	public static final String INITIAL_VERSION_LOADING_TIME = "initial_version_loading-time";
 	
 //	public static final ArrayList<String> Ci_LOADING_TIME = "v0_loading-time";
+
+	// =============== GOLD STANDARD CONSTANTS ===============
+	
+    public static final String DATA_GEN_DATA_2_GOLD_STD_QUEUE_NAME = "hobbit.datagen-data-gs";
+
+    public static final String DATA_GEN_TASK_2_GOLD_STD_QUEUE_NAME = "hobbit.datagen-task-gs";
+
+    public static final String GOLD_STD_2_DATA_GEN_QUEUE_NAME = "hobbit.gs-datagen";
+
+    public static final String DATA_GEN_LOCALHOST = "hobbit.datagen-%d.localhost";
+
 
 }

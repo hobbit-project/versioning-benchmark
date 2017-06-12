@@ -7,9 +7,11 @@ import java.util.Properties;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
+import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
 import org.hobbit.core.Commands;
 import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractBenchmarkController;
+import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,19 +22,21 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator";
 	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator";
 	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule";
+	private static final String VIRTUOSO_GS_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningvirtuosogs";
 	
 	private static final String PREFIX = "http://w3id.org/hobbit/versioning-benchmark/vocab#";
 	
     private ArrayList<String> evalModuleEnvVariables = new ArrayList<String>();
     private String[] dataGenEnvVariables = null;
     private String[] evalStorageEnvVariables = null;
+    private int numberOfDataGenerators = 0;
 
 	@Override
 	public void init() throws Exception {
         LOGGER.info("Initilalizing Benchmark Controller...");
         super.init();
         
-		int numberOfDataGenerators = (Integer) getProperty(PREFIX + "hasNumberOfGenerators", 1);
+		numberOfDataGenerators = (Integer) getProperty(PREFIX + "hasNumberOfGenerators", 1);
 		int datasetSize =  (Integer) getProperty(PREFIX + "datasetSizeInTriples", 1000000);
 		int generatorSeed =  (Integer) getProperty(PREFIX + "generatorSeed", 0);
 		int numOfVersions =  (Integer) getProperty(PREFIX + "numberOfVersions", 12);
@@ -79,6 +83,10 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		// Create task generators
 		createTaskGenerators(TASK_GENERATOR_CONTAINER_IMAGE, 1, new String[] {} );
 		LOGGER.info("Task Generators created successfully.");
+		
+		// Create component responsible for computing the gold standard
+		createContainer(VIRTUOSO_GS_CONTAINER_IMAGE, new String[] {});
+		LOGGER.info("Virtuoso Gold Standard created successfully.");
 
 		// Create evaluation storage
 		createEvaluationStorage(DEFAULT_EVAL_STORAGE_IMAGE, evalStorageEnvVariables);
@@ -87,6 +95,20 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		waitForComponentsToInitialize();
 		LOGGER.info("All components initilized.");
 	}
+	
+	@Override
+	protected void waitForComponentsToInitialize() {
+		super.waitForComponentsToInitialize();
+        LOGGER.debug("Waiting for Virtuoso Gold Standard to be ready.");
+        try {
+            dataGenReadyMutex.acquire(dataGenContainerIds.size());
+        } catch (InterruptedException e) {
+            String errorMsg = "Interrupted while waiting for the virtuoso gold standard to be ready.";
+            LOGGER.error(errorMsg);
+            throw new IllegalStateException(errorMsg, e);
+        }    
+    }
+
 	
 	/**
      * A generic method for loading parameters from the benchmark parameter model
@@ -133,6 +155,12 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		return propertyValue;
 	}
 	
+	@Override
+    public void receiveCommand(byte command, byte[] data) {
+    	
+    	super.receiveCommand(command, data);
+    }
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -144,6 +172,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		// give the start signals
         sendToCmdQueue(Commands.TASK_GENERATOR_START_SIGNAL);
         sendToCmdQueue(Commands.DATA_GENERATOR_START_SIGNAL);
+        sendToCmdQueue(VersioningConstants.DATA_GEN_DATA_GENERATION_STARTED, RabbitMQUtils.writeString(Integer.toString(numberOfDataGenerators)));
 		LOGGER.info("Start signals sent to Data and Task Generators");
 
         // wait for the data generators to finish their work
