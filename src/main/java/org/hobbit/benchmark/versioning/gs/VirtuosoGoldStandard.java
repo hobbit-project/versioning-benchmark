@@ -97,7 +97,7 @@ public class VirtuosoGoldStandard extends AbstractPlatformConnectorComponent
 	 * @see org.hobbit.core.components.Component#run()
 	 */
 	public void run() throws Exception {
-		sendToCmdQueue(VersioningConstants.VIRTUOSO_GS_READY_SIGNAL);
+//		sendToCmdQueue(VersioningConstants.VIRTUOSO_GS_READY_SIGNAL);
 		// Wait for the start message
 //		startVirtuosoGSMutex.acquire();
 	}
