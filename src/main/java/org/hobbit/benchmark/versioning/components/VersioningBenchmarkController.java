@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import java.util.concurrent.Semaphore;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
@@ -29,6 +31,11 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private String[] dataGenEnvVariables = null;
     private String[] evalStorageEnvVariables = null;
     private int numberOfDataGenerators = 0;
+    
+    /**
+     * Mutex used to wait for the gold standard component to be ready.
+     */
+    protected Semaphore goldStandardReadyMutex = new Semaphore(0);
 
 	@Override
 	public void init() throws Exception {
@@ -98,11 +105,11 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	@Override
 	protected void waitForComponentsToInitialize() {
 		super.waitForComponentsToInitialize();
-        LOGGER.debug("Waiting for Virtuoso Gold Standard to be ready.");
+        LOGGER.debug("Waiting for Gold Standard component to be ready.");
         try {
-            dataGenReadyMutex.acquire(dataGenContainerIds.size());
+        	goldStandardReadyMutex.acquire();
         } catch (InterruptedException e) {
-            String errorMsg = "Interrupted while waiting for the virtuoso gold standard to be ready.";
+            String errorMsg = "Interrupted while waiting for the gold standard component to be ready.";
             LOGGER.error(errorMsg);
             throw new IllegalStateException(errorMsg, e);
         }    
@@ -153,11 +160,14 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		}
 		return propertyValue;
 	}
-	
+
 	@Override
     public void receiveCommand(byte command, byte[] data) {
-    	
     	super.receiveCommand(command, data);
+    	if (command == VersioningConstants.GOLD_STD_READY_SIGNAL) {
+			LOGGER.info("Received signal from Data Generator that data generation finished.");
+			goldStandardReadyMutex.release();
+    	}
     }
 	
 	/*

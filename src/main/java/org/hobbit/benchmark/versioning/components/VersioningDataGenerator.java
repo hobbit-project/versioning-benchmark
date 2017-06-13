@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -28,7 +29,11 @@ import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
+import org.hobbit.core.Commands;
+import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractDataGenerator;
+import org.hobbit.core.rabbit.DataSender;
+import org.hobbit.core.rabbit.DataSenderImpl;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +77,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private String serializationFormat;
 	private int taskId = 0;
 	
+    protected DataSender sender2goldstandard;
+	
 	private Configuration configuration = new Configuration();
 	private Definitions definitions = new Definitions();
 	private RandomUtil randomGenerator = null;
@@ -89,6 +96,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
     public void init() throws Exception {
 		LOGGER.info("Initializing Data Generator '" + getGeneratorId() + "'");
 		super.init();
+		
+		sender2goldstandard = DataSenderImpl.builder().queue(getFactoryForOutgoingDataQueues(),
+                generateSessionQueueName(VersioningConstants.DATA_GEN_DATA_2_GOLD_STD_QUEUE_NAME)).build();
+
 		
 		String configurationFile = System.getProperty("user.dir") + File.separator + "test.properties";
 		String definitionsFile = System.getProperty("user.dir") + File.separator + "definitions.properties";
@@ -662,6 +673,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
         		// send data to system
                 sendDataToSystemAdapter(generatedFile);
     			LOGGER.info(file.getAbsolutePath() + " (" + (double) file.length() / 1000 + " KB) sent to System Adapter.");
+    			
+    			// send data to gold standard component
+    			sendDataToGoldStandard(generatedFile);
+    			LOGGER.info(file.getAbsolutePath() + " (" + (double) file.length() / 1000 + " KB) sent to Gold Standard component.");
         	}
         	LOGGER.info("All ontologies and generated data successfully sent to System Adapter.");
         	sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED);
@@ -709,10 +724,22 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}		
 	}
 	
+	protected void sendDataToGoldStandard(byte[] data) throws IOException {
+		sender2goldstandard.sendData(data);
+    }
+	
+	@Override
+    public void run() throws Exception {
+		LOGGER.info("Running Data Generator...");
+        super.run();
+//        sender2goldstandard.closeWhenFinished();
+    }
+	
 	@Override
 	public void close() throws IOException {
 		LOGGER.info("Closing Data Generator...");
         super.close();
+        IOUtils.closeQuietly(sender2goldstandard);
 		LOGGER.info("Data Generator closed successfully.");
     }
 }

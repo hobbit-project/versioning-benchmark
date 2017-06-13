@@ -15,7 +15,7 @@ public final class VersioningConstants {
 
     public static final byte DATA_GEN_DATA_GENERATION_STARTED = (byte) 302;
 
-    public static final byte VIRTUOSO_GS_READY_SIGNAL = (byte) 303;
+    public static final byte GOLD_STD_READY_SIGNAL = (byte) 303;
 
 	// =============== DATA GENERATOR CONSTANTS ===============
 
