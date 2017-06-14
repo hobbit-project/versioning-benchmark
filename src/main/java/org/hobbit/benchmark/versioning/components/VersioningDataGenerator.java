@@ -4,11 +4,15 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Constructor;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -154,8 +158,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Loading generating data, in order to compute gold standard...");
 		// load generated creative works to virtuoso, in order to compute the gold standard
 		loadGeneratedData();
-		Thread.sleep(1000 * 60);
-
+		
 		// compute expected answers for all tasks
 		LOGGER.info("Computing expected answers for generated SPRQL tasks...");
 		computeExpectedAnswers();
@@ -639,7 +642,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	protected void generateData() throws Exception {
 		
 		File ontologiesPathFile = new File(ontologiesPath);
-		List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "ttl" }, true);
+		List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
 
 		File dataPath = new File(generatedDatasetPath);
 		String[] extensions = new String[] { RDFUtils.getFileExtensionFromRdfFormat(serializationFormat) };
@@ -661,7 +664,12 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
         		byte[] generatedFile = RabbitMQUtils.writeByteArrays(generatedFileArray);
         		// send data to system
                 sendDataToSystemAdapter(generatedFile);
-    			LOGGER.info(file.getAbsolutePath() + " (" + (double) file.length() / 1000 + " KB) sent to System Adapter.");
+                // test
+    			BufferedReader reader = new BufferedReader(new FileReader(file));
+    			int lines = 0;
+    			while (reader.readLine() != null) lines++;
+    			reader.close();
+    			LOGGER.info(file.getAbsolutePath() + " (" + (double) file.length() / 1000 + " KB) sent to System Adapter. lines: " + lines);
         	}
         	LOGGER.info("All ontologies and generated data successfully sent to System Adapter.");
         	sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED);
@@ -678,7 +686,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
             LOGGER.error("Exception while sending file to System Adapter or Task Generator(s).", e);
         }
 	}
-	
 
 	public void loadGeneratedData() {
 		LOGGER.info("Loading generated data files to Virtuoso triplestore in order to compute gold standard...");
