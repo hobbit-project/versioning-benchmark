@@ -4,6 +4,7 @@
 package org.hobbit.benchmark.versioning.systems;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,6 +16,12 @@ import java.util.ArrayList;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
 import org.hobbit.core.components.AbstractSystemAdapter;
@@ -39,11 +46,9 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 
 	@Override
     public void init() throws Exception {
-		LOGGER.info("Initializing virtuoso test system...");
+		LOGGER.info("Initializing R43ples test system...");
         super.init();
-        // get the disk space used by the system before any data is loaded to it
-     	initialDatasetsSize = FileUtils.sizeOfDirectory(new File("/database/dataset"));
-		LOGGER.info("Virtuoso initialized successfully .");
+		LOGGER.info("R43ples initialized successfully .");
     }
 
 	/* (non-Javadoc)
@@ -59,11 +64,14 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 		
 		FileOutputStream fos = null;
 		String revision = null;
+		
+		// since r43ples only supports loading of triples to revision from one 
+		// file we build the appropriate files per revesion
 		if(receivedFilePath.startsWith("/versioning/ontologies") || receivedFilePath.startsWith("/versioning/data/v0")) {
-			revision = "/toLoad/initial-version.nt";
+			revision = "/versioning/toLoad/initial-version.nt";
 		} else {
 			String version = receivedFilePath.substring(18, receivedFilePath.lastIndexOf("/"));
-			revision = "/toLoad/changeset-add-" + version + ".nt";
+			revision = "/versioning/toLoad/changeset-add-" + version + ".nt";
 		}
 		
 		try {
@@ -71,12 +79,7 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 			fos = FileUtils.openOutputStream(outputFile, true);
 			IOUtils.write(fileContentBytes, fos);
 			fos.close();
-			// test
-			BufferedReader reader = new BufferedReader(new FileReader(receivedFilePath));
-			int lines = 0;
-			while (reader.readLine() != null) lines++;
-			reader.close();
-			LOGGER.info(receivedFilePath + " (" + (double) new File(receivedFilePath).length() / 1000 + " KB) received from Data Generator with " + lines + " lines.");
+			LOGGER.info(receivedFilePath + " (" + (double) new File(receivedFilePath).length() / 1000 + " KB) received from Data Generator.");
 
 		} catch (FileNotFoundException e) {
 			LOGGER.error("Exception while creating/opening files to write received data.", e);
@@ -89,7 +92,131 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 	 * @see org.hobbit.core.components.TaskReceivingComponent#receiveGeneratedTask(java.lang.String, byte[])
 	 */
 	public void receiveGeneratedTask(String tId, byte[] data) {
+		LOGGER.info("Task " + tId + " received from task generator");
+		boolean taskExecutedSuccesfully = true;
 		
+		ByteBuffer taskBuffer = ByteBuffer.wrap(data);
+		// read the query type
+		String taskType = RabbitMQUtils.readString(taskBuffer);
+		// read the query
+		String queryText = RabbitMQUtils.readString(taskBuffer);
+		
+		byte[][] resultsArray = null;
+		// 1 stands for ingestion task
+		// 2 for storage space task
+		// 3 for SPARQL query task
+		switch (Integer.parseInt(taskType)) {
+			case 1:
+				if(dataGenFinished) {
+					// get the version that will be loaded.
+					int version = Integer.parseInt(queryText.substring(8, queryText.indexOf(",")));
+					
+					long start = System.currentTimeMillis();
+					loadVersion(version);
+					long end = System.currentTimeMillis();					
+					long loadingTime = end - start;
+					LOGGER.info("Version " + version + " loaded successfully in "+ loadingTime + " ms.");
+	
+					// TODO 
+					// in v2.0 of the benchmark the number of changes should be reported instead of 
+					// loaded triples, as we will also have deletions except of additions of triples
+					resultsArray = new byte[3][];
+					resultsArray[0] = RabbitMQUtils.writeString(taskType);
+					resultsArray[1] = RabbitMQUtils.writeString(Long.toString(0));
+					resultsArray[2] = RabbitMQUtils.writeString(Long.toString(loadingTime));
+				}
+				break;
+			case 2:
+				// get the storage space required for all versions to be stored in virtuoso
+				long finalDatabasesSize = FileUtils.sizeOfDirectory(new File("/database/dataset"));
+				LOGGER.info("Total datasets size: "+ finalDatabasesSize / 1000f + " Kbytes.");
+
+				resultsArray = new byte[2][];
+				resultsArray[0] = RabbitMQUtils.writeString(taskType);
+				resultsArray[1] = RabbitMQUtils.writeString(Long.toString(finalDatabasesSize));
+			try {
+				Thread.sleep(1000 * 60 * 60);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+				break;
+			case 3:
+				if(dataLoadingFinished) {
+					String queryType = queryText.substring(21, 22);
+					LOGGER.info("queryType: " + queryType);
+	
+					// rewrite queries in order to be answered
+					String rewrittenQuery = rewriteQuery(queryType, queryText);
+					
+					LOGGER.info("OLD QUERY: " + queryText);
+					LOGGER.info("NEW QUERY: " + rewrittenQuery);
+					
+					
+//					Query query = QueryFactory.create(rewrittenQuery);
+//					QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
+//					ResultSet results = null;
+//	
+//					try {
+//						results = qexec.execSelect();
+//					} catch (Exception e) {
+//						LOGGER.error("Task " + tId + " failed to execute.", e);
+//						taskExecutedSuccesfully = false;
+//					}
+//	
+//					resultsArray = new byte[4][];
+//					resultsArray[0] = RabbitMQUtils.writeString(taskType);
+//					resultsArray[1] = RabbitMQUtils.writeString(queryType);
+//					
+//					if(taskExecutedSuccesfully) {
+//						ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
+//						ResultSetFormatter.outputAsJSON(queryResponseBos, results);
+//						int returnedResults = results.getRowNumber();
+//						
+//						resultsArray[2] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
+//						// comment out when big messages can be retrieved from evalstorage
+////						resultsArray[4] = queryResponseBos.toByteArray();
+//						resultsArray[3] = RabbitMQUtils.writeString("insteadOfQueryResponse");
+//						LOGGER.info("Task " + tId + " executed successfully and returned "+ returnedResults + " results.");
+//					} else {
+//						resultsArray[3] = RabbitMQUtils.writeString("-1");
+//						resultsArray[4] = RabbitMQUtils.writeString("-1");
+//						LOGGER.info("Task " + tId + " failed to executed. Error code (-1) set as result.");
+//					}
+//					qexec.close();
+				}
+				break;
+		}
+		
+		byte[] results = RabbitMQUtils.writeByteArrays(resultsArray);
+		try {
+			sendResultToEvalStorage(tId, results);
+			LOGGER.info("Results sent to evaluation storage" + (taskExecutedSuccesfully ? "." : " for unsuccessful executed task."));
+		} catch (IOException e) {
+			LOGGER.error("Exception while sending storage space cost to evaluation storage.", e);
+		}
+	}
+	
+	public String rewriteQuery(String queryType, String queryText) {
+		switch (Integer.parseInt(queryType)) {
+			case 1:
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+			case 4:
+				break;
+			case 5:
+				break;
+			case 6:
+				break;
+			case 7:
+				break;
+			case 8:
+				break;
+		}
+		return "";
 	}
 	
 	// returns the number of loaded triples to check if all version's triples loaded successfully.
@@ -99,15 +226,11 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 		String answer = null;
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load.sh";
-			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(generatedDataFormat), Integer.toString(versionNum) };
+			String[] command = {"/bin/bash", scriptFilePath, Integer.toString(versionNum) };
 			Process p = new ProcessBuilder(command).redirectErrorStream(true).start();
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
 			while ((line = in.readLine()) != null) {
-				if(line.startsWith("triples")) {
-					answer = line;
-					continue;
-				}
 				LOGGER.info(line);		
 			}
 			p.waitFor();
