@@ -160,12 +160,12 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 						
 						resultsArray[2] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
 						// comment out when big messages can be retrieved from evalstorage
-//						resultsArray[4] = queryResponseBos.toByteArray();
-						resultsArray[3] = RabbitMQUtils.writeString("insteadOfQueryResponse");
+						resultsArray[3] = queryResponseBos.toByteArray();
+//						resultsArray[3] = RabbitMQUtils.writeString("insteadOfQueryResponse");
 						LOGGER.info("Task " + tId + " executed successfully and returned "+ returnedResults + " results.");
 					} else {
+						resultsArray[2] = RabbitMQUtils.writeString("-1");
 						resultsArray[3] = RabbitMQUtils.writeString("-1");
-						resultsArray[4] = RabbitMQUtils.writeString("-1");
 						LOGGER.info("Task " + tId + " failed to executed. Error code (-1) set as result.");
 					}
 					qexec.close();
