@@ -251,12 +251,6 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 
 	@Override
     public void close() throws IOException {
-		try {
-			Thread.sleep(1000 * 60 * 60);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		LOGGER.info("Closing System Adapter...");
         // Always close the super class after yours!
         super.close();
