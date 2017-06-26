@@ -321,10 +321,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				
 				if(!compExpAnswersFailed) {
 					ResultSetMem rsm = new ResultSetMem(results);
-					
+
 					// update the task by setting its expected results
 					ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 					ResultSetFormatter.outputAsJSON(outputStream, rsm);
+					rsm.rewind();
 					
 //					// write answers to disk for debugging
 //					try {
