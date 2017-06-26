@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -152,7 +154,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				// get the expected results
 				InputStream inExpected = new ByteArrayInputStream(
 						RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8));
-//				ResultSet received = ResultSetFactory.fromJSON(inExpected);
+				ResultSet expected = ResultSetFactory.fromJSON(inExpected);
 				
 				// get the query type
 				int queryType = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
@@ -166,7 +168,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				// get the received results
 				InputStream inReceived = new ByteArrayInputStream(
 						RabbitMQUtils.readString(receivedBuffer).getBytes(StandardCharsets.UTF_8));
-//				ResultSet received = ResultSetFactory.fromJSON(inReceived);
+				ResultSet received = ResultSetFactory.fromJSON(inReceived);
 				
 				boolean resultCompletness = resultRowCount == expectedResultsNum;
 				boolean queryExecutedSuccesfully = resultRowCount != -1;
@@ -215,7 +217,17 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						}
 						break;
 					case 6:	
-						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
+						int blogPostsDiffReceived = 0;
+						int blogPostsDiffExcpected = 0;
+
+						if(expected.hasNext()) {
+							blogPostsDiffExcpected = expected.next().getLiteral("blog_posts_diff").getInt();
+						}
+						if(received.hasNext()) {
+							blogPostsDiffReceived = received.next().getLiteral("blog_posts_diff").getInt();
+						}
+						
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly && blogPostsDiffReceived == blogPostsDiffExcpected) {  
 							qts6.reportSuccess(execTime); } 
 						else { 
 							qts6.reportFailure(); 
@@ -223,7 +235,17 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						}
 						break;
 					case 7:	
-						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
+						int avgAddedNewsItemsReceived = 0;
+						int avgAddedNewsItemsExcpected = 0;
+
+						if(expected.hasNext()) {
+							avgAddedNewsItemsReceived = expected.next().getLiteral("avg_added_news_items").getInt();
+						}
+						if(received.hasNext()) {
+							avgAddedNewsItemsExcpected = received.next().getLiteral("avg_added_news_items").getInt();
+						}
+						
+						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly && avgAddedNewsItemsReceived == avgAddedNewsItemsExcpected) {  
 							qts7.reportSuccess(execTime); } 
 						else { 
 							qts7.reportFailure(); 
