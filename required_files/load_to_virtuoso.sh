@@ -13,7 +13,7 @@ for ((i=0; i<$NUMBER_OF_VERSIONS; i++)) do
    $VIRTUOSO_BIN/isql 1112 dba dba exec="sparql clear GRAPH <$GRAPH_NAME$i>;" > /dev/null
 
    # load ontologies and triples of v0
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$ONTOLOGIES_PATH', '*.ttl', '$GRAPH_NAME$i');" > /dev/null
+   $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$ONTOLOGIES_PATH', '*.nt', '$GRAPH_NAME$i');" > /dev/null
    $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$DATASETS_PATH"v0"', '*.$SERIALIZATION_FORMAT', '$GRAPH_NAME$i');" > /dev/null
 
    # load triples of remaining change sets
