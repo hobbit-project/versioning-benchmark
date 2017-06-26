@@ -152,8 +152,8 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				int expectedResultsNum = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
 				LOGGER.info("expectedResultsNum: "+expectedResultsNum);
 				// get the expected results
-				InputStream inExpected = new ByteArrayInputStream(
-						RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8));
+				byte[] expectedBufferBytes = RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8);
+				InputStream inExpected = new ByteArrayInputStream(expectedBufferBytes);
 				ResultSet expected = ResultSetFactory.fromJSON(inExpected);
 				
 				// get the query type
@@ -166,8 +166,8 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				int resultRowCount = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
 				LOGGER.info("resultRowCount: "+resultRowCount);
 				// get the received results
-				InputStream inReceived = new ByteArrayInputStream(
-						RabbitMQUtils.readString(receivedBuffer).getBytes(StandardCharsets.UTF_8));
+				byte[] receivedBufferBytes = RabbitMQUtils.readString(receivedBuffer).getBytes(StandardCharsets.UTF_8);
+				InputStream inReceived = new ByteArrayInputStream(receivedBufferBytes);
 				ResultSet received = ResultSetFactory.fromJSON(inReceived);
 				
 				boolean resultCompletness = resultRowCount == expectedResultsNum;
@@ -217,15 +217,18 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						}
 						break;
 					case 6:	
-						int blogPostsDiffReceived = 0;
-						int blogPostsDiffExcpected = 0;
-
+						int blogPostsDiffReceived = -1;
+						int blogPostsDiffExcpected = -2;
+						
 						if(expected.hasNext()) {
 							blogPostsDiffExcpected = expected.next().getLiteral("blog_posts_diff").getInt();
 						}
 						if(received.hasNext()) {
 							blogPostsDiffReceived = received.next().getLiteral("blog_posts_diff").getInt();
 						}
+
+						LOGGER.info("blogPostsDiffExcpected: "+blogPostsDiffExcpected);
+						LOGGER.info("blogPostsDiffReceived: "+blogPostsDiffReceived);
 						
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly && blogPostsDiffReceived == blogPostsDiffExcpected) {  
 							qts6.reportSuccess(execTime); } 
@@ -235,9 +238,9 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						}
 						break;
 					case 7:	
-						int avgAddedNewsItemsReceived = 0;
-						int avgAddedNewsItemsExcpected = 0;
-
+						int avgAddedNewsItemsReceived = -1;
+						int avgAddedNewsItemsExcpected = -2;
+						
 						if(expected.hasNext()) {
 							avgAddedNewsItemsReceived = expected.next().getLiteral("avg_added_news_items").getInt();
 						}
@@ -245,6 +248,9 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 							avgAddedNewsItemsExcpected = received.next().getLiteral("avg_added_news_items").getInt();
 						}
 						
+						LOGGER.info("avgAddedNewsItemsExcpected: "+avgAddedNewsItemsExcpected);
+						LOGGER.info("avgAddedNewsItemsReceived: "+avgAddedNewsItemsReceived);
+
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly && avgAddedNewsItemsReceived == avgAddedNewsItemsExcpected) {  
 							qts7.reportSuccess(execTime); } 
 						else { 
