@@ -324,7 +324,15 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					
 					// update the task by setting its expected results
 					ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-					ResultSetFormatter.outputAsJSON(outputStream, results);
+					ResultSetFormatter.outputAsJSON(outputStream, rsm);
+					
+//					// write answers to disk for debugging
+//					try {
+//						FileUtils.writeByteArrayToFile(new File("/versioning/answers/" + taskId + "_answers.json"), outputStream.toByteArray());
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
 					
 					if(countComputed) {
 						int count = 0;
@@ -332,14 +340,14 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 						    count = rsm.next().getLiteral("cnt").getInt();
 						}
 						expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(count));
-//						expectedAnswers[1] = outputStream.toByteArray();
-						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
+						expectedAnswers[1] = outputStream.toByteArray();
+//						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
 						LOGGER.info("Expected number of results (instead of the results themselves) for task " + taskId + " computed: " + count );
 					} else {
 						int rowNum = results.getRowNumber();
 						expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(rowNum));
-//						expectedAnswers[1] = outputStream.toByteArray();
-						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
+						expectedAnswers[1] = outputStream.toByteArray();
+//						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
 						LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + rowNum);
 					}
 				} else {
