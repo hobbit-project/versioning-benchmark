@@ -44,10 +44,14 @@ public class IngestionStatistics {
 	}
 	
 	public float getInitialVersionIngestionSpeed() {
-		long initVersionLoadingTimeMS = loadingTimes.get(0);
-		int initVersionTriples = totalTriples.get(0);
-		// result should be returned in seconds
-		return  initVersionTriples / (initVersionLoadingTimeMS / 1000f);
+		if(loadingTimes.containsKey(0) && totalTriples.containsKey(0)) {
+			long initVersionLoadingTimeMS = loadingTimes.get(0);
+			int initVersionTriples = totalTriples.get(0);
+			// result should be returned in seconds
+			return  initVersionTriples / (initVersionLoadingTimeMS / 1000f);
+		} else {
+			return 0f;
+		}
 	}
 	
 	private void computeChanges() {
