@@ -4,6 +4,7 @@
 package org.hobbit.benchmark.versioning.systems;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,20 +13,19 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFactory;
+import org.apache.jena.query.ResultSetFormatter;
 import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
 import org.hobbit.core.components.AbstractSystemAdapter;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author papv
@@ -36,6 +36,7 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(R43plesSystemAdapter.class);
 	private boolean dataGenFinished = false;
 	private boolean dataLoadingFinished = false;
+	private int totalversions = 0;
 	
 	// must match the "Generated data format" parameter given when starting the experiment
 	long initialDatasetsSize = 0;
@@ -43,7 +44,7 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 	@Override
     public void init() throws Exception {
 		LOGGER.info("Initializing R43ples test system...");
-        super.init();
+        super.init();        
 		LOGGER.info("R43ples initialized successfully .");
     }
 
@@ -71,7 +72,7 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 		}
 		
 		try {
-			File outputFile = new File(revision);
+			File outputFile = new File(revision);	
 			fos = FileUtils.openOutputStream(outputFile, true);
 			IOUtils.write(fileContentBytes, fos);
 			fos.close();
@@ -80,7 +81,7 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 			LOGGER.error("Exception while creating/opening files to write received data.", e);
 		} catch (IOException e) {
 			LOGGER.error("Exception while writing data file", e);
-		}		
+		}
 	}
 
 	/* (non-Javadoc)
@@ -105,6 +106,7 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 				if(dataGenFinished) {
 					// get the version that will be loaded.
 					int version = Integer.parseInt(queryText.substring(8, queryText.indexOf(",")));
+					totalversions++;
 					
 					// TODO: measuring of loading time have to be changed
 					long start = System.currentTimeMillis();
@@ -112,13 +114,36 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 					long end = System.currentTimeMillis();					
 					long loadingTime = end - start;
 					LOGGER.info("Version " + version + " loaded successfully in "+ loadingTime + " ms.");
-	
+					
+					int count = 0;
+					LOGGER.info("Getting number of triples that successfully loaded in version " + version + ".");
+					String triplesLoadedQuery = "select (count(*) as ?loaded_triples) "
+							+ "from <http://test.com/r43ples> REVISION \"" + (version + 2) + "\" "
+							+ "where { ?s ?p ?o }";
+					
+					ResultSet results = executeQuery("for getting loaded triples", triplesLoadedQuery);
+					if(results.hasNext()) {
+					    count = results.next().getLiteral("loaded_triples").getInt();
+					}
+					LOGGER.info(count + " triples loaded for version " + version + ".");
+					
+					// cannot query for getting the loading triples and then import again in r43ples
+					// as tdb stays lock for querying. so i am restarting the server each time
+					// a version is loaded to overpass this issue
+					serverRestart();
+					try {
+						Thread.sleep(1000 * 10);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
 					// TODO 
 					// in v2.0 of the benchmark the number of changes should be reported instead of 
 					// loaded triples, as we will also have deletions except of additions of triples
 					resultsArray = new byte[3][];
 					resultsArray[0] = RabbitMQUtils.writeString(taskType);
-					resultsArray[1] = RabbitMQUtils.writeString(Long.toString(0));
+					resultsArray[1] = RabbitMQUtils.writeString(Integer.toString(count));
 					resultsArray[2] = RabbitMQUtils.writeString(Long.toString(loadingTime));
 				}
 				break;
@@ -126,7 +151,7 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 				// get the storage space required for all versions to be stored in virtuoso
 				long finalDatabasesSize = FileUtils.sizeOfDirectory(new File("/database/dataset"));
 				LOGGER.info("Total datasets size: "+ finalDatabasesSize / 1000f + " Kbytes.");
-
+				
 				resultsArray = new byte[2][];
 				resultsArray[0] = RabbitMQUtils.writeString(taskType);
 				resultsArray[1] = RabbitMQUtils.writeString(Long.toString(finalDatabasesSize));
@@ -136,26 +161,23 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 				if(dataLoadingFinished) {
 					String queryType = queryText.substring(21, 22);
 					LOGGER.info("queryType: " + queryType);
-	
+
 					// rewrite queries in order to be answered
-					LOGGER.info("old query: " + queryText);
-
 					String rewrittenQuery = rewriteQuery(queryType, queryText);
-					LOGGER.info("rewritten query: " + rewrittenQuery);
 
-					JsonNode response = executeQuery(tId, rewrittenQuery);
-					int resultSize = response.get("results").get("bindings").size();
+//					ResultSet results =  executeQuery_2(tId, rewrittenQuery);
+					ResultSet results =  executeQuery(tId, rewrittenQuery);
+					ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
+					ResultSetFormatter.outputAsJSON(queryResponseBos, results);
+					
+					int resultSize = results.getRowNumber();
 					
 					resultsArray = new byte[4][];
 					resultsArray[0] = RabbitMQUtils.writeString(taskType);
 					resultsArray[1] = RabbitMQUtils.writeString(queryType);
 					resultsArray[2] = RabbitMQUtils.writeString(Integer.toString(resultSize));
-					// comment out when big messages can be retrieved from evalstorage
-//					resultsArray[3] = queryResponseBos.toByteArray();
-					resultsArray[3] = RabbitMQUtils.writeString("insteadOfQueryResponse");
-
+					resultsArray[3] = queryResponseBos.toByteArray();
 					LOGGER.info("results: " + resultSize);
-					LOGGER.info("Task " + tId + " failed to executed. Error code (-1) set as result.");
 				}
 				break;
 		}
@@ -211,30 +233,43 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 		return answer;
 	}
 	
-	private JsonNode executeQuery(String taskId, String query) {
+	private void serverRestart() {
+		LOGGER.info("Restarting R43ples...");
+		try {
+			String scriptFilePath = System.getProperty("user.dir") + File.separator + "server_restart.sh";
+			String[] command = {"/bin/bash", scriptFilePath };
+			Process p = new ProcessBuilder(command).redirectErrorStream(true).start();
+			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line;
+			while ((line = in.readLine()) != null) {
+				LOGGER.info(line);		
+			}
+			p.waitFor();
+			in.close();
+			LOGGER.info("R43ples restarted successfully.");
+		} catch (IOException e) {
+            LOGGER.error("Exception while executing script for loading data.", e);
+		} catch (InterruptedException e) {
+            LOGGER.error("Exception while executing script for loading data.", e);
+		}	
+	}
+	
+	private ResultSet executeQuery(String taskId, String query) {
 		LOGGER.info("Executing task " + taskId + "..." );
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode jsonNode = null;
+		ResultSet results = null;
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "execute_query.sh";
-			String[] command = {"/bin/bash", scriptFilePath, query, taskId};
+			String[] command = {"/bin/bash", scriptFilePath, query};
 			Process p = new ProcessBuilder(command).start();
-			jsonNode = mapper.readValue(p.getInputStream(), JsonNode.class);
+			results = ResultSetFactory.fromJSON(p.getInputStream());
 			p.waitFor();
-//			// write answers to disk for debugging
-//			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-//			String line;
-//			while ((line = in.readLine()) != null) {
-//				FileUtils.writeStringToFile(new File("/versioning/answers/" + taskId + "_answers.json"), line + "\n", true);
-//			}
-//			p.waitFor();
 			LOGGER.info("Task " + taskId + " executed successfully.");
 		} catch (IOException e) {
             LOGGER.error("Exception while executing task " + taskId, e);
 		} catch (InterruptedException e) {
             LOGGER.error("Exception while executing task " + taskId, e);
-		}	
-		return jsonNode;
+		}
+		return results;
 	}
 	
 	@Override
