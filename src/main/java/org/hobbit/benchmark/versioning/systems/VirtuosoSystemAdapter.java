@@ -81,7 +81,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			LOGGER.error("Exception while creating/opening files to write received data.", e);
 		} catch (IOException e) {
 			LOGGER.error("Exception while writing data file", e);
-		}		
+		}
 	}
 
 	/* (non-Javadoc)

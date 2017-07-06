@@ -4,15 +4,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Constructor;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,7 +46,23 @@ import eu.ldbc.semanticpublishing.substitutionparameters.SubstitutionParametersG
 import eu.ldbc.semanticpublishing.substitutionparameters.SubstitutionQueryParametersManager;
 import eu.ldbc.semanticpublishing.templates.MustacheTemplate;
 import eu.ldbc.semanticpublishing.templates.VersioningMustacheTemplatesHolder;
-import eu.ldbc.semanticpublishing.templates.versioning.*;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery1_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_2Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_3Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_4Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery3_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_2Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_3Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_4Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery5_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery6_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery7_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_2Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_3Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_4Template;
 import eu.ldbc.semanticpublishing.util.AllocationsUtil;
 import eu.ldbc.semanticpublishing.util.RandomUtil;
 
@@ -643,7 +656,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			DataManager.geonamesIdsList.add(s);
 		}
 	}
-	
 	
 	@Override
 	// This method is used for sending the already generated data, tasks and gold standard
