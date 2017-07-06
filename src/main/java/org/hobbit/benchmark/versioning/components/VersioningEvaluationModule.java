@@ -242,10 +242,10 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						int avgAddedNewsItemsExcpected = -2;
 						
 						if(expected.hasNext()) {
-							avgAddedNewsItemsReceived = expected.next().getLiteral("avg_added_news_items").getInt();
+							avgAddedNewsItemsReceived = received.next().getLiteral("avg_added_news_items").getInt();
 						}
 						if(received.hasNext()) {
-							avgAddedNewsItemsExcpected = received.next().getLiteral("avg_added_news_items").getInt();
+							avgAddedNewsItemsExcpected = expected.next().getLiteral("avg_added_news_items").getInt();
 						}
 						
 						LOGGER.info("avgAddedNewsItemsExcpected: "+avgAddedNewsItemsExcpected);
