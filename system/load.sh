@@ -16,7 +16,7 @@ $VIRTUOSO_BIN/isql-v 1111 dba dba exec="delete from load_list;" > /dev/null
 $VIRTUOSO_BIN/isql-v 1111 dba dba exec="sparql clear GRAPH <$GRAPH_NAME$VERSION_NUMBER>;" > /dev/null
 
 # load ontologies and triples of version 0
-$VIRTUOSO_BIN/isql-v 1111 dba dba exec="ld_dir('$ONTOLOGIES_PATH', '*.ttl', '$GRAPH_NAME$VERSION_NUMBER');" > /dev/null
+$VIRTUOSO_BIN/isql-v 1111 dba dba exec="ld_dir('$ONTOLOGIES_PATH', '*.nt', '$GRAPH_NAME$VERSION_NUMBER');" > /dev/null
 $VIRTUOSO_BIN/isql-v 1111 dba dba exec="ld_dir('$DATASETS_PATH"v0"', '*.$SERIALIZATION_FORMAT', '$GRAPH_NAME$VERSION_NUMBER');" > /dev/null
 
 for ((i=1; i<=$VERSION_NUMBER; i++)) do
