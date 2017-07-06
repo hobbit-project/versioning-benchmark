@@ -127,9 +127,9 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 					}
 					LOGGER.info(count + " triples loaded for version " + version + ".");
 					
-					// cannot query for getting the loading triples and then import again in r43ples
-					// as tdb stays lock for querying. so i am restarting the server each time
-					// a version is loaded to overpass this issue
+					// r43ples do not let me execute a query (through curl) and then add more data
+					// (through console-client.jar -a), as tdb stays locked from query (pid of server)
+					// So, i restart the server for getting a different pid and overcome this problem
 					serverRestart();
 					try {
 						Thread.sleep(1000 * 10);
