@@ -181,7 +181,7 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 				}
 				break;
 		}
-
+		LOGGER.info("task: " + tId + ", result bytes length task type: " + RabbitMQUtils.readString(resultsArray[0]));
 		byte[] results = RabbitMQUtils.writeByteArrays(resultsArray);
 		try {
 			sendResultToEvalStorage(tId, results);

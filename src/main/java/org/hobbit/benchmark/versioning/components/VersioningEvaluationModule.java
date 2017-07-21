@@ -108,6 +108,8 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		// get the task type
 		String taskType = RabbitMQUtils.readString(receivedBuffer);
 		LOGGER.info("TASK TYPE: "+taskType);
+		LOGGER.info("taskSentTimestamp: "+taskSentTimestamp);
+		LOGGER.info("responseReceivedTimestamp: "+responseReceivedTimestamp);
 
 		switch (Integer.parseInt(taskType)) {
 			case 1:
