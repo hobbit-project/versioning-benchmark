@@ -344,22 +344,22 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 						ResultSetFormatter.outputAsJSON(outputStream, rsm);
 						rsm.rewind();
 
-						if(countComputed) {
-							int count = 0;
-							if(rsm.hasNext()) {
-							    count = rsm.next().getLiteral("cnt").getInt();
-							}
-							expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(count));
-							expectedAnswers[1] = outputStream.toByteArray();
-	//						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
-							LOGGER.info("Expected number of results (instead of the results themselves) for task " + taskId + " computed: " + count );
-						} else {
+//						if(countComputed) {
+//							int count = 0;
+//							if(rsm.hasNext()) {
+//							    count = rsm.next().getLiteral("cnt").getInt();
+//							}
+//							expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(count));
+//							expectedAnswers[1] = outputStream.toByteArray();
+//	//						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
+//							LOGGER.info("Expected number of results (instead of the results themselves) for task " + taskId + " computed: " + count );
+//						} else {
 							int rowNum = results.getRowNumber();
 							expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(rowNum));
 							expectedAnswers[1] = outputStream.toByteArray();
 	//						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
 							LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + rowNum);
-						}
+//						}
 					} else {
 						expectedAnswers[0] = RabbitMQUtils.writeString("-1");
 						expectedAnswers[1] = RabbitMQUtils.writeString("-1");
