@@ -1,11 +1,15 @@
 package org.hobbit.benchmark.versioning.components;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
@@ -30,6 +34,10 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningEvaluationModule.class);
 
     private Model finalModel = ModelFactory.createDefaultModel();
+    
+    // gia ti deftera:
+    // emeina sto na svinw ta cases 1 tou paliou kodika
+    // exw provlima gia ton ypologismo twn speeds kathws den kserw ton arithmo twn tripletwn
     
     private Property INITIAL_VERSION_INGESTION_SPEED = null;
     private Property AVG_APPLIED_CHANGES_PS = null;
@@ -56,6 +64,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
     
 	private float storageCost = 0;
 	private int queryFailures = 0;
+	private int numberOfVersions = 0;
 
 	@Override
     public void init() throws Exception {
@@ -64,6 +73,18 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         super.init();
         
         Map<String, String> env = System.getenv();
+        
+        // get the loading times and the triples that have to be loaded for each version
+        // and report them in order to be ready for computing the ingestion and 
+        // applied changes speeds
+        numberOfVersions = Integer.parseInt(env.get(VersioningConstants.TOTAL_VERSIONS));
+        for(int version=0; version<numberOfVersions; version++) {
+        	long loadingTime = Long.parseLong(env.get(String.format(VersioningConstants.LOADING_TIMES, version)));
+        	int triplesToBeLoaded = Integer.parseInt(env.get(String.format(VersioningConstants.TRIPLES_TO_BE_LOADED, version)));
+    		LOGGER.info("version " + version + " loaded in " + loadingTime + " ms (" + triplesToBeLoaded + " triples had to be loaded).");
+        	is.reportSuccess(version, triplesToBeLoaded, loadingTime);
+        }
+        
         INITIAL_VERSION_INGESTION_SPEED = initFinalModelFromEnv(env, VersioningConstants.INITIAL_VERSION_INGESTION_SPEED);
         AVG_APPLIED_CHANGES_PS = initFinalModelFromEnv(env, VersioningConstants.AVG_APPLIED_CHANGES_PS);
         STORAGE_COST = initFinalModelFromEnv(env, VersioningConstants.STORAGE_COST);
@@ -76,7 +97,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         QT_6_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_6_AVG_EXEC_TIME);
         QT_7_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_7_AVG_EXEC_TIME);
         QT_8_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_8_AVG_EXEC_TIME);
-        QUERY_FAILURES = initFinalModelFromEnv(env, VersioningConstants.QUERY_FAILURES);
+        QUERY_FAILURES = initFinalModelFromEnv(env, VersioningConstants.QUERY_FAILURES);        
 
 		LOGGER.info("Evaluation Module initialized successfully.");
     }
@@ -104,43 +125,28 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		
 		ByteBuffer expectedBuffer = ByteBuffer.wrap(expectedData);
 		ByteBuffer receivedBuffer = ByteBuffer.wrap(receivedData);
-		
+				
 		// get the task type
 		String taskType = RabbitMQUtils.readString(receivedBuffer);
 		LOGGER.info("TASK TYPE: "+taskType);
 		LOGGER.info("taskSentTimestamp: "+taskSentTimestamp);
 		LOGGER.info("responseReceivedTimestamp: "+responseReceivedTimestamp);
+		
+		// get the expected result's row number
+		int expectedResultsNum = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
+		LOGGER.info("expectedResultsNum: "+expectedResultsNum);
+		// get the expected results
+		byte[] expectedBufferBytes = RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8);
+		
+		// debug
+		String output = new String(expectedBufferBytes, StandardCharsets.UTF_8);
+		LOGGER.info("resultsArray[3]:results_length" + output.length());
+		LOGGER.info("resultsArray[3]:results " + output.substring(0, 300));
+		InputStream inExpected = new ByteArrayInputStream(expectedBufferBytes);
+		
+		ResultSet expected = ResultSetFactory.fromJSON(inExpected);
 
 		switch (Integer.parseInt(taskType)) {
-			case 1:
-				LOGGER.info("Evaluating response of an ingestion time task...");
-				// get the loaded version
-				int version = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
-				LOGGER.info("version: "+version);
-
-				// get the triples that had to be loaded by the system
-				int expectedLoadedTriples = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
-				LOGGER.info("expectedLoadedTriples: "+expectedLoadedTriples);
-
-				// get the changes that successfully applied by the system
-				int loadedTriples = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
-				LOGGER.info("loadedTriples: "+loadedTriples);
-
-				// get the time, system requires to load the aformentioned triples
-				long loadingTime = Long.parseLong(RabbitMQUtils.readString(receivedBuffer));
-				LOGGER.info("loadingTime: "+loadingTime);
-
-				if(loadedTriples != expectedLoadedTriples) {
-					is.reportFailure();
-					LOGGER.error(String.format("Total of %,d triples existed in the database, instead "
-							+ "of %,d after loading of version %d", loadedTriples, expectedLoadedTriples, version));
-				} else {
-					is.reportSuccess(version, loadedTriples, loadingTime);
-				}
-				
-				LOGGER.info("Ingestion task's response - Total triples after loading version " + version + ": " +
-						loadedTriples + " of " + expectedLoadedTriples + ", loading time: " + loadingTime + " ms.");
-				break;
 			case 2:
 				LOGGER.info("Evaluating response of storage space task...");
 				// get the disk space used in KB
@@ -150,13 +156,13 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 			case 3:	
 				LOGGER.info("Evaluating response of query performance task...");
 
-				// get the expected result's row number
-				int expectedResultsNum = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
-				LOGGER.info("expectedResultsNum: "+expectedResultsNum);
-				// get the expected results
-				byte[] expectedBufferBytes = RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8);
-				InputStream inExpected = new ByteArrayInputStream(expectedBufferBytes);
-				ResultSet expected = ResultSetFactory.fromJSON(inExpected);
+//				// get the expected result's row number
+//				int expectedResultsNum = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
+//				LOGGER.info("expectedResultsNum: "+expectedResultsNum);
+//				// get the expected results
+//				byte[] expectedBufferBytes = RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8);
+//				InputStream inExpected = new ByteArrayInputStream(expectedBufferBytes);
+//				ResultSet expected = ResultSetFactory.fromJSON(inExpected);
 				
 				// get the query type
 				int queryType = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
@@ -243,11 +249,12 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						int avgAddedNewsItemsReceived = -1;
 						int avgAddedNewsItemsExcpected = -2;
 						
-						if(expected.hasNext()) {
-							avgAddedNewsItemsReceived = received.next().getLiteral("avg_added_news_items").getInt();
+						if(expected.hasNext()) {							
+							avgAddedNewsItemsExcpected = expected.next().getLiteral("avg_added_news_items").getInt();
+
 						}
 						if(received.hasNext()) {
-							avgAddedNewsItemsExcpected = expected.next().getLiteral("avg_added_news_items").getInt();
+							avgAddedNewsItemsReceived = received.next().getLiteral("avg_added_news_items").getInt();
 						}
 						
 						LOGGER.info("avgAddedNewsItemsExcpected: "+avgAddedNewsItemsExcpected);

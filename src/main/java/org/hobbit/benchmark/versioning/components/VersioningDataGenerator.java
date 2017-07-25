@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -88,6 +89,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private String ontologiesPath = "/versioning/ontologies";
 	private String serializationFormat;
 	private int taskId = 0;
+	private int[] triplesToBeLoaded;
 	
 	private Configuration configuration = new Configuration();
 	private Definitions definitions = new Definitions();
@@ -101,6 +103,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int[] majorEvents;
 	private int[] minorEvents;
 	private int[] correlations;
+	
+	private Semaphore dataLoadedFromSystemMutex = new Semaphore(0);
 		
 	@Override
     public void init() throws Exception {
@@ -116,6 +120,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		// Initialize data generation parameters through the environment variables given by user
 		initFromEnv();
+		triplesToBeLoaded = new int[numberOfVersions];
 
 		// Given the above input, update configuration files that are necessary for data generation
 		reInitializeSPBProperties();
@@ -140,12 +145,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		LOGGER.info("Generating tasks...");
 		// Generate the tasks.
-		// 1) Generate tasks about ingestion speed
-		for (int i = 0; i < numberOfVersions; i++) {
-			tasks.add(new Task("1", Integer.toString(taskId++), "Version " + i + ", Ingestion task", null));
-		}
-		LOGGER.info("Ingestion tasks generated successfully.");
-
 		// 2) Generate tasks about storage space
 		tasks.add(new Task("2", Integer.toString(taskId++), "Storage space task", null));
 		LOGGER.info("Storage space task generated successfully.");
@@ -177,6 +176,20 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		computeExpectedAnswers();
 		LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");	
 	}
+	
+	public void initFromEnv() {
+		LOGGER.info("Getting Data Generator's properites from the environment...");
+		
+		Map<String, String> env = System.getenv();
+		datasetSizeInTriples = (Integer) getFromEnv(env, VersioningConstants.DATASET_SIZE_IN_TRIPLES, 0);
+		numberOfVersions = (Integer) getFromEnv(env, VersioningConstants.NUMBER_OF_VERSIONS, 0);
+		subGeneratorSeed = (Integer) getFromEnv(env, VersioningConstants.DATA_GENERATOR_SEED, 0) + getGeneratorId();
+		seedYear = (Integer) getFromEnv(env, VersioningConstants.SEED_YEAR, 0);
+		generorPeriodYears = (Integer) getFromEnv(env, VersioningConstants.GENERATION_PERIOD_IN_YEARS, 0);
+		serializationFormat = (String) getFromEnv(env, VersioningConstants.GENERATED_DATA_FORMAT, "");
+		subsParametersAmount = (Integer) getFromEnv(env, VersioningConstants.SUBSTITUTION_PARAMETERS_AMOUNT, 0);
+	}	
+
 	
 	// get the query strings after compiling the mustache templates
 	public String compileMustacheTemplate(int queryType, int queryIndex, int subsParameterIndex) {
@@ -263,6 +276,23 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	}
 	
 	public void computeExpectedAnswers() {	
+		// compute the number of triples that expected to be loaded by the system.
+		// so the evaluation module can compute the ingestion and average changes speeds
+		for (int version=0; version<numberOfVersions; version++) {
+			String sparqlQueryString = ""
+					+ "SELECT (COUNT(*) AS ?cnt) "
+					+ "FROM <http://graph.version." + version + "> "
+					+ "WHERE { ?s ?p ?o }";
+			
+			Query countQuery = QueryFactory.create(sparqlQueryString);
+			QueryExecution cQexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", countQuery);
+			ResultSet results = cQexec.execSelect();
+			
+			if(results.hasNext()) {
+				triplesToBeLoaded[version] = results.next().getLiteral("cnt").getInt();
+			}
+		}
+		
 		for (Task task : tasks) {
 			String taskId = task.getTaskId();
 			String taskQuery = task.getQuery();
@@ -275,106 +305,72 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			byte[][] expectedAnswers = null;
 					
 			switch(Integer.parseInt(taskType)) {
-			// ingestion task
-			// compute the number of triples that expected to be loaded by the system.
-			case 1:
-				int version = Integer.parseInt(taskQuery.substring(8, taskQuery.indexOf(",")));
-				String sparqlQueryString = ""
-						+ "SELECT (COUNT(*) AS ?cnt) "
-						+ "FROM <http://graph.version." + version + "> "
-						+ "WHERE { ?s ?p ?o }";
-				
-				Query countQuery = QueryFactory.create(sparqlQueryString);
-				QueryExecution cQexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", countQuery);
-				queryStart = System.currentTimeMillis();
-				results = cQexec.execSelect();
-				queryEnd = System.currentTimeMillis();
-				
-				if(results.hasNext()) {
-					int triplesToBeInserted = results.next().getLiteral("cnt").getInt();
+				// skip the storage space task
+				case 2:
+					continue;
+				// query performance task
+				case 3:
+					boolean countComputed = false;
+					boolean compExpAnswersFailed = false;
+					// for query types query1 and query3, that refer to entire versions, we don't
+					// evaluate the query due to extra time cost and expected answer length, but we 
+					// only send the number of expected results
+					if(taskQuery.startsWith("#  Query Name : query1") ||
+							taskQuery.startsWith("#  Query Name : query3")) {
+						countComputed = true;
+						taskQuery = taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
+					}
+					
+					// execute the query on top of virtuoso to compute the expected answers
+					Query query = QueryFactory.create(taskQuery);
+					QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", query);
+					queryStart = System.currentTimeMillis();
+					try {
+						results = qexec.execSelect();
+					} catch (Exception e) {
+						compExpAnswersFailed = true;
+						LOGGER.error("Exception caught during the computation of task " + taskId + " expected answers.", e);
+					}				
+					queryEnd = System.currentTimeMillis();
+	
+					// track the number of expected answers, as long as the answers themselves
 					expectedAnswers = new byte[2][];
-					expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(version));
-					expectedAnswers[1] = RabbitMQUtils.writeString(Integer.toString(triplesToBeInserted));
+					
+					if(!compExpAnswersFailed) {
+						ResultSetMem rsm = new ResultSetMem(results);
+	
+						// update the task by setting its expected results
+						ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+						ResultSetFormatter.outputAsJSON(outputStream, rsm);
+						rsm.rewind();
+
+						if(countComputed) {
+							int count = 0;
+							if(rsm.hasNext()) {
+							    count = rsm.next().getLiteral("cnt").getInt();
+							}
+							expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(count));
+							expectedAnswers[1] = outputStream.toByteArray();
+	//						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
+							LOGGER.info("Expected number of results (instead of the results themselves) for task " + taskId + " computed: " + count );
+						} else {
+							int rowNum = results.getRowNumber();
+							expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(rowNum));
+							expectedAnswers[1] = outputStream.toByteArray();
+	//						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
+							LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + rowNum);
+						}
+					} else {
+						expectedAnswers[0] = RabbitMQUtils.writeString("-1");
+						expectedAnswers[1] = RabbitMQUtils.writeString("-1");
+						LOGGER.error("Couldn't compute expected answers. Error code (-1) set as an expected answer.");
+	
+					}				
+	
 					task.setExpectedAnswers(RabbitMQUtils.writeByteArrays(expectedAnswers));
 					tasks.set(Integer.parseInt(taskId), task);
-					LOGGER.info("Ingestion task " + taskId + " triples : " + triplesToBeInserted);
-				}
-				cQexec.close();
-				break;
-			// skip the storage space task
-			case 2:
-				continue;
-			// query performance task
-			case 3:
-				boolean countComputed = false;
-				boolean compExpAnswersFailed = false;
-				// for query types query1 and query3, that refer to entire versions, we don't
-				// evaluate the query due to extra time cost and expected answer length, but we 
-				// only send the number of expected results
-				if(taskQuery.startsWith("#  Query Name : query1") ||
-						taskQuery.startsWith("#  Query Name : query3")) {
-					countComputed = true;
-					taskQuery = taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
-				}
-				
-				// execute the query on top of virtuoso to compute the expected answers
-				Query query = QueryFactory.create(taskQuery);
-				QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", query);
-				queryStart = System.currentTimeMillis();
-				try {
-					results = qexec.execSelect();
-				} catch (Exception e) {
-					compExpAnswersFailed = true;
-					LOGGER.error("Exception caught during the computation of task " + taskId + " expected answers.", e);
-				}				
-				queryEnd = System.currentTimeMillis();
-
-				// track the number of expected answers, as long as the answers themselves
-				expectedAnswers = new byte[2][];
-				
-				if(!compExpAnswersFailed) {
-					ResultSetMem rsm = new ResultSetMem(results);
-
-					// update the task by setting its expected results
-					ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-					ResultSetFormatter.outputAsJSON(outputStream, rsm);
-					rsm.rewind();
-					
-//					// write answers to disk for debugging
-//					try {
-//						FileUtils.writeByteArrayToFile(new File("/versioning/answers/" + taskId + "_answers.json"), outputStream.toByteArray());
-//					} catch (IOException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-					
-					if(countComputed) {
-						int count = 0;
-						if(rsm.hasNext()) {
-						    count = rsm.next().getLiteral("cnt").getInt();
-						}
-						expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(count));
-						expectedAnswers[1] = outputStream.toByteArray();
-//						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
-						LOGGER.info("Expected number of results (instead of the results themselves) for task " + taskId + " computed: " + count );
-					} else {
-						int rowNum = results.getRowNumber();
-						expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(rowNum));
-						expectedAnswers[1] = outputStream.toByteArray();
-//						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
-						LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + rowNum);
-					}
-				} else {
-					expectedAnswers[0] = RabbitMQUtils.writeString("-1");
-					expectedAnswers[1] = RabbitMQUtils.writeString("-1");
-					LOGGER.error("Couldn't compute expected answers. Error code (-1) set as an expected answer.");
-
-				}				
-
-				task.setExpectedAnswers(RabbitMQUtils.writeByteArrays(expectedAnswers));
-				tasks.set(Integer.parseInt(taskId), task);
-				qexec.close();
-				break;
+					qexec.close();
+					break;
 			}
 		}	
 	}
@@ -599,20 +595,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
         }
 		return paramType;
 	}
-	
-	public void initFromEnv() {
-		LOGGER.info("Getting Data Generator's properites from the environment...");
 		
-		Map<String, String> env = System.getenv();
-		datasetSizeInTriples = (Integer) getFromEnv(env, VersioningConstants.DATASET_SIZE_IN_TRIPLES, 0);
-		numberOfVersions = (Integer) getFromEnv(env, VersioningConstants.NUMBER_OF_VERSIONS, 0);
-		subGeneratorSeed = (Integer) getFromEnv(env, VersioningConstants.DATA_GENERATOR_SEED, 0) + getGeneratorId();
-		seedYear = (Integer) getFromEnv(env, VersioningConstants.SEED_YEAR, 0);
-		generorPeriodYears = (Integer) getFromEnv(env, VersioningConstants.GENERATION_PERIOD_IN_YEARS, 0);
-		serializationFormat = (String) getFromEnv(env, VersioningConstants.GENERATED_DATA_FORMAT, "");
-		subsParametersAmount = (Integer) getFromEnv(env, VersioningConstants.SUBSTITUTION_PARAMETERS_AMOUNT, 0);
-	}	
-	
 	/*
 	 * Retreive entity URIs, DBpedia locations IDs and Geonames locations IDs
 	 * of reference datasets from the appropriate files.
@@ -693,8 +676,16 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
     			LOGGER.info(file.getAbsolutePath() + " (" + (double) file.length() / 1000 + " KB) sent to System Adapter. lines: " + lines);
         	}
         	LOGGER.info("All ontologies and generated data successfully sent to System Adapter.");
-        	sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED);
-			LOGGER.info("Signal that all data generated successfully sent to System Adapter");
+			// TODO: send such signal when data were generated and not when data sent to
+        	// sysada. a new signal has to be sent in such cases (do it when expected answers 
+        	// computation removed from datagen implementation) now cannot to be done as 
+        	// all data generated in the init function (before datagen's start)
+        	LOGGER.info("Send signal that all data successfully sent to System Adapter");
+			sendToCmdQueue(VersioningConstants.DATA_GEN_DATA_GENERATION_FINISHED, SerializationUtils.serialize(triplesToBeLoaded));
+
+			LOGGER.info("Waiting until all data are loaded by the system");
+			dataLoadedFromSystemMutex.acquire(numberOfVersions);
+			LOGGER.info("All data loaded successfully by the system. Proceed to the sending of tasks.");
 
         	// send generated tasks along with their expected answers to task generator
         	for (Task task : tasks) {
@@ -729,6 +720,14 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
             LOGGER.error("Exception while executing script for loading data.", e);
 		}		
 	}
+	
+	@Override
+    public void receiveCommand(byte command, byte[] data) {
+        if (command == VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
+        	dataLoadedFromSystemMutex.release();
+        }
+        super.receiveCommand(command, data);
+    }
 	
 	@Override
 	public void close() throws IOException {
