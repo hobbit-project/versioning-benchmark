@@ -140,6 +140,8 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 					if(taskExecutedSuccesfully) {
 						ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
 						ResultSetFormatter.outputAsJSON(queryResponseBos, results);
+						LOGGER.info("Results bytes size: " + queryResponseBos.size());
+
 						int returnedResults = results.getRowNumber();
 						
 						resultsArray[2] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
@@ -152,17 +154,11 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 					}
 					qexec.close();
 					
-					InputStream inExpected = new ByteArrayInputStream(resultsArray[3]);
-					LOGGER.info("resultsArray[0]:taskType " + new String(resultsArray[0], StandardCharsets.UTF_8));
-					LOGGER.info("resultsArray[1]:queryType " + new String(resultsArray[1], StandardCharsets.UTF_8));
-					LOGGER.info("resultsArray[2]:rowCount " + new String(resultsArray[2], StandardCharsets.UTF_8));
-				try {
-					String output = IOUtils.toString(inExpected, StandardCharsets.UTF_8);
-					LOGGER.info("resultsArray[3]:results" + output.substring(0, 500));
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+//					LOGGER.info("resultsArray[0]:taskType " + new String(resultsArray[0], StandardCharsets.UTF_8));
+//					LOGGER.info("resultsArray[1]:queryType " + new String(resultsArray[1], StandardCharsets.UTF_8));
+//					LOGGER.info("resultsArray[2]:rowCount " + new String(resultsArray[2], StandardCharsets.UTF_8));
+//					LOGGER.info("resultsArray[3]:results " + new String(resultsArray[3], StandardCharsets.UTF_8).substring(0, 500));
+
 					break;
 			}
 			

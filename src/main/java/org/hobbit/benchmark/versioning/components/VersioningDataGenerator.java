@@ -315,11 +315,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					// for query types query1 and query3, that refer to entire versions, we don't
 					// evaluate the query due to extra time cost and expected answer length, but we 
 					// only send the number of expected results
-					if(taskQuery.startsWith("#  Query Name : query1") ||
-							taskQuery.startsWith("#  Query Name : query3")) {
-						countComputed = true;
-						taskQuery = taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
-					}
+//					if(taskQuery.startsWith("#  Query Name : query1") ||
+//							taskQuery.startsWith("#  Query Name : query3")) {
+//						countComputed = true;
+//						taskQuery = taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
+//					}
 					
 					// execute the query on top of virtuoso to compute the expected answers
 					Query query = QueryFactory.create(taskQuery);

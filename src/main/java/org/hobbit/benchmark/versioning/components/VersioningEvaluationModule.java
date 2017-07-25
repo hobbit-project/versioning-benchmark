@@ -140,8 +140,8 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		
 		// debug
 		String output = new String(expectedBufferBytes, StandardCharsets.UTF_8);
-		LOGGER.info("resultsArray[3]:results_length" + output.length());
-		LOGGER.info("resultsArray[3]:results " + output.substring(0, 300));
+		LOGGER.info("resultsArray[3]:results_length " + output.length());
+		LOGGER.info("resultsArray[3]:results " + (output.length() > 300 ? output.substring(0, 300) : output));
 		InputStream inExpected = new ByteArrayInputStream(expectedBufferBytes);
 		
 		ResultSet expected = ResultSetFactory.fromJSON(inExpected);
