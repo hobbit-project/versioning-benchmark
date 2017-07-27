@@ -62,30 +62,46 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	 * @see org.hobbit.core.components.TaskReceivingComponent#receiveGeneratedData(byte[])
 	 */
 	public void receiveGeneratedData(byte[] data) {
+		String dataPath = "/versioning/data/";
+		String ontologiesPath = "/versioning/ontologies/";
 		
 		ByteBuffer dataBuffer = ByteBuffer.wrap(data);
-		// read the file path
-		String receivedFilePath = RabbitMQUtils.readString(dataBuffer);
-		// read the file contents
-		byte[] fileContentBytes = RabbitMQUtils.readByteArray(dataBuffer);
+		// read the graph uri in order to identify the version in which
+		// received data will be loaded into.
+		String graphUri = RabbitMQUtils.readString(dataBuffer);
+		String receivedFilePath;
 		
-		FileOutputStream fos = null;
-		try {
-			File outputFile = new File(receivedFilePath);
-			fos = FileUtils.openOutputStream(outputFile, false);
-			IOUtils.write(fileContentBytes, fos);
-			fos.close();
-			// test
-			BufferedReader reader = new BufferedReader(new FileReader(receivedFilePath));
-			int lines = 0;
-			while (reader.readLine() != null) lines++;
-			reader.close();
-			LOGGER.info(receivedFilePath + " (" + (double) new File(receivedFilePath).length() / 1000 + " KB) received from Data Generator with " + lines + " lines.");
+		if(graphUri.startsWith("http://datagen.ontology")) {
+			receivedFilePath = ontologiesPath + graphUri.replaceFirst(".*/", "");
+		} else if (graphUri.startsWith("http://datagen.version.0") ){
+			receivedFilePath = dataPath + "v0/" + graphUri.replaceFirst(".*/", "");
+		} else {
+			String versionNum = graphUri.substring(25, graphUri.indexOf("generatedCreativeWorks") - 1);
+			receivedFilePath = dataPath + "c" + versionNum + "/" + graphUri.replaceFirst(".*/", "");
+		}
+		// read the data contents
+		byte[] dataContentBytes = new byte[dataBuffer.remaining()];
+		dataBuffer.get(dataContentBytes, 0, dataBuffer.remaining());
+		
+		if (dataContentBytes.length != 0) {
+			FileOutputStream fos = null;
+			try {
+				File outputFile = new File(receivedFilePath);
+				fos = FileUtils.openOutputStream(outputFile, false);
+				IOUtils.write(dataContentBytes, fos);
+				fos.close();
+				// test
+				BufferedReader reader = new BufferedReader(new FileReader(receivedFilePath));
+				int lines = 0;
+				while (reader.readLine() != null) lines++;
+				reader.close();
+				LOGGER.info(receivedFilePath + " (" + (double) new File(receivedFilePath).length() / 1000 + " KB) received from Data Generator with " + lines + " lines.");
 
-		} catch (FileNotFoundException e) {
-			LOGGER.error("Exception while creating/opening files to write received data.", e);
-		} catch (IOException e) {
-			LOGGER.error("Exception while writing data file", e);
+			} catch (FileNotFoundException e) {
+				LOGGER.error("Exception while creating/opening files to write received data.", e);
+			} catch (IOException e) {
+				LOGGER.error("Exception while writing data file", e);
+			}
 		}
 	}
 
@@ -146,6 +162,8 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 						
 						resultsArray[2] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
 						resultsArray[3] = queryResponseBos.toByteArray();
+//						resultsArray[3] = RabbitMQUtils.writeString("insteadOfOutpuStream");
+
 						LOGGER.info("Task " + tId + " executed successfully and returned "+ returnedResults + " results.");
 					} else {
 						resultsArray[2] = RabbitMQUtils.writeString("-1");

@@ -172,7 +172,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		loadGeneratedData();
 		
 		// compute expected answers for all tasks
-		LOGGER.info("Computing expected answers for generated SPRQL tasks...");
+		LOGGER.info("Computing expected answers for generated SPARQL tasks...");
 		computeExpectedAnswers();
 		LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");	
 	}
@@ -357,7 +357,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 							int rowNum = results.getRowNumber();
 							expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(rowNum));
 							expectedAnswers[1] = outputStream.toByteArray();
-	//						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
+//							expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
 							LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + rowNum);
 //						}
 					} else {
@@ -645,48 +645,55 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	// to the appropriate components.
 	protected void generateData() throws Exception {
 		
-		File ontologiesPathFile = new File(ontologiesPath);
-		List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
-
-		File dataPath = new File(generatedDatasetPath);
-		String[] extensions = new String[] { RDFUtils.getFileExtensionFromRdfFormat(serializationFormat) };
-		List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, extensions, true);
-		
-		List<File> files = new ArrayList<File>(ontologiesFiles);
-		files.addAll(dataFiles);
-		
-        try {
-        	// send the ontologies to system adapter
-        	// send generated data to system adapter
-        	// all data have to be sent before sending the first query to system adapter
-        	for (File file : files) {
-        		byte[][] generatedFileArray = new byte[2][];
-        		// send the file name and its content
-        		generatedFileArray[0] = RabbitMQUtils.writeString(file.getAbsolutePath());
-        		generatedFileArray[1] = FileUtils.readFileToByteArray(file);
-        		// convert them to byte[]
-        		byte[] generatedFile = RabbitMQUtils.writeByteArrays(generatedFileArray);
-        		// send data to system
-                sendDataToSystemAdapter(generatedFile);
-                // test
-    			BufferedReader reader = new BufferedReader(new FileReader(file));
-    			int lines = 0;
-    			while (reader.readLine() != null) lines++;
-    			reader.close();
-    			LOGGER.info(file.getAbsolutePath() + " (" + (double) file.length() / 1000 + " KB) sent to System Adapter. lines: " + lines);
-        	}
-        	LOGGER.info("All ontologies and generated data successfully sent to System Adapter.");
-			// TODO: send such signal when data were generated and not when data sent to
+		try {
+			// send ontology files to the system
+			File ontologiesPathFile = new File(ontologiesPath);
+			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
+			for (File file : ontologiesFiles) {
+				String graphUri = "http://datagen.ontology." + file.getName();
+				byte data[] = FileUtils.readFileToByteArray(file);
+				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
+				sendDataToSystemAdapter(dataForSending);
+			}
+	    	LOGGER.info("All ontologies successfully sent to System Adapter.");
+	
+			// send data files to the system
+			File dataPath = new File(generatedDatasetPath);
+			String[] extensions = new String[] { RDFUtils.getFileExtensionFromRdfFormat(serializationFormat) };
+			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, extensions, true);
+			for (File file : dataFiles) {
+				String filePath = file.getAbsolutePath();
+				String versionNum = filePath.substring(18, filePath.indexOf("generatedCreativeWorks") - 1);
+				boolean initialVersion = filePath.startsWith("/versioning/data/v0/");
+				// the graph uri determines the version in which such data need to be 
+				// loaded and have to be parsed by the system for identifying it.
+				// TODO: in the 2nd version of the benchmark deleted sets have to be supported as well
+				// TODO: in the 2nd version of the benchmark where multiple archiving policies will
+				// 		 be supported, graphUri should be used as is for full materialization policy
+				String graphUri = (initialVersion ? "http://datagen.version.0" : "http://datagen.added.set." + versionNum) + "." + filePath;
+				byte data[] = FileUtils.readFileToByteArray(file);
+				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
+				sendDataToSystemAdapter(dataForSending);
+			}
+	    	LOGGER.info("All generated data successfully sent to System Adapter.");
+		} catch (Exception e) {
+            LOGGER.error("Exception while sending generated data to System Adapter.", e);
+        } finally {
+        	// TODO: send such signal when data were generated and not when data sent to
         	// sysada. a new signal has to be sent in such cases (do it when expected answers 
         	// computation removed from datagen implementation) now cannot to be done as 
         	// all data generated in the init function (before datagen's start)
         	LOGGER.info("Send signal that all data successfully sent to System Adapter");
 			sendToCmdQueue(VersioningConstants.DATA_GEN_DATA_GENERATION_FINISHED, SerializationUtils.serialize(triplesToBeLoaded));
-
-			LOGGER.info("Waiting until all data are loaded by the system");
-			dataLoadedFromSystemMutex.acquire(numberOfVersions);
-			LOGGER.info("All data loaded successfully by the system. Proceed to the sending of tasks.");
-
+        }
+		
+		// wait for all data to be loaded by the system before send the first task
+		// to Task Generator (which in its turn will send it to the system for execution)
+		LOGGER.info("Waiting until all data are loaded by the system");
+		dataLoadedFromSystemMutex.acquire(numberOfVersions);
+		LOGGER.info("All data loaded successfully by the system. Proceed to the sending of tasks.");
+		
+        try {
         	// send generated tasks along with their expected answers to task generator
         	for (Task task : tasks) {
         		byte[] data = SerializationUtils.serialize(task);       			
@@ -695,7 +702,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
         	}
         	LOGGER.info("All generated tasks successfully sent to Task Generator.");
         } catch (Exception e) {
-            LOGGER.error("Exception while sending file to System Adapter or Task Generator(s).", e);
+            LOGGER.error("Exception while sending tasks to Task Generator.", e);
         }
 	}
 
