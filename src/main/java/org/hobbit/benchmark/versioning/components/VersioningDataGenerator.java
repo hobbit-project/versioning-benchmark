@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -24,14 +23,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
-import org.apache.jena.sparql.resultset.ResultSetMem;
 import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
@@ -301,7 +298,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					continue;
 				// query performance task
 				case 3:
-					boolean countComputed = false;
 					boolean compExpAnswersFailed = false;
 					// for query types query1 and query3, that refer to entire versions, we don't
 					// evaluate the query due to extra time cost and expected answer length, but we 
@@ -719,7 +715,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
         	byte[][] data = new byte[3][];
         	data[0] = SerializationUtils.serialize(triplesToBeLoaded);
         	data[1] = RabbitMQUtils.writeString(Integer.toString(numberOfmessages.get()));
-        	data[2] = RabbitMQUtils.writeString(Integer.toString(getGeneratorId()));
+        	data[2] = RabbitMQUtils.writeString(Integer.toString(numberOfmessages.get()));
 			sendToCmdQueue(VersioningConstants.DATA_GEN_DATA_GENERATION_FINISHED, RabbitMQUtils.writeByteArrays(data));
         }
 		
@@ -763,95 +759,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
             LOGGER.error("Exception while executing script for loading data.", e);
 		}		
 	}
-	
-	public static void sendToFtp(String dir, List<File> dataFiles) {
-		FTPClient client = new FTPClient();
-		FileInputStream fis = null;
-		
-        try {
-        	client.connect("hobbitdata.informatik.uni-leipzig.de");
-        	System.out.println("connected: " + client.sendNoOp());
-        	client.enterLocalPassiveMode();
-        	String username = "hobbit";
-            String pwd = "SHQsAeMbFRgzVbXHUBw9cuxmNdnrpVBWYRAEkjXHGgA2qusnMhtSLn78kxUHv4QNF8vMBeaArFXXEhDPkjB6JnNzUW2wg7CXFnsh";
-            System.out.println("login: "+client.login(username, pwd));
-            
-            System.out.println(client.printWorkingDirectory());
-            client.changeWorkingDirectory(dir);
-            System.out.println(client.printWorkingDirectory());
-            
-            for (File file : dataFiles) {
-            	fis = new FileInputStream(file);
-            	client.storeFile(file.getName(), fis);
-            }
-            
-            client.logout();
-        } catch (IOException e) {
-			e.printStackTrace();
-        } finally {
-        	try {
-                if (fis != null) {
-                    fis.close();
-                }
-                client.disconnect();
-            } catch (IOException e) {
-    			e.printStackTrace();
-            }
-        }
-	}
-	
-	public void sendAllToFtp() {
-		writeResults();
-		
-		File ontologiesPathFile = new File("/versioning/ontologies/");
-		File dataV0PathFile = new File("/versioning/data/v0");
-		File dataC1PathFile = new File("/versioning/data/c1");
-		File dataC2PathFile = new File("/versioning/data/c2");
-		File dataC3PathFile = new File("/versioning/data/c3");
-		File dataC4PathFile = new File("/versioning/data/c4");
-		File dataC5PathFile = new File("/versioning/data/c5");
-		File dataC6PathFile = new File("/versioning/data/c6");
-		File dataC7PathFile = new File("/versioning/data/c7");
-		File dataC8PathFile = new File("/versioning/data/c8");
-		File dataC9PathFile = new File("/versioning/data/c9");
-		File queriesPathFile = new File("/versioning/queries/");
-		File queryTemplatesPathFile = new File("/versioning/query_templates/");
-		File subsParamPathFile = new File("/versioning/substitution_parameters/");
-		File resultsPathFile = new File("/versioning/results/");
-		
-		List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
-		List<File> queryFiles = (List<File>) FileUtils.listFiles(queriesPathFile, new String[] { "sparql" }, true);
-		List<File> queryTemplateFiles = (List<File>) FileUtils.listFiles(queryTemplatesPathFile, new String[] { "txt" }, true);
-		List<File> subsParamFiles = (List<File>) FileUtils.listFiles(subsParamPathFile, new String[] { "txt" }, true);
-		List<File> resultsFiles = (List<File>) FileUtils.listFiles(resultsPathFile, new String[] { "json" }, true);
-		List<File> dataV0Files = (List<File>) FileUtils.listFiles(dataV0PathFile, new String[] { "nt" }, true);
-		List<File> dataC1Files = (List<File>) FileUtils.listFiles(dataC1PathFile, new String[] { "nt" }, true);
-		List<File> dataC2Files = (List<File>) FileUtils.listFiles(dataC2PathFile, new String[] { "nt" }, true);
-		List<File> dataC3Files = (List<File>) FileUtils.listFiles(dataC3PathFile, new String[] { "nt" }, true);
-		List<File> dataC4Files = (List<File>) FileUtils.listFiles(dataC4PathFile, new String[] { "nt" }, true);
-		List<File> dataC5Files = (List<File>) FileUtils.listFiles(dataC5PathFile, new String[] { "nt" }, true);
-		List<File> dataC6Files = (List<File>) FileUtils.listFiles(dataC6PathFile, new String[] { "nt" }, true);
-		List<File> dataC7Files = (List<File>) FileUtils.listFiles(dataC7PathFile, new String[] { "nt" }, true);
-		List<File> dataC8Files = (List<File>) FileUtils.listFiles(dataC8PathFile, new String[] { "nt" }, true);
-		List<File> dataC9Files = (List<File>) FileUtils.listFiles(dataC9PathFile, new String[] { "nt" }, true);
 
-		sendToFtp("public/MOCHA_OC/Task3/ontologies", ontologiesFiles);
-		sendToFtp("public/MOCHA_OC/Task3/data/v0", dataV0Files);
-		sendToFtp("public/MOCHA_OC/Task3/data/c1", dataC1Files);
-		sendToFtp("public/MOCHA_OC/Task3/data/c2", dataC2Files);
-		sendToFtp("public/MOCHA_OC/Task3/data/c3", dataC3Files);
-		sendToFtp("public/MOCHA_OC/Task3/data/c4", dataC4Files);
-		sendToFtp("public/MOCHA_OC/Task3/data/c5", dataC5Files);
-		sendToFtp("public/MOCHA_OC/Task3/data/c6", dataC6Files);
-		sendToFtp("public/MOCHA_OC/Task3/data/c7", dataC7Files);
-		sendToFtp("public/MOCHA_OC/Task3/data/c8", dataC8Files);
-		sendToFtp("public/MOCHA_OC/Task3/data/c9", dataC9Files);
-		sendToFtp("public/MOCHA_OC/Task3/queries", queryFiles);
-		sendToFtp("public/MOCHA_OC/Task3/query_templates", queryTemplateFiles);
-		sendToFtp("public/MOCHA_OC/Task3/substitution_parameters", subsParamFiles);
-		sendToFtp("public/MOCHA_OC/Task3/expected_results", resultsFiles);
-	}
-	
 	@Override
     public void receiveCommand(byte command, byte[] data) {
         if (command == VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
