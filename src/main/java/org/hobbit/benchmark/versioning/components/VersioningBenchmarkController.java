@@ -1,7 +1,7 @@
 package org.hobbit.benchmark.versioning.components;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
 
@@ -40,6 +40,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private long prevLoadingStartedTime = 0;
     private long[] loadingTimes;
     private int[] triplesToBeLoaded;
+    private int numberOfMessages;
 
 	@Override
 	public void init() throws Exception {
@@ -153,14 +154,18 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	@Override
     public void receiveCommand(byte command, byte[] data) {
         if (command == VersioningConstants.DATA_GEN_DATA_GENERATION_FINISHED) {
+        	// TODO: 
+        	// triplesToBeLoaded information have to be sent by the external component 
+        	// computing the gold standard. Only the number of messages and data generator's
+        	// id will be sent with DATA_GEN_DATA_GENERATION_FINISHED command
+        	ByteBuffer dataBuffer = ByteBuffer.wrap(data);
+        	byte[] triplesToBeLoadedData = RabbitMQUtils.readByteArray(dataBuffer);
+        	triplesToBeLoaded = SerializationUtils.deserialize(triplesToBeLoadedData);
+        	numberOfMessages = Integer.parseInt(RabbitMQUtils.readString(dataBuffer));
+        	int dataGeneratorId = Integer.parseInt(RabbitMQUtils.readString(dataBuffer));
         	// signal sent from data generator that all its data generated successfully
-        	LOGGER.info("Signal recieved that Data Generator: X generated its data.");
+        	LOGGER.info("Recieved signal from Data Generator " + dataGeneratorId + " that all data (#" + numberOfMessages + ") generated successfully.");
         	dataGenFinishedMutex.release();
-        	// TODO: remove it
-        	// such information will send by the external component that will compute
-        	// the gold standard, the number of data generator will received instead
-        	// to replace X in the log message
-        	triplesToBeLoaded = SerializationUtils.deserialize(data);
         } else if (command == VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
             // signal sent from system adapter that a version loaded successfully
         	long currTimeMillis = System.currentTimeMillis();
@@ -168,6 +173,12 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	loadingTimes[loadedVersion++] = versionLoadingTime;
         	prevLoadingStartedTime = currTimeMillis;
         	versionLoadedMutex.release();
+        } else if (command == VirtuosoSystemAdapterConstants.BULK_LOAD_ALL_DATA_RECEIVED) {
+        	try {
+				sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_PHASE_STARTED, RabbitMQUtils.writeString(Integer.toString(numOfVersions)));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
         }
         super.receiveCommand(command, data);
     }
@@ -192,7 +203,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         // sends signal that all data generated and sent to system adapter successfully
 		// also send the number of versions that have to be loaded
         LOGGER.info("Send signal to System Adapter that the sending of all data from Data Generators have finished.");
-        sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED, RabbitMQUtils.writeString(Integer.toString(numOfVersions)));
+        sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED, RabbitMQUtils.writeString(Integer.toString(numberOfMessages)));
         prevLoadingStartedTime = System.currentTimeMillis();
         
 		// wait for the system adapter to load all versions

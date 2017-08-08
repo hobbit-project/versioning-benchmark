@@ -4,19 +4,15 @@
 package org.hobbit.benchmark.versioning.systems;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -25,7 +21,6 @@ import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetFormatter;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
@@ -39,9 +34,10 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
-		
+			
 	private static final Logger LOGGER = LoggerFactory.getLogger(VirtuosoSystemAdapter.class);
-	private ArrayList<byte[][]> ingestionResultsArrays = new ArrayList<byte[][]>();
+	
+	private AtomicInteger availableMessages = new AtomicInteger(0);
 	
 	private boolean dataLoadingFinished = false;
 	
@@ -73,7 +69,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		
 		if(graphUri.startsWith("http://datagen.ontology")) {
 			receivedFilePath = ontologiesPath + graphUri.replaceFirst(".*/", "");
-		} else if (graphUri.startsWith("http://datagen.version.0") ){
+		} else if (graphUri.startsWith("http://datagen.version.0")) {
 			receivedFilePath = dataPath + "v0/" + graphUri.replaceFirst(".*/", "");
 		} else {
 			String versionNum = graphUri.substring(25, graphUri.indexOf("generatedCreativeWorks") - 1);
@@ -101,6 +97,16 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				LOGGER.error("Exception while creating/opening files to write received data.", e);
 			} catch (IOException e) {
 				LOGGER.error("Exception while writing data file", e);
+			}
+		}
+		int availableMsges = availableMessages.decrementAndGet();
+		LOGGER.info("availableMessages=" + availableMsges + " .");
+		if(availableMsges == 0) {
+			try {
+				LOGGER.info("Send signal to benchmark controller that all data sent from data generators successfully received.");
+				sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_ALL_DATA_RECEIVED);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -162,6 +168,9 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 						
 						resultsArray[2] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
 						resultsArray[3] = queryResponseBos.toByteArray();
+						//debug
+						LOGGER.info("system results_length: " + resultsArray[3].length);
+
 //						resultsArray[3] = RabbitMQUtils.writeString("insteadOfOutpuStream");
 
 						LOGGER.info("Task " + tId + " executed successfully and returned "+ returnedResults + " results.");
@@ -171,12 +180,6 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 						LOGGER.info("Task " + tId + " failed to executed. Error code (-1) set as result.");
 					}
 					qexec.close();
-					
-//					LOGGER.info("resultsArray[0]:taskType " + new String(resultsArray[0], StandardCharsets.UTF_8));
-//					LOGGER.info("resultsArray[1]:queryType " + new String(resultsArray[1], StandardCharsets.UTF_8));
-//					LOGGER.info("resultsArray[2]:rowCount " + new String(resultsArray[2], StandardCharsets.UTF_8));
-//					LOGGER.info("resultsArray[3]:results " + new String(resultsArray[3], StandardCharsets.UTF_8).substring(0, 500));
-
 					break;
 			}
 			
@@ -242,7 +245,12 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	@Override
     public void receiveCommand(byte command, byte[] data) {
     	if (command == VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED) {
-			LOGGER.info("Received signal that all data received successfully.");
+			int numberOfMessagesSent = Integer.parseInt(RabbitMQUtils.readString(data));
+			LOGGER.info("Received signal that all data successfully sent from data generators (#" + numberOfMessagesSent + ")");
+			availableMessages.addAndGet(numberOfMessagesSent);
+    	} else if (command == VirtuosoSystemAdapterConstants.BULK_LOAD_PHASE_STARTED) {
+    		LOGGER.info("Received signal that all data received successfully.");
+    		// TODO here storage space overhead have to quantified
 			int versionsNum = Integer.parseInt(RabbitMQUtils.readString(data));
 			LOGGER.info("Loading " + versionsNum + " versions...");
 			

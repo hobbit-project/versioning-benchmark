@@ -4,21 +4,27 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Constructor;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -47,23 +53,7 @@ import eu.ldbc.semanticpublishing.substitutionparameters.SubstitutionParametersG
 import eu.ldbc.semanticpublishing.substitutionparameters.SubstitutionQueryParametersManager;
 import eu.ldbc.semanticpublishing.templates.MustacheTemplate;
 import eu.ldbc.semanticpublishing.templates.VersioningMustacheTemplatesHolder;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery1_1Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_1Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_2Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_3Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_4Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery3_1Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_1Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_2Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_3Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_4Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery5_1Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery6_1Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery7_1Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_1Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_2Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_3Template;
-import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_4Template;
+import eu.ldbc.semanticpublishing.templates.versioning.*;
 import eu.ldbc.semanticpublishing.util.AllocationsUtil;
 import eu.ldbc.semanticpublishing.util.RandomUtil;
 
@@ -90,6 +80,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private String serializationFormat;
 	private int taskId = 0;
 	private int[] triplesToBeLoaded;
+	private AtomicInteger numberOfmessages = new AtomicInteger(0);
 	
 	private Configuration configuration = new Configuration();
 	private Definitions definitions = new Definitions();
@@ -337,12 +328,13 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					expectedAnswers = new byte[2][];
 					
 					if(!compExpAnswersFailed) {
-						ResultSetMem rsm = new ResultSetMem(results);
+//						ResultSetMem rsm = new ResultSetMem(results);
 	
 						// update the task by setting its expected results
 						ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-						ResultSetFormatter.outputAsJSON(outputStream, rsm);
-						rsm.rewind();
+						ResultSetFormatter.outputAsJSON(outputStream, results);
+//						ResultSetFormatter.outputAsJSON(outputStream, rsm);
+//						rsm.rewind();
 
 //						if(countComputed) {
 //							int count = 0;
@@ -357,6 +349,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 							int rowNum = results.getRowNumber();
 							expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(rowNum));
 							expectedAnswers[1] = outputStream.toByteArray();
+							//debug
+							LOGGER.info("expected results_length: " + expectedAnswers[1].length);
 //							expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
 							LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + rowNum);
 //						}
@@ -373,6 +367,42 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					break;
 			}
 		}	
+	}
+	
+	public void writeResults() {
+		String resultsPath = System.getProperty("user.dir") + File.separator + "results";
+		File resultsDir = new File(resultsPath);
+		resultsDir.mkdirs();
+		int taskId = 1;
+		
+		for (int queryType = 0; queryType < Statistics.VERSIONING_QUERIES_COUNT; queryType++) {
+			if (Arrays.asList(1,3,7).contains(queryType)) {
+				for (int querySubType = 0; querySubType < Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {	
+					for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
+						ByteBuffer expectedResultsBuffer = ByteBuffer.wrap(tasks.get(taskId++).getExpectedAnswers());
+						RabbitMQUtils.readString(expectedResultsBuffer);
+						byte[] expectedResults = RabbitMQUtils.readString(expectedResultsBuffer).getBytes(StandardCharsets.UTF_8);
+						try {
+							FileUtils.writeByteArrayToFile(new File(resultsDir + File.separator + "versionigQuery" + (queryType + 1) + "." + (querySubType + 1) + "." + (querySubstParam + 1) + "_results.json"), expectedResults);
+						} catch (IOException e) {
+							LOGGER.error("Exception caught during saving of expected results: ", e);
+						}
+					}
+				}
+				continue;
+			}
+			for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
+				ByteBuffer expectedResultsBuffer = ByteBuffer.wrap(tasks.get(taskId++).getExpectedAnswers());
+				RabbitMQUtils.readString(expectedResultsBuffer);
+				byte[] expectedResults = RabbitMQUtils.readString(expectedResultsBuffer).getBytes(StandardCharsets.UTF_8);
+				try {
+					FileUtils.writeByteArrayToFile(new File(resultsDir + File.separator + "versionigQuery" + (queryType + 1) + ".1." + (querySubstParam + 1) + "_results.json"), expectedResults);
+				} catch (IOException e) {
+					LOGGER.error("Exception caught during saving of expected results : ", e);
+				}
+				if (queryType == 0) break;
+			}
+		}
 	}
 	
 	public void buildSPRQLTasks() {
@@ -654,6 +684,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				byte data[] = FileUtils.readFileToByteArray(file);
 				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
 				sendDataToSystemAdapter(dataForSending);
+				numberOfmessages.incrementAndGet();
 			}
 	    	LOGGER.info("All ontologies successfully sent to System Adapter.");
 	
@@ -670,10 +701,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				// TODO: in the 2nd version of the benchmark deleted sets have to be supported as well
 				// TODO: in the 2nd version of the benchmark where multiple archiving policies will
 				// 		 be supported, graphUri should be used as is for full materialization policy
-				String graphUri = (initialVersion ? "http://datagen.version.0" : "http://datagen.added.set." + versionNum) + "." + filePath;
+				String graphUri = (initialVersion ? "http://datagen.version.0" : "http://datagen.added.set." + versionNum) + "." + file.getName();
 				byte data[] = FileUtils.readFileToByteArray(file);
 				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
 				sendDataToSystemAdapter(dataForSending);
+				numberOfmessages.incrementAndGet();
 			}
 	    	LOGGER.info("All generated data successfully sent to System Adapter.");
 		} catch (Exception e) {
@@ -683,8 +715,12 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
         	// sysada. a new signal has to be sent in such cases (do it when expected answers 
         	// computation removed from datagen implementation) now cannot to be done as 
         	// all data generated in the init function (before datagen's start)
-        	LOGGER.info("Send signal that all data successfully sent to System Adapter");
-			sendToCmdQueue(VersioningConstants.DATA_GEN_DATA_GENERATION_FINISHED, SerializationUtils.serialize(triplesToBeLoaded));
+        	LOGGER.info("Send signal to benchmark controller that all data (#" + numberOfmessages + ") successfully sent to system adapter.");
+        	byte[][] data = new byte[3][];
+        	data[0] = SerializationUtils.serialize(triplesToBeLoaded);
+        	data[1] = RabbitMQUtils.writeString(Integer.toString(numberOfmessages.get()));
+        	data[2] = RabbitMQUtils.writeString(Integer.toString(getGeneratorId()));
+			sendToCmdQueue(VersioningConstants.DATA_GEN_DATA_GENERATION_FINISHED, RabbitMQUtils.writeByteArrays(data));
         }
 		
 		// wait for all data to be loaded by the system before send the first task
@@ -726,6 +762,94 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		} catch (InterruptedException e) {
             LOGGER.error("Exception while executing script for loading data.", e);
 		}		
+	}
+	
+	public static void sendToFtp(String dir, List<File> dataFiles) {
+		FTPClient client = new FTPClient();
+		FileInputStream fis = null;
+		
+        try {
+        	client.connect("hobbitdata.informatik.uni-leipzig.de");
+        	System.out.println("connected: " + client.sendNoOp());
+        	client.enterLocalPassiveMode();
+        	String username = "hobbit";
+            String pwd = "SHQsAeMbFRgzVbXHUBw9cuxmNdnrpVBWYRAEkjXHGgA2qusnMhtSLn78kxUHv4QNF8vMBeaArFXXEhDPkjB6JnNzUW2wg7CXFnsh";
+            System.out.println("login: "+client.login(username, pwd));
+            
+            System.out.println(client.printWorkingDirectory());
+            client.changeWorkingDirectory(dir);
+            System.out.println(client.printWorkingDirectory());
+            
+            for (File file : dataFiles) {
+            	fis = new FileInputStream(file);
+            	client.storeFile(file.getName(), fis);
+            }
+            
+            client.logout();
+        } catch (IOException e) {
+			e.printStackTrace();
+        } finally {
+        	try {
+                if (fis != null) {
+                    fis.close();
+                }
+                client.disconnect();
+            } catch (IOException e) {
+    			e.printStackTrace();
+            }
+        }
+	}
+	
+	public void sendAllToFtp() {
+		writeResults();
+		
+		File ontologiesPathFile = new File("/versioning/ontologies/");
+		File dataV0PathFile = new File("/versioning/data/v0");
+		File dataC1PathFile = new File("/versioning/data/c1");
+		File dataC2PathFile = new File("/versioning/data/c2");
+		File dataC3PathFile = new File("/versioning/data/c3");
+		File dataC4PathFile = new File("/versioning/data/c4");
+		File dataC5PathFile = new File("/versioning/data/c5");
+		File dataC6PathFile = new File("/versioning/data/c6");
+		File dataC7PathFile = new File("/versioning/data/c7");
+		File dataC8PathFile = new File("/versioning/data/c8");
+		File dataC9PathFile = new File("/versioning/data/c9");
+		File queriesPathFile = new File("/versioning/queries/");
+		File queryTemplatesPathFile = new File("/versioning/query_templates/");
+		File subsParamPathFile = new File("/versioning/substitution_parameters/");
+		File resultsPathFile = new File("/versioning/results/");
+		
+		List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
+		List<File> queryFiles = (List<File>) FileUtils.listFiles(queriesPathFile, new String[] { "sparql" }, true);
+		List<File> queryTemplateFiles = (List<File>) FileUtils.listFiles(queryTemplatesPathFile, new String[] { "txt" }, true);
+		List<File> subsParamFiles = (List<File>) FileUtils.listFiles(subsParamPathFile, new String[] { "txt" }, true);
+		List<File> resultsFiles = (List<File>) FileUtils.listFiles(resultsPathFile, new String[] { "json" }, true);
+		List<File> dataV0Files = (List<File>) FileUtils.listFiles(dataV0PathFile, new String[] { "nt" }, true);
+		List<File> dataC1Files = (List<File>) FileUtils.listFiles(dataC1PathFile, new String[] { "nt" }, true);
+		List<File> dataC2Files = (List<File>) FileUtils.listFiles(dataC2PathFile, new String[] { "nt" }, true);
+		List<File> dataC3Files = (List<File>) FileUtils.listFiles(dataC3PathFile, new String[] { "nt" }, true);
+		List<File> dataC4Files = (List<File>) FileUtils.listFiles(dataC4PathFile, new String[] { "nt" }, true);
+		List<File> dataC5Files = (List<File>) FileUtils.listFiles(dataC5PathFile, new String[] { "nt" }, true);
+		List<File> dataC6Files = (List<File>) FileUtils.listFiles(dataC6PathFile, new String[] { "nt" }, true);
+		List<File> dataC7Files = (List<File>) FileUtils.listFiles(dataC7PathFile, new String[] { "nt" }, true);
+		List<File> dataC8Files = (List<File>) FileUtils.listFiles(dataC8PathFile, new String[] { "nt" }, true);
+		List<File> dataC9Files = (List<File>) FileUtils.listFiles(dataC9PathFile, new String[] { "nt" }, true);
+
+		sendToFtp("public/MOCHA_OC/Task3/ontologies", ontologiesFiles);
+		sendToFtp("public/MOCHA_OC/Task3/data/v0", dataV0Files);
+		sendToFtp("public/MOCHA_OC/Task3/data/c1", dataC1Files);
+		sendToFtp("public/MOCHA_OC/Task3/data/c2", dataC2Files);
+		sendToFtp("public/MOCHA_OC/Task3/data/c3", dataC3Files);
+		sendToFtp("public/MOCHA_OC/Task3/data/c4", dataC4Files);
+		sendToFtp("public/MOCHA_OC/Task3/data/c5", dataC5Files);
+		sendToFtp("public/MOCHA_OC/Task3/data/c6", dataC6Files);
+		sendToFtp("public/MOCHA_OC/Task3/data/c7", dataC7Files);
+		sendToFtp("public/MOCHA_OC/Task3/data/c8", dataC8Files);
+		sendToFtp("public/MOCHA_OC/Task3/data/c9", dataC9Files);
+		sendToFtp("public/MOCHA_OC/Task3/queries", queryFiles);
+		sendToFtp("public/MOCHA_OC/Task3/query_templates", queryTemplateFiles);
+		sendToFtp("public/MOCHA_OC/Task3/substitution_parameters", subsParamFiles);
+		sendToFtp("public/MOCHA_OC/Task3/expected_results", resultsFiles);
 	}
 	
 	@Override

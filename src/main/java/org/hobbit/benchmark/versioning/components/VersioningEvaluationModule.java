@@ -132,20 +132,28 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		LOGGER.info("taskSentTimestamp: "+taskSentTimestamp);
 		LOGGER.info("responseReceivedTimestamp: "+responseReceivedTimestamp);
 		
+//		// get the query type
+//		int queryType = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
+//		LOGGER.info("queryType: "+queryType);
+		
 		// get the expected result's row number
-		int expectedResultsNum = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
-		LOGGER.info("expectedResultsNum: "+expectedResultsNum);
-		// get the expected results
-		byte[] expectedBufferBytes = RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8);
+//		int expectedResultsNum = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
+//		LOGGER.info("expectedResultsNum: "+expectedResultsNum);
 		
-		// debug
-		String output = new String(expectedBufferBytes, StandardCharsets.UTF_8);
-		LOGGER.info("resultsArray[3]:results_length " + output.length());
-		LOGGER.info("resultsArray[3]:results " + (output.length() > 300 ? output.substring(0, 300) : output));
-		InputStream inExpected = new ByteArrayInputStream(expectedBufferBytes);
 		
-		ResultSet expected = ResultSetFactory.fromJSON(inExpected);
+		// get the expected results		
+//		byte[] expectedBufferBytes = RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8);
+//		InputStream inExpected = new ByteArrayInputStream(expectedBufferBytes);
+//		ResultSet expected = ResultSetFactory.fromJSON(inExpected);
+		
+//		int taskTypeInt = 0;
+//		try {
+//			taskTypeInt = Integer.parseInt(taskType);
+//		} catch (NumberFormatException e) {
+//			taskTypeInt = 3;
+//		}
 
+//		switch (taskTypeInt) {
 		switch (Integer.parseInt(taskType)) {
 			case 2:
 				LOGGER.info("Evaluating response of storage space task...");
@@ -156,14 +164,16 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 			case 3:	
 				LOGGER.info("Evaluating response of query performance task...");
 
-//				// get the expected result's row number
-//				int expectedResultsNum = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
-//				LOGGER.info("expectedResultsNum: "+expectedResultsNum);
-//				// get the expected results
-//				byte[] expectedBufferBytes = RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8);
-//				InputStream inExpected = new ByteArrayInputStream(expectedBufferBytes);
-//				ResultSet expected = ResultSetFactory.fromJSON(inExpected);
-				
+				// get the expected result's row number
+				int expectedResultsNum = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
+				LOGGER.info("expectedResultsNum: "+expectedResultsNum);
+				// get the expected results
+				byte[] expectedBufferBytes = RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8);
+				InputStream inExpected = new ByteArrayInputStream(expectedBufferBytes);
+				ResultSet expected = ResultSetFactory.fromJSON(inExpected);
+				//debug
+				LOGGER.info("expected results_length: " + expectedBufferBytes.length);
+
 				// get the query type
 				int queryType = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
 				LOGGER.info("queryType: "+queryType);
@@ -177,6 +187,11 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				byte[] receivedBufferBytes = RabbitMQUtils.readString(receivedBuffer).getBytes(StandardCharsets.UTF_8);
 				InputStream inReceived = new ByteArrayInputStream(receivedBufferBytes);
 				ResultSet received = ResultSetFactory.fromJSON(inReceived);
+				
+				// debug
+				String receivedSize = org.apache.commons.io.FileUtils.byteCountToDisplaySize(receivedBufferBytes.length);
+				LOGGER.info("received results_length: " + receivedSize);
+
 				
 				boolean resultCompletness = resultRowCount == expectedResultsNum;
 				boolean queryExecutedSuccesfully = resultRowCount != -1;
