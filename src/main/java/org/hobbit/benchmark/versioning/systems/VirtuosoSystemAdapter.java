@@ -259,7 +259,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			}
 			
 			LOGGER.info("All data of version " + loadingVersion + " received. Proceed to the loading of such version.");
-			loadVersion(loadingVersion++);
+			loadVersion(loadingVersion);
 			
 			LOGGER.info("Send signal to Benchmark Controller that all data of version " + loadingVersion + " successfully loaded.");
 			try {
@@ -267,6 +267,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			} catch (IOException e) {
 				LOGGER.error("Exception while sending signal that all data of version " + loadingVersion + " successfully loaded.", e);
 			}
+			loadingVersion++;
 			dataLoadingFinished = !lastLoadingPhase;
     	}
     	super.receiveCommand(command, data);

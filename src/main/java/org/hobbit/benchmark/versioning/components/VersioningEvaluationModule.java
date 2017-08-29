@@ -35,10 +35,6 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 
     private Model finalModel = ModelFactory.createDefaultModel();
     
-    // gia ti deftera:
-    // emeina sto na svinw ta cases 1 tou paliou kodika
-    // exw provlima gia ton ypologismo twn speeds kathws den kserw ton arithmo twn tripletwn
-    
     private Property INITIAL_VERSION_INGESTION_SPEED = null;
     private Property AVG_APPLIED_CHANGES_PS = null;
     private Property STORAGE_COST = null;
@@ -66,8 +62,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 	private float storageCost = 0;
 	private int queryFailures = 0;
 	private int numberOfVersions = 0;
-	private long totalQueriesExecutionTime = 0;
-	private int totalQueriesExecuted = 0;
+	private float qps = 0;
 
 	@Override
     public void init() throws Exception {
@@ -166,7 +161,6 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				LOGGER.info("Response: " + storageCost + " KB.");
 				break;
 			case 3:	
-				totalQueriesExecuted++;
 				LOGGER.info("Evaluating response of query performance task...");
 
 				// get the expected result's row number
@@ -185,9 +179,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				// get its execution time
 				long execTime = responseReceivedTimestamp - taskSentTimestamp;
 				LOGGER.info("execTime: "+execTime);
-				
-				totalQueriesExecutionTime += execTime;
-				
+								
 				// get the results row count
 				int resultRowCount = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
 				LOGGER.info("resultRowCount: "+resultRowCount);
@@ -211,41 +203,31 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts1.reportSuccess(execTime); } 
 						else { 
-							qts1.reportFailure(); 
-							queryFailures++;
-						}
+							qts1.reportFailure(); }
 						break;
 					case 2:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts2.reportSuccess(execTime); } 
 						else { 
-							qts2.reportFailure(); 
-							queryFailures++;
-						}
+							qts2.reportFailure(); }
 						break;
 					case 3:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts3.reportSuccess(execTime); } 
 						else { 
-							qts3.reportFailure(); 
-							queryFailures++;
-						}
+							qts3.reportFailure(); }
 						break;
 					case 4:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts4.reportSuccess(execTime); } 
 						else { 
-							qts4.reportFailure(); 
-							queryFailures++;
-						}
+							qts4.reportFailure(); }
 						break;
 					case 5:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts5.reportSuccess(execTime); } 
 						else { 
-							qts5.reportFailure(); 
-							queryFailures++;
-						}
+							qts5.reportFailure(); }
 						break;
 					case 6:	
 						int blogPostsDiffReceived = -1;
@@ -264,9 +246,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly && blogPostsDiffReceived == blogPostsDiffExcpected) {  
 							qts6.reportSuccess(execTime); } 
 						else { 
-							qts6.reportFailure(); 
-							queryFailures++;
-						}
+							qts6.reportFailure(); }
 						break;
 					case 7:	
 						int avgAddedNewsItemsReceived = -1;
@@ -286,39 +266,59 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly && avgAddedNewsItemsReceived == avgAddedNewsItemsExcpected) {  
 							qts7.reportSuccess(execTime); } 
 						else { 
-							qts7.reportFailure(); 
-							queryFailures++;
-						}
+							qts7.reportFailure(); }
 						break;
 					case 8:	
 						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
 							qts8.reportSuccess(execTime); } 
 						else { 
-							qts8.reportFailure(); 
-							queryFailures++;
-						}
+							qts8.reportFailure(); }
 						break;
 				}
 				LOGGER.info("Query task of type: " + queryType + " executed in " + execTime + " ms and returned " + resultRowCount + "/" + expectedResultsNum + " results.");
 				break;
 		}
 	}
+	
+	private void computeTotalFailures() {
+		queryFailures += qts1.getFailuresCount();
+		queryFailures += qts2.getFailuresCount();
+		queryFailures += qts3.getFailuresCount();
+		queryFailures += qts4.getFailuresCount();
+		queryFailures += qts5.getFailuresCount();
+		queryFailures += qts6.getFailuresCount();
+		queryFailures += qts7.getFailuresCount();
+		queryFailures += qts8.getFailuresCount();
+	}
 
+	private void computeQPS() {
+		float totalQueriesExecutionTime = 0;
+		totalQueriesExecutionTime += qts1.getTotalExecutionTimeMs();
+		totalQueriesExecutionTime += qts2.getTotalExecutionTimeMs();
+		totalQueriesExecutionTime += qts3.getTotalExecutionTimeMs();
+		totalQueriesExecutionTime += qts4.getTotalExecutionTimeMs();
+		totalQueriesExecutionTime += qts5.getTotalExecutionTimeMs();
+		totalQueriesExecutionTime += qts6.getTotalExecutionTimeMs();
+		totalQueriesExecutionTime += qts7.getTotalExecutionTimeMs();
+		totalQueriesExecutionTime += qts8.getTotalExecutionTimeMs();
+		
+		long totalQueriesCount = 0;
+		totalQueriesCount += qts1.getRunsCount();
+		totalQueriesCount += qts2.getRunsCount();
+		totalQueriesCount += qts3.getRunsCount();
+		totalQueriesCount += qts4.getRunsCount();
+		totalQueriesCount += qts5.getRunsCount();
+		totalQueriesCount += qts6.getRunsCount();
+		totalQueriesCount += qts7.getRunsCount();
+		totalQueriesCount += qts8.getRunsCount();
+		
+		qps = (float) totalQueriesCount / (totalQueriesExecutionTime / 1000);
+//		float QPSRounded = (float) (Math.round(QPS * 100.0) / 100.0);
+	}
+	
 	@Override
 	protected Model summarizeEvaluation() throws Exception {
 		LOGGER.info("Summarizing evaluation...");
-		
-		LOGGER.info("Ingestion tasks errors: " + is.getFailuresCount());
-		LOGGER.info("Query type 1 errors: " + qts1.getFailuresCount());
-		LOGGER.info("Query type 2 errors: " + qts2.getFailuresCount());
-		LOGGER.info("Query type 3 errors: " + qts3.getFailuresCount());
-		LOGGER.info("Query type 4 errors: " + qts4.getFailuresCount());
-		LOGGER.info("Query type 5 errors: " + qts5.getFailuresCount());
-		LOGGER.info("Query type 6 errors: " + qts6.getFailuresCount());
-		LOGGER.info("Query type 7 errors: " + qts7.getFailuresCount());
-		LOGGER.info("Query type 8 errors: " + qts8.getFailuresCount());
-		LOGGER.info("Total query errors: " + queryFailures);
-
 		
 		if (experimentUri == null) {
             Map<String, String> env = System.getenv();
@@ -395,18 +395,20 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         		qts8.getAvgExecutionTimeMs() + "\n" + 
 				queryType8AvgExecTimeLiteral);
         
+		// Compute the number of queries that failed to be executed.	
+		computeTotalFailures();
         Literal queryFailuresLiteral = finalModel.createTypedLiteral(queryFailures, XSDDatatype.XSDunsignedInt);
         finalModel.add(experimentResource, QUERY_FAILURES, queryFailuresLiteral);
         LOGGER.info("QUERY_FAILURES: " + 
         		queryFailures + "\n" + 
         		queryFailuresLiteral);
         
-        float QPS = (float) totalQueriesExecuted / totalQueriesExecutionTime;
-		float QPSRounded = (float) (Math.round(QPS * 100.0) / 100.0);
-        Literal queriesPerSecondLiteral = finalModel.createTypedLiteral(QPSRounded, XSDDatatype.XSDfloat);
+		// Compute the queries that successfully executed per second.
+		computeQPS();
+        Literal queriesPerSecondLiteral = finalModel.createTypedLiteral(qps, XSDDatatype.XSDfloat);
         finalModel.add(experimentResource, QUERIES_PER_SECOND, queriesPerSecondLiteral);
         LOGGER.info("QUERIES_PER_SECOND: " + 
-        		QPSRounded + "\n" + 
+        		qps + "\n" + 
         		queriesPerSecondLiteral);
 
         return finalModel;
