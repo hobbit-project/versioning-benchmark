@@ -786,12 +786,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	@Override
 	public void close() throws IOException {
 		LOGGER.info("Closing Data Generator...");
-		try {
-			Thread.sleep(1000 * 60 * 60);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
         super.close();
 		LOGGER.info("Data Generator closed successfully.");
     }
