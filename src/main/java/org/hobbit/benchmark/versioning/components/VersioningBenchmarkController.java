@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -40,7 +41,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private int loadedVersion = 0;
     private long prevLoadingStartedTime = 0;
     private long[] loadingTimes;
-    private AtomicInteger[] triplesToBeLoaded;
+    private AtomicIntegerArray triplesToBeLoaded;
     private AtomicInteger numberOfMessages = new AtomicInteger(0);
 
 	@Override
@@ -58,6 +59,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		int subsParametersAmount = (Integer) getProperty(PREFIX + "querySubstitutionParameters", 10);
 		
 		loadingTimes = new long[numOfVersions];
+		triplesToBeLoaded = new AtomicIntegerArray(numOfVersions);
 		
 		// data generators environmental values
 		dataGenEnvVariables = new String[] {
@@ -161,7 +163,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	// computing the gold standard. Only the number of messages and data generator's
         	// id will be sent with DATA_GEN_VERSION_SENT command
         	ByteBuffer dataBuffer = ByteBuffer.wrap(data);
-        	triplesToBeLoaded[loadedVersion].addAndGet(Integer.parseInt(RabbitMQUtils.readString(dataBuffer)));
+        	triplesToBeLoaded.addAndGet(loadedVersion, Integer.parseInt(RabbitMQUtils.readString(dataBuffer)));
         	int dataGeneratorId = Integer.parseInt(RabbitMQUtils.readString(dataBuffer));
         	int dataGenNumOfMessages = Integer.parseInt(RabbitMQUtils.readString(dataBuffer));
         	numberOfMessages.addAndGet(dataGenNumOfMessages);
@@ -239,7 +241,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         // the ingestion and applied changes speeds
         for(int version=0; version<numOfVersions; version++) {
         	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
-        			String.format(VersioningConstants.TRIPLES_TO_BE_LOADED, version) + "=" + triplesToBeLoaded[version]);
+        			String.format(VersioningConstants.TRIPLES_TO_BE_LOADED, version) + "=" + triplesToBeLoaded.get(version));
         	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
         			String.format(VersioningConstants.LOADING_TIMES, version) + "=" + loadingTimes[version]);
         }
