@@ -76,7 +76,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private String ontologiesPath = "/versioning/ontologies";
 	private String serializationFormat;
 	private int taskId = 0;
-	private int[] triplesToBeLoaded;
+	private int[] triplesExpectedToBeLoaded;
 	private AtomicInteger numberOfmessages = new AtomicInteger(0);
 	
 	private Configuration configuration = new Configuration();
@@ -92,7 +92,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int[] minorEvents;
 	private int[] correlations;
 	
-	private Semaphore dataLoadedFromSystemMutex = new Semaphore(0);
+	private Semaphore versionLoadedFromSystemMutex = new Semaphore(0);
 		
 	@Override
     public void init() throws Exception {
@@ -108,7 +108,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		// Initialize data generation parameters through the environment variables given by user
 		initFromEnv();
-		triplesToBeLoaded = new int[numberOfVersions];
+		triplesExpectedToBeLoaded = new int[numberOfVersions];
 
 		// Given the above input, update configuration files that are necessary for data generation
 		reInitializeSPBProperties();
@@ -277,7 +277,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			ResultSet results = cQexec.execSelect();
 			
 			if(results.hasNext()) {
-				triplesToBeLoaded[version] = results.next().getLiteral("cnt").getInt();
+				triplesExpectedToBeLoaded[version] = results.next().getLiteral("cnt").getInt();
 			}
 		}
 		
@@ -670,60 +670,75 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	// This method is used for sending the already generated data, tasks and gold standard
 	// to the appropriate components.
 	protected void generateData() throws Exception {
-		
 		try {
-			// send ontology files to the system
-			File ontologiesPathFile = new File(ontologiesPath);
-			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
-			for (File file : ontologiesFiles) {
-				String graphUri = "http://datagen.ontology." + file.getName();
-				byte data[] = FileUtils.readFileToByteArray(file);
-				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
-				sendDataToSystemAdapter(dataForSending);
-				numberOfmessages.incrementAndGet();
-			}
-	    	LOGGER.info("All ontologies successfully sent to System Adapter.");
-	
 			// send data files to the system
-			File dataPath = new File(generatedDatasetPath);
-			String[] extensions = new String[] { RDFUtils.getFileExtensionFromRdfFormat(serializationFormat) };
-			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, extensions, true);
-			for (File file : dataFiles) {
-				String filePath = file.getAbsolutePath();
-				String versionNum = filePath.substring(18, filePath.indexOf("generatedCreativeWorks") - 1);
-				boolean initialVersion = filePath.startsWith("/versioning/data/v0/");
-				// the graph uri determines the version in which such data need to be 
-				// loaded and have to be parsed by the system for identifying it.
-				// TODO: in the 2nd version of the benchmark deleted sets have to be supported as well
-				// TODO: in the 2nd version of the benchmark where multiple archiving policies will
-				// 		 be supported, graphUri should be used as is for full materialization policy
-				String graphUri = (initialVersion ? "http://datagen.version.0" : "http://datagen.added.set." + versionNum) + "." + file.getName();
-				byte data[] = FileUtils.readFileToByteArray(file);
-				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
-				sendDataToSystemAdapter(dataForSending);
-				numberOfmessages.incrementAndGet();
-			}
-	    	LOGGER.info("All generated data successfully sent to System Adapter.");
+			// starting for version 0 and continue to the next one until reaching the last version
+			// waits for signal that the sent version successfully loaded by the system 
+			// in order to proceed with the next one
+	    	for(int version=0; version<numberOfVersions; version++) {
+	    		numberOfmessages.set(0);
+	    		if(version == 0) {
+	    			// ontologies have to be sent only from one data generator
+	    			if(getGeneratorId() == 0) {
+		    			// send ontology files to the system
+		    			File ontologiesPathFile = new File(ontologiesPath);
+		    			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
+		    			for (File file : ontologiesFiles) {
+		    				String graphUri = "http://datagen.ontology." + file.getName();
+		    				byte data[] = FileUtils.readFileToByteArray(file);
+		    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
+		    				sendDataToSystemAdapter(dataForSending);
+		    				numberOfmessages.incrementAndGet();
+		    			}
+		    	    	LOGGER.info("All ontologies successfully sent to System Adapter.");
+	    			}
+	    	    	File dataPath = new File(generatedDatasetPath + "/v0");
+	    			String[] extensions = new String[] { RDFUtils.getFileExtensionFromRdfFormat(serializationFormat) };
+	    			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, extensions, true);
+	    			for (File file : dataFiles) {
+	    				String graphUri = "http://datagen.version.0." + file.getName();
+	    				byte data[] = FileUtils.readFileToByteArray(file);
+	    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
+	    				sendDataToSystemAdapter(dataForSending);
+	    				numberOfmessages.incrementAndGet();
+	    			}
+	    		} else {
+	    			File dataPath = new File(generatedDatasetPath + "/c" + version);
+	    			String[] extensions = new String[] { RDFUtils.getFileExtensionFromRdfFormat(serializationFormat) };
+	    			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, extensions, true);
+	    			for (File file : dataFiles) {
+	    				String graphUri = "http://datagen.added.set." + version + "." + file.getName();
+	    				byte data[] = FileUtils.readFileToByteArray(file);
+	    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
+	    				sendDataToSystemAdapter(dataForSending);
+	    				numberOfmessages.incrementAndGet();
+	    			}
+	    		}
+    	    	LOGGER.info("Generated data for version " + version + " successfully sent to System Adapter.");
+			
+    	    	// TODO: sending of such signal when data were generated and not when data sent to
+            	// sysada. a new signal has to be sent in such cases (do it when expected answers 
+            	// computation removed from datagen implementation) now cannot to be done as 
+            	// all data generated in the init function (before datagen's start)
+            	LOGGER.info("Send signal to benchmark controller that all data (#" + numberOfmessages + ") of version " + version +" successfully sent to system adapter.");
+            	byte[][] data = new byte[3][];
+            	data[0] = RabbitMQUtils.writeString(Integer.toString(triplesExpectedToBeLoaded[version]));
+            	data[1] = RabbitMQUtils.writeString(Integer.toString(getGeneratorId()));
+            	data[2] = RabbitMQUtils.writeString(Integer.toString(numberOfmessages.get()));
+    			sendToCmdQueue(VersioningConstants.DATA_GEN_VERSION_DATA_SENT, RabbitMQUtils.writeByteArrays(data));
+
+    			LOGGER.info("Waiting until system receive and load the sent data.");
+    			versionLoadedFromSystemMutex.acquire();
+	    	}
 		} catch (Exception e) {
             LOGGER.error("Exception while sending generated data to System Adapter.", e);
-        } finally {
-        	// TODO: send such signal when data were generated and not when data sent to
-        	// sysada. a new signal has to be sent in such cases (do it when expected answers 
-        	// computation removed from datagen implementation) now cannot to be done as 
-        	// all data generated in the init function (before datagen's start)
-        	LOGGER.info("Send signal to benchmark controller that all data (#" + numberOfmessages + ") successfully sent to system adapter.");
-        	byte[][] data = new byte[3][];
-        	data[0] = SerializationUtils.serialize(triplesToBeLoaded);
-        	data[1] = RabbitMQUtils.writeString(Integer.toString(numberOfmessages.get()));
-        	data[2] = RabbitMQUtils.writeString(Integer.toString(numberOfmessages.get()));
-			sendToCmdQueue(VersioningConstants.DATA_GEN_DATA_GENERATION_FINISHED, RabbitMQUtils.writeByteArrays(data));
         }
 		
 		// wait for all data to be loaded by the system before send the first task
 		// to Task Generator (which in its turn will send it to the system for execution)
-		LOGGER.info("Waiting until all data are loaded by the system");
-		dataLoadedFromSystemMutex.acquire(numberOfVersions);
-		LOGGER.info("All data loaded successfully by the system. Proceed to the sending of tasks.");
+//		LOGGER.info("Waiting until all data are loaded by the system");
+//		dataLoadedFromSystemMutex.acquire(numberOfVersions);
+//		LOGGER.info("All data loaded successfully by the system. Proceed to the sending of tasks.");
 		
         try {
         	// send generated tasks along with their expected answers to task generator
@@ -763,7 +778,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	@Override
     public void receiveCommand(byte command, byte[] data) {
         if (command == VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
-        	dataLoadedFromSystemMutex.release();
+        	versionLoadedFromSystemMutex.release();
         }
         super.receiveCommand(command, data);
     }
@@ -771,6 +786,12 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	@Override
 	public void close() throws IOException {
 		LOGGER.info("Closing Data Generator...");
+		try {
+			Thread.sleep(1000 * 60 * 60);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         super.close();
 		LOGGER.info("Data Generator closed successfully.");
     }

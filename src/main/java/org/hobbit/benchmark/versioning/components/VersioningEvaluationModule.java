@@ -51,6 +51,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
     private Property QT_7_AVG_EXEC_TIME = null;
     private Property QT_8_AVG_EXEC_TIME = null;
     private Property QUERY_FAILURES = null;
+    private Property QUERIES_PER_SECOND = null;
     
     private IngestionStatistics is = new IngestionStatistics();
     private QueryTypeStatistics qts1 = new QueryTypeStatistics(1);
@@ -65,6 +66,8 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 	private float storageCost = 0;
 	private int queryFailures = 0;
 	private int numberOfVersions = 0;
+	private long totalQueriesExecutionTime = 0;
+	private int totalQueriesExecuted = 0;
 
 	@Override
     public void init() throws Exception {
@@ -98,6 +101,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         QT_7_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_7_AVG_EXEC_TIME);
         QT_8_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_8_AVG_EXEC_TIME);
         QUERY_FAILURES = initFinalModelFromEnv(env, VersioningConstants.QUERY_FAILURES);        
+        QUERIES_PER_SECOND = initFinalModelFromEnv(env, VersioningConstants.QUERIES_PER_SECOND);        
 
 		LOGGER.info("Evaluation Module initialized successfully.");
     }
@@ -162,6 +166,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				LOGGER.info("Response: " + storageCost + " KB.");
 				break;
 			case 3:	
+				totalQueriesExecuted++;
 				LOGGER.info("Evaluating response of query performance task...");
 
 				// get the expected result's row number
@@ -180,6 +185,9 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				// get its execution time
 				long execTime = responseReceivedTimestamp - taskSentTimestamp;
 				LOGGER.info("execTime: "+execTime);
+				
+				totalQueriesExecutionTime += execTime;
+				
 				// get the results row count
 				int resultRowCount = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
 				LOGGER.info("resultRowCount: "+resultRowCount);
@@ -292,7 +300,6 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 						break;
 				}
 				LOGGER.info("Query task of type: " + queryType + " executed in " + execTime + " ms and returned " + resultRowCount + "/" + expectedResultsNum + " results.");
-
 				break;
 		}
 	}
@@ -393,6 +400,14 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         LOGGER.info("QUERY_FAILURES: " + 
         		queryFailures + "\n" + 
         		queryFailuresLiteral);
+        
+        float QPS = (float) totalQueriesExecuted / totalQueriesExecutionTime;
+		float QPSRounded = (float) (Math.round(QPS * 100.0) / 100.0);
+        Literal queriesPerSecondLiteral = finalModel.createTypedLiteral(QPSRounded, XSDDatatype.XSDfloat);
+        finalModel.add(experimentResource, QUERIES_PER_SECOND, queriesPerSecondLiteral);
+        LOGGER.info("QUERIES_PER_SECOND: " + 
+        		QPSRounded + "\n" + 
+        		queriesPerSecondLiteral);
 
         return finalModel;
 	}

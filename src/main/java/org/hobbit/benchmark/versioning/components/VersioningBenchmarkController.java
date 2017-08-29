@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -31,7 +32,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private String[] dataGenEnvVariables = null;
     private String[] evalStorageEnvVariables = null;
     
-    private Semaphore dataGenFinishedMutex = new Semaphore(0);
+    private Semaphore versionSentMutex = new Semaphore(0);
     private Semaphore versionLoadedMutex = new Semaphore(0);
     
     private int numberOfDataGenerators;
@@ -39,8 +40,8 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private int loadedVersion = 0;
     private long prevLoadingStartedTime = 0;
     private long[] loadingTimes;
-    private int[] triplesToBeLoaded;
-    private int numberOfMessages;
+    private AtomicInteger[] triplesToBeLoaded;
+    private AtomicInteger numberOfMessages = new AtomicInteger(0);
 
 	@Override
 	public void init() throws Exception {
@@ -83,7 +84,8 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 				VersioningConstants.QT_6_AVG_EXEC_TIME + "=" + PREFIX + "queryType6AvgExecTime",
 				VersioningConstants.QT_7_AVG_EXEC_TIME + "=" + PREFIX + "queryType7AvgExecTime",
 				VersioningConstants.QT_8_AVG_EXEC_TIME + "=" + PREFIX + "queryType8AvgExecTime",
-				VersioningConstants.QUERY_FAILURES + "=" + PREFIX + "queryFailures"
+				VersioningConstants.QUERY_FAILURES + "=" + PREFIX + "queryFailures",
+				VersioningConstants.QUERIES_PER_SECOND + "=" + PREFIX + "queriesPerSecond"
 		};
 		
 		evalStorageEnvVariables = ArrayUtils.add(DEFAULT_EVAL_STORAGE_PARAMETERS,
@@ -153,33 +155,27 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	
 	@Override
     public void receiveCommand(byte command, byte[] data) {
-        if (command == VersioningConstants.DATA_GEN_DATA_GENERATION_FINISHED) {
+        if (command == VersioningConstants.DATA_GEN_VERSION_DATA_SENT) {
         	// TODO: 
         	// triplesToBeLoaded information have to be sent by the external component 
         	// computing the gold standard. Only the number of messages and data generator's
-        	// id will be sent with DATA_GEN_DATA_GENERATION_FINISHED command
+        	// id will be sent with DATA_GEN_VERSION_SENT command
         	ByteBuffer dataBuffer = ByteBuffer.wrap(data);
-        	byte[] triplesToBeLoadedData = RabbitMQUtils.readByteArray(dataBuffer);
-        	triplesToBeLoaded = SerializationUtils.deserialize(triplesToBeLoadedData);
-        	numberOfMessages = Integer.parseInt(RabbitMQUtils.readString(dataBuffer));
+        	triplesToBeLoaded[loadedVersion].addAndGet(Integer.parseInt(RabbitMQUtils.readString(dataBuffer)));
         	int dataGeneratorId = Integer.parseInt(RabbitMQUtils.readString(dataBuffer));
+        	int dataGenNumOfMessages = Integer.parseInt(RabbitMQUtils.readString(dataBuffer));
+        	numberOfMessages.addAndGet(dataGenNumOfMessages);
         	// signal sent from data generator that all its data generated successfully
-        	LOGGER.info("Recieved signal from Data Generator " + dataGeneratorId + " that all data (#" + numberOfMessages + ") generated successfully.");
-        	dataGenFinishedMutex.release();
-        } else if (command == VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
+        	LOGGER.info("Recieved signal from Data Generator " + dataGeneratorId + " that all data (#" + dataGenNumOfMessages + ") of version " + loadedVersion + " successfully sent to System Adapter.");
+        	versionSentMutex.release();
+	    } else if (command == VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
             // signal sent from system adapter that a version loaded successfully
         	long currTimeMillis = System.currentTimeMillis();
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
         	prevLoadingStartedTime = currTimeMillis;
         	versionLoadedMutex.release();
-        } else if (command == VirtuosoSystemAdapterConstants.BULK_LOAD_ALL_DATA_RECEIVED) {
-        	try {
-				sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_PHASE_STARTED, RabbitMQUtils.writeString(Integer.toString(numOfVersions)));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-        }
+        } 
         super.receiveCommand(command, data);
     }
 	
@@ -196,20 +192,29 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         sendToCmdQueue(Commands.DATA_GENERATOR_START_SIGNAL);
 		LOGGER.info("Start signals sent to Data and Task Generators");
 
-		// wait for all data generators to generate their data
-		LOGGER.info("Waiting for all the data generators to generate their data.");
-		dataGenFinishedMutex.acquire(numberOfDataGenerators);
-		LOGGER.info("Signal from all Data Generators received.");
-        // sends signal that all data generated and sent to system adapter successfully
-		// also send the number of versions that have to be loaded
-        LOGGER.info("Send signal to System Adapter that the sending of all data from Data Generators have finished.");
-        sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED, RabbitMQUtils.writeString(Integer.toString(numberOfMessages)));
-        prevLoadingStartedTime = System.currentTimeMillis();
-        
-		// wait for the system adapter to load all versions
-		LOGGER.info("Waiting for the the system to load all versions.");
-		versionLoadedMutex.acquire(numOfVersions);
-		
+		// iterate through different versions starting from version 0
+		for (int v=0; v<numOfVersions; v++) {
+			boolean lastLoadingPhase = (v == numOfVersions - 1);
+			
+			// wait for all data generators to sent data of version v to system adapter
+			LOGGER.info("Waiting for all data generators to send data of version " + v + " to system adapter.");
+			versionSentMutex.acquire(numberOfDataGenerators);
+			LOGGER.info("Signal from all data generators received.");
+			
+			// Send signal that all data, generated and sent to system adapter successfully.
+			// The number of messages along with a flag is also sent
+			LOGGER.info("Send signal to System Adapter that the sending of all data of version " + v + " from Data Generators have finished.");
+			byte[][] data = new byte[2][];
+			data[0] = RabbitMQUtils.writeString(Integer.toString(numberOfMessages.get()));
+			data[1] = RabbitMQUtils.writeString(Boolean.toString(lastLoadingPhase));
+	        prevLoadingStartedTime = System.currentTimeMillis();
+	        sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED, RabbitMQUtils.writeByteArrays(data));
+	        numberOfMessages.set(0);
+	        
+	        LOGGER.info("Waiting for the system to load data of version " + v);
+			versionLoadedMutex.acquire();
+		}
+
         // wait for the data generators to finish their work
         LOGGER.info("Waiting for the data generators to finish their work.");
         waitForDataGenToFinish();

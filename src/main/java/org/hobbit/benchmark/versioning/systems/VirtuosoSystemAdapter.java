@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
@@ -39,7 +40,11 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	
 	private AtomicInteger availableMessages = new AtomicInteger(0);
 	
+	private Semaphore allVersionDataReceivedMutex = new Semaphore(0);
+
+	// used to check if bulk loading phase has finished in  order to proceed with the querying phase
 	private boolean dataLoadingFinished = false;
+	private int loadingVersion = 0;
 	
 	// must match the "Generated data format" parameter given when starting the experiment
 	private String generatedDataFormat = "n-triples";
@@ -102,12 +107,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		int availableMsges = availableMessages.decrementAndGet();
 		LOGGER.info("availableMessages=" + availableMsges + " .");
 		if(availableMsges == 0) {
-			try {
-				LOGGER.info("Send signal to benchmark controller that all data sent from data generators successfully received.");
-				sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_ALL_DATA_RECEIVED);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			allVersionDataReceivedMutex.release();
 		}
 	}
 
@@ -238,32 +238,36 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
             LOGGER.error("Exception while executing script for loading data.", e);
 		} catch (InterruptedException e) {
             LOGGER.error("Exception while executing script for loading data.", e);
-		}	
+		}
 		return answer;
 	}
 	
 	@Override
     public void receiveCommand(byte command, byte[] data) {
     	if (command == VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED) {
-			int numberOfMessagesSent = Integer.parseInt(RabbitMQUtils.readString(data));
-			LOGGER.info("Received signal that all data successfully sent from data generators (#" + numberOfMessagesSent + ")");
+    		ByteBuffer dataBuffer = ByteBuffer.wrap(data);
+			int numberOfMessagesSent = Integer.parseInt(RabbitMQUtils.readString(dataBuffer));
+			boolean lastLoadingPhase = Boolean.getBoolean(RabbitMQUtils.readString(dataBuffer));
+			LOGGER.info("Received signal that all data of version " + loadingVersion + " successfully sent from data generators (#" + numberOfMessagesSent + ")");
 			availableMessages.addAndGet(numberOfMessagesSent);
-    	} else if (command == VirtuosoSystemAdapterConstants.BULK_LOAD_PHASE_STARTED) {
-    		LOGGER.info("Received signal that all data received successfully.");
-    		// TODO here storage space overhead have to quantified
-			int versionsNum = Integer.parseInt(RabbitMQUtils.readString(data));
-			LOGGER.info("Loading " + versionsNum + " versions...");
 			
-			for (int version=0; version<versionsNum; version++) {
-				loadVersion(version);
-				try {
-					sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			LOGGER.info("Wait for receiving all data of version " + loadingVersion + ".");
+			try {
+				allVersionDataReceivedMutex.acquire();
+			} catch (InterruptedException e) {
+				LOGGER.error("Exception while waitting for all data of version " + loadingVersion + " to be recieved.", e);
 			}
-			dataLoadingFinished = true;
+			
+			LOGGER.info("All data of version " + loadingVersion + " received. Proceed to the loading of such version.");
+			loadVersion(loadingVersion++);
+			
+			LOGGER.info("Send signal to Benchmark Controller that all data of version " + loadingVersion + " successfully loaded.");
+			try {
+				sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED);
+			} catch (IOException e) {
+				LOGGER.error("Exception while sending signal that all data of version " + loadingVersion + " successfully loaded.", e);
+			}
+			dataLoadingFinished = !lastLoadingPhase;
     	}
     	super.receiveCommand(command, data);
     }
