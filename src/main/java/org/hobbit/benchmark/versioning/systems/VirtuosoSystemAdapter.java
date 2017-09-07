@@ -39,8 +39,8 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			
 	private static final Logger LOGGER = LoggerFactory.getLogger(VirtuosoSystemAdapter.class);
 	
-	private AtomicInteger availableMessages = new AtomicInteger(0);
-	
+	private AtomicInteger totalReceived = new AtomicInteger(0);
+	private AtomicInteger totalSent = new AtomicInteger(0);
 	private Semaphore allVersionDataReceivedMutex = new Semaphore(0);
 
 	// used to check if bulk loading phase has finished in  order to proceed with the querying phase
@@ -103,9 +103,8 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				LOGGER.error("Exception while writing data file", e);
 			}
 		}
-		int availableMsges = availableMessages.decrementAndGet();
-		LOGGER.info("availableMessages=" + availableMsges + " .");
-		if(availableMsges == 0) {
+		
+		if(totalReceived.incrementAndGet() == totalSent.get()) {
 			allVersionDataReceivedMutex.release();
 		}
 	}
@@ -172,15 +171,16 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
     public void receiveCommand(byte command, byte[] data) {
     	if (command == VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED) {
     		ByteBuffer buffer = ByteBuffer.wrap(data);
-            int numberOfMessagesSent = buffer.getInt();
+            int numberOfMessages = buffer.getInt();
             boolean lastLoadingPhase = buffer.get() != 0;
-   			LOGGER.info("Received signal that all data of version " + loadingVersion + " successfully sent from data generators (#" + numberOfMessagesSent + ")");
-			availableMessages.addAndGet(numberOfMessagesSent);
-			
-			// in cases where all data have been received before BULK_LOAD_DATA_GEN_FINISHED command received
-			if(availableMessages.get() == 0) {
+   			LOGGER.info("Received signal that all data of version " + loadingVersion + " successfully sent from all data generators (#" + numberOfMessages + ")");
+
+			// if all data have been received before BULK_LOAD_DATA_GEN_FINISHED command received
+   			// release before acquire, so it can immediately proceed to bulk loading
+   			if(totalReceived.get() == totalSent.addAndGet(numberOfMessages)) {
 				allVersionDataReceivedMutex.release();
 			}
+			
 			LOGGER.info("Wait for receiving all data of version " + loadingVersion + ".");
 			try {
 				allVersionDataReceivedMutex.acquire();
