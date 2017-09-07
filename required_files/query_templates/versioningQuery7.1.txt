@@ -1,4 +1,3 @@
-#  Query Name : query7
 #  Query Type: 7, Cross-delta structured queries (queries performed on changes of several versions (multiple deltas))
 #  Query Description : 
 #  Retrieve the average number of added News Items from one version to another between versions Vi and Vj.

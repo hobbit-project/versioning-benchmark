@@ -1,4 +1,3 @@
-#  Query Name : query1
 #  Query Type: 1, Modern version materialization
 #  Query Description : 
 #  The full current version of the dataset is retreived  

@@ -1,4 +1,3 @@
-#  Query Name : query5
 #  Query Type: 5, Delta materialization
 #  Query Description : 
 #  Retreive the differences between two given versions. 
