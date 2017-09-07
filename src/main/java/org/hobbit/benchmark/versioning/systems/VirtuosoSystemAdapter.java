@@ -144,8 +144,6 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		} 
 	}
 	
-	// returns the number of loaded triples to check if all version's triples loaded successfully.
-	// have to return the total number of changes with respect to previous version in v2.0 of the benchmark 
 	private void loadVersion(int versionNum) {
 		LOGGER.info("Loading version " + versionNum + "...");
 		try {
@@ -199,8 +197,6 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			}
 			loadingVersion++;
 			dataLoadingFinished = lastLoadingPhase;
-			LOGGER.info(""+loadingVersion);
-			LOGGER.info(""+dataLoadingFinished);
     	}
     	super.receiveCommand(command, data);
     }
