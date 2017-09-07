@@ -35,27 +35,19 @@ public class VersioningTaskGenerator extends AbstractSequencingTaskGenerator {
 			// receive the generated task
 			Task task = (Task) SerializationUtils.deserialize(data);
 			String taskId = task.getTaskId();
-			String taskType = task.getTaskType();
 			String taskQuery = task.getQuery();
 			LOGGER.info("Task " + taskId + " received from Data Generator");
+			LOGGER.info("taskQuery: "+taskQuery);
 	
-			byte[][] taskDataArray = new byte[2][];
-			taskDataArray[0] = RabbitMQUtils.writeString(taskType);
-			taskDataArray[1] = RabbitMQUtils.writeString(taskQuery);
-
 			// Send the task to the system
-			byte[] taskData = RabbitMQUtils.writeByteArrays(taskDataArray);
+			byte[] taskData = RabbitMQUtils.writeString(taskQuery);
 			long timestamp = System.currentTimeMillis();
 	        sendTaskToSystemAdapter(taskId, taskData);
 			LOGGER.info("Task " + taskId + " sent to System Adapter.");
 	
 			// Send the expected answers to the evaluation storage
-			// (note that, storage space task has no expected answers)
-			if(taskType.equals("2")) {
-				sendTaskToEvalStorage(taskId, timestamp, new byte[] {});
-			} else {
-		        sendTaskToEvalStorage(taskId, timestamp, task.getExpectedAnswers());
-			}
+	        sendTaskToEvalStorage(taskId, timestamp, task.getExpectedAnswers());
+
 			LOGGER.info("Expected answers of task " + taskId + " sent to Evaluation Storage.");
 
 	    } catch (Exception e) {

@@ -132,11 +132,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		dataGenerator.produceData();
 
 		LOGGER.info("Generating tasks...");
-		// Generate the tasks.
-		// 2) Generate tasks about storage space
-		tasks.add(new Task("2", Integer.toString(taskId++), "Storage space task", null));
-		LOGGER.info("Storage space task generated successfully.");
-
 		// 3) Generate SPARQL query tasks
 		// generate substitution parameters
 		String queriesPath = System.getProperty("user.dir") + File.separator + "query_templates";
@@ -284,84 +279,43 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		for (Task task : tasks) {
 			String taskId = task.getTaskId();
 			String taskQuery = task.getQuery();
-			String taskType = task.getTaskType();
 			
 			long queryStart = 0;
 			long queryEnd = 0;
 			ResultSet results = null;
 			
-			byte[][] expectedAnswers = null;
-					
-			switch(Integer.parseInt(taskType)) {
-				// skip the storage space task
-				case 2:
-					continue;
-				// query performance task
-				case 3:
-					boolean compExpAnswersFailed = false;
-					// for query types query1 and query3, that refer to entire versions, we don't
-					// evaluate the query due to extra time cost and expected answer length, but we 
-					// only send the number of expected results
+			byte[] expectedAnswers = null;
+
+			// for query types query1 and query3, that refer to entire versions, we don't
+			// evaluate the query due to extra time cost and expected answer length, but we 
+			// only send the number of expected results
 //					if(taskQuery.startsWith("#  Query Name : query1") ||
 //							taskQuery.startsWith("#  Query Name : query3")) {
 //						countComputed = true;
 //						taskQuery = taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
 //					}
-					
-					// execute the query on top of virtuoso to compute the expected answers
-					Query query = QueryFactory.create(taskQuery);
-					QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", query);
-					queryStart = System.currentTimeMillis();
-					try {
-						results = qexec.execSelect();
-					} catch (Exception e) {
-						compExpAnswersFailed = true;
-						LOGGER.error("Exception caught during the computation of task " + taskId + " expected answers.", e);
-					}				
-					queryEnd = System.currentTimeMillis();
-	
-					// track the number of expected answers, as long as the answers themselves
-					expectedAnswers = new byte[2][];
-					
-					if(!compExpAnswersFailed) {
-//						ResultSetMem rsm = new ResultSetMem(results);
-	
-						// update the task by setting its expected results
-						ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-						ResultSetFormatter.outputAsJSON(outputStream, results);
-//						ResultSetFormatter.outputAsJSON(outputStream, rsm);
-//						rsm.rewind();
+			
+			// execute the query on top of virtuoso to compute the expected answers
+			Query query = QueryFactory.create(taskQuery);
+			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", query);
+			queryStart = System.currentTimeMillis();
+			try {
+				results = qexec.execSelect();
+			} catch (Exception e) {
+				LOGGER.error("Exception caught during the computation of task " + taskId + " expected answers.", e);
+			}				
+			queryEnd = System.currentTimeMillis();
 
-//						if(countComputed) {
-//							int count = 0;
-//							if(rsm.hasNext()) {
-//							    count = rsm.next().getLiteral("cnt").getInt();
-//							}
-//							expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(count));
-//							expectedAnswers[1] = outputStream.toByteArray();
-//	//						expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
-//							LOGGER.info("Expected number of results (instead of the results themselves) for task " + taskId + " computed: " + count );
-//						} else {
-							int rowNum = results.getRowNumber();
-							expectedAnswers[0] = RabbitMQUtils.writeString(Integer.toString(rowNum));
-							expectedAnswers[1] = outputStream.toByteArray();
-							//debug
-							LOGGER.info("expected results_length: " + expectedAnswers[1].length);
-//							expectedAnswers[1] = RabbitMQUtils.writeString("insteadOfOutpuStream");
-							LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms. Results num.: " + rowNum);
-//						}
-					} else {
-						expectedAnswers[0] = RabbitMQUtils.writeString("-1");
-						expectedAnswers[1] = RabbitMQUtils.writeString("-1");
-						LOGGER.error("Couldn't compute expected answers. Error code (-1) set as an expected answer.");
-	
-					}				
-	
-					task.setExpectedAnswers(RabbitMQUtils.writeByteArrays(expectedAnswers));
-					tasks.set(Integer.parseInt(taskId), task);
-					qexec.close();
-					break;
-			}
+			// update the task by setting its expected results
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			ResultSetFormatter.outputAsJSON(outputStream, results);
+			expectedAnswers = outputStream.toByteArray();
+			//debug
+			LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms.");			
+
+			task.setExpectedAnswers(expectedAnswers);
+			tasks.set(Integer.parseInt(taskId), task);
+			qexec.close();
 		}	
 	}
 	
@@ -412,7 +366,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				for (int querySubType = 0; querySubType < Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {	
 					for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
 						queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
-						tasks.add(new Task("3", Integer.toString(taskId++), queryString, null));
+						tasks.add(new Task(queryType, Integer.toString(taskId++), queryString, null));
 						try {
 							FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versionigQuery" + (queryType + 1) + "." + (querySubType + 1) + "." + (querySubstParam + 1) + ".sparql"), queryString);
 						} catch (IOException e) {
@@ -425,7 +379,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			}
 			for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
 				queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
-				tasks.add(new Task("3", Integer.toString(taskId++), queryString, null));
+				tasks.add(new Task(queryType, Integer.toString(taskId++), queryString, null));
 				try {
 					FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versionigQuery" + (queryType + 1) + ".1." + (querySubstParam + 1) + ".sparql"), queryString);
 				} catch (IOException e) {
@@ -721,11 +675,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
             	// computation removed from datagen implementation) now cannot to be done as 
             	// all data generated in the init function (before datagen's start)
             	LOGGER.info("Send signal to benchmark controller that all data (#" + numberOfmessages + ") of version " + version +" successfully sent to system adapter.");
-            	byte[][] data = new byte[3][];
-            	data[0] = RabbitMQUtils.writeString(Integer.toString(triplesExpectedToBeLoaded[version]));
-            	data[1] = RabbitMQUtils.writeString(Integer.toString(getGeneratorId()));
-            	data[2] = RabbitMQUtils.writeString(Integer.toString(numberOfmessages.get()));
-    			sendToCmdQueue(VersioningConstants.DATA_GEN_VERSION_DATA_SENT, RabbitMQUtils.writeByteArrays(data));
+            	ByteBuffer buffer = ByteBuffer.allocate(12);
+            	buffer.putInt(triplesExpectedToBeLoaded[version]);
+            	buffer.putInt(getGeneratorId());
+            	buffer.putInt(numberOfmessages.get());
+    			sendToCmdQueue(VersioningConstants.DATA_GEN_VERSION_DATA_SENT, buffer.array());
 
     			LOGGER.info("Waiting until system receive and load the sent data.");
     			versionLoadedFromSystemMutex.acquire();
@@ -733,12 +687,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		} catch (Exception e) {
             LOGGER.error("Exception while sending generated data to System Adapter.", e);
         }
-		
-		// wait for all data to be loaded by the system before send the first task
-		// to Task Generator (which in its turn will send it to the system for execution)
-//		LOGGER.info("Waiting until all data are loaded by the system");
-//		dataLoadedFromSystemMutex.acquire(numberOfVersions);
-//		LOGGER.info("All data loaded successfully by the system. Proceed to the sending of tasks.");
 		
         try {
         	// send generated tasks along with their expected answers to task generator

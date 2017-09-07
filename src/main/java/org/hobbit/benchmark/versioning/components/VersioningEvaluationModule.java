@@ -123,161 +123,123 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 			long responseReceivedTimestamp) throws Exception {
 		
 		ByteBuffer expectedBuffer = ByteBuffer.wrap(expectedData);
-		ByteBuffer receivedBuffer = ByteBuffer.wrap(receivedData);
 				
-		// get the task type
-		String taskType = RabbitMQUtils.readString(receivedBuffer);
-		LOGGER.info("TASK TYPE: "+taskType);
 		LOGGER.info("taskSentTimestamp: "+taskSentTimestamp);
 		LOGGER.info("responseReceivedTimestamp: "+responseReceivedTimestamp);
 		
-//		// get the query type
-//		int queryType = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
-//		LOGGER.info("queryType: "+queryType);
+		LOGGER.info("Evaluating response of query performance task...");		
 		
-		// get the expected result's row number
-//		int expectedResultsNum = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
-//		LOGGER.info("expectedResultsNum: "+expectedResultsNum);
+		// get the query type
+		int queryType = expectedBuffer.getInt();
+		LOGGER.info("queryType: "+queryType);
+		// get the expected results
+		byte expectedDataBytes[] = RabbitMQUtils.readByteArray(expectedBuffer);
+		InputStream inExpected = new ByteArrayInputStream(expectedDataBytes);
+		ResultSet expected = ResultSetFactory.fromJSON(inExpected);
+				
+		// get the returned results
+		InputStream inReceived = new ByteArrayInputStream(receivedData);
+		ResultSet received = ResultSetFactory.fromJSON(inReceived);
 		
-		
-		// get the expected results		
-//		byte[] expectedBufferBytes = RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8);
-//		InputStream inExpected = new ByteArrayInputStream(expectedBufferBytes);
-//		ResultSet expected = ResultSetFactory.fromJSON(inExpected);
-		
-//		int taskTypeInt = 0;
-//		try {
-//			taskTypeInt = Integer.parseInt(taskType);
-//		} catch (NumberFormatException e) {
-//			taskTypeInt = 3;
-//		}
+		// compute the returned results row count
+		int resultRowCount = received.getRowNumber();
+		LOGGER.info("resultRowCount: "+resultRowCount);
+		// compute the expected results row number
+		int expectedResultsNum = expected.getRowNumber();
+		LOGGER.info("expectedResultsNum: "+expectedResultsNum);
+		// compute query's execution time by the system
+		long execTime = responseReceivedTimestamp - taskSentTimestamp;
+		LOGGER.info("execTime: "+execTime);
 
-//		switch (taskTypeInt) {
-		switch (Integer.parseInt(taskType)) {
-			case 2:
-				LOGGER.info("Evaluating response of storage space task...");
-				// get the disk space used in KB
-				storageCost = Long.parseLong(RabbitMQUtils.readString(receivedBuffer)) / 1000f;
-				LOGGER.info("Response: " + storageCost + " KB.");
+		boolean resultCompleteness = resultRowCount == expectedResultsNum;
+
+		// TODO extend check for completeness: do not only check the number of results
+		switch (queryType) {
+			case 1:
+				if(resultCompleteness) { 
+					qts1.reportSuccess(execTime); 
+				} else { 
+					qts1.reportFailure(); 
+				}
+				break;
+			case 2:	
+				if(resultCompleteness) {  
+					qts2.reportSuccess(execTime); 
+				} else { 
+					qts2.reportFailure();
+				}
 				break;
 			case 3:	
-				LOGGER.info("Evaluating response of query performance task...");
-
-				// get the expected result's row number
-				int expectedResultsNum = Integer.parseInt(RabbitMQUtils.readString(expectedBuffer));
-				LOGGER.info("expectedResultsNum: "+expectedResultsNum);
-				// get the expected results
-				byte[] expectedBufferBytes = RabbitMQUtils.readString(expectedBuffer).getBytes(StandardCharsets.UTF_8);
-				InputStream inExpected = new ByteArrayInputStream(expectedBufferBytes);
-				ResultSet expected = ResultSetFactory.fromJSON(inExpected);
-				//debug
-				LOGGER.info("expected results_length: " + expectedBufferBytes.length);
-
-				// get the query type
-				int queryType = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
-				LOGGER.info("queryType: "+queryType);
-				// get its execution time
-				long execTime = responseReceivedTimestamp - taskSentTimestamp;
-				LOGGER.info("execTime: "+execTime);
-								
-				// get the results row count
-				int resultRowCount = Integer.parseInt(RabbitMQUtils.readString(receivedBuffer));
-				LOGGER.info("resultRowCount: "+resultRowCount);
-				// get the received results
-				byte[] receivedBufferBytes = RabbitMQUtils.readString(receivedBuffer).getBytes(StandardCharsets.UTF_8);
-				InputStream inReceived = new ByteArrayInputStream(receivedBufferBytes);
-				ResultSet received = ResultSetFactory.fromJSON(inReceived);
+				if(resultCompleteness) {  
+					qts3.reportSuccess(execTime); 
+				} else { 
+					qts3.reportFailure(); 
+				}
+				break;
+			case 4:	
+				if(resultCompleteness) {  
+					qts4.reportSuccess(execTime); 
+				} else { 
+					qts4.reportFailure(); 
+				}
+				break;
+			case 5:	
+				if(resultCompleteness) {  
+					qts5.reportSuccess(execTime); 
+				} else { 
+					qts5.reportFailure(); 
+				}
+				break;
+			case 6:	
+				int blogPostsDiffReceived = -1;
+				int blogPostsDiffExcpected = -2;
 				
-				// debug
-				String receivedSize = org.apache.commons.io.FileUtils.byteCountToDisplaySize(receivedBufferBytes.length);
-				LOGGER.info("received results_length: " + receivedSize);
+				if(expected.hasNext()) {
+					blogPostsDiffExcpected = expected.next().getLiteral("blog_posts_diff").getInt();
+				}
+				if(received.hasNext()) {
+					blogPostsDiffReceived = received.next().getLiteral("blog_posts_diff").getInt();
+				}
 
+				LOGGER.info("blogPostsDiffExcpected: "+blogPostsDiffExcpected);
+				LOGGER.info("blogPostsDiffReceived: "+blogPostsDiffReceived);
 				
-				boolean resultCompletness = resultRowCount == expectedResultsNum;
-				boolean queryExecutedSuccesfully = resultRowCount != -1;
-				boolean expAnswersComputedSuccesfuly = expectedResultsNum != -1;
+				if(resultCompleteness && blogPostsDiffReceived == blogPostsDiffExcpected) {  
+					qts6.reportSuccess(execTime); 
+				} else { 
+					qts6.reportFailure(); 
+				}
+				break;
+			case 7:	
+				int avgAddedNewsItemsReceived = -1;
+				int avgAddedNewsItemsExcpected = -2;
+				
+				if(expected.hasNext()) {							
+					avgAddedNewsItemsExcpected = expected.next().getLiteral("avg_added_news_items").getInt();
 
-				// TODO extend check for completness: do not only check the number of results
-				switch (queryType) {
-					case 1:
-						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
-							qts1.reportSuccess(execTime); } 
-						else { 
-							qts1.reportFailure(); }
-						break;
-					case 2:	
-						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
-							qts2.reportSuccess(execTime); } 
-						else { 
-							qts2.reportFailure(); }
-						break;
-					case 3:	
-						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
-							qts3.reportSuccess(execTime); } 
-						else { 
-							qts3.reportFailure(); }
-						break;
-					case 4:	
-						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
-							qts4.reportSuccess(execTime); } 
-						else { 
-							qts4.reportFailure(); }
-						break;
-					case 5:	
-						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
-							qts5.reportSuccess(execTime); } 
-						else { 
-							qts5.reportFailure(); }
-						break;
-					case 6:	
-						int blogPostsDiffReceived = -1;
-						int blogPostsDiffExcpected = -2;
-						
-						if(expected.hasNext()) {
-							blogPostsDiffExcpected = expected.next().getLiteral("blog_posts_diff").getInt();
-						}
-						if(received.hasNext()) {
-							blogPostsDiffReceived = received.next().getLiteral("blog_posts_diff").getInt();
-						}
+				}
+				if(received.hasNext()) {
+					avgAddedNewsItemsReceived = received.next().getLiteral("avg_added_news_items").getInt();
+				}
+				
+				LOGGER.info("avgAddedNewsItemsExcpected: "+avgAddedNewsItemsExcpected);
+				LOGGER.info("avgAddedNewsItemsReceived: "+avgAddedNewsItemsReceived);
 
-						LOGGER.info("blogPostsDiffExcpected: "+blogPostsDiffExcpected);
-						LOGGER.info("blogPostsDiffReceived: "+blogPostsDiffReceived);
-						
-						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly && blogPostsDiffReceived == blogPostsDiffExcpected) {  
-							qts6.reportSuccess(execTime); } 
-						else { 
-							qts6.reportFailure(); }
-						break;
-					case 7:	
-						int avgAddedNewsItemsReceived = -1;
-						int avgAddedNewsItemsExcpected = -2;
-						
-						if(expected.hasNext()) {							
-							avgAddedNewsItemsExcpected = expected.next().getLiteral("avg_added_news_items").getInt();
-
-						}
-						if(received.hasNext()) {
-							avgAddedNewsItemsReceived = received.next().getLiteral("avg_added_news_items").getInt();
-						}
-						
-						LOGGER.info("avgAddedNewsItemsExcpected: "+avgAddedNewsItemsExcpected);
-						LOGGER.info("avgAddedNewsItemsReceived: "+avgAddedNewsItemsReceived);
-
-						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly && avgAddedNewsItemsReceived == avgAddedNewsItemsExcpected) {  
-							qts7.reportSuccess(execTime); } 
-						else { 
-							qts7.reportFailure(); }
-						break;
-					case 8:	
-						if(resultCompletness && queryExecutedSuccesfully && expAnswersComputedSuccesfuly) {  
-							qts8.reportSuccess(execTime); } 
-						else { 
-							qts8.reportFailure(); }
-						break;
+				if(resultCompleteness && avgAddedNewsItemsReceived == avgAddedNewsItemsExcpected) {  
+					qts7.reportSuccess(execTime); 
+				} else { 
+					qts7.reportFailure(); 
+				}
+				break;
+			case 8:	
+				if(resultCompleteness) {  
+					qts8.reportSuccess(execTime); 
+				} else { 
+					qts8.reportFailure(); 
+				}
+				break;
 				}
 				LOGGER.info("Query task of type: " + queryType + " executed in " + execTime + " ms and returned " + resultRowCount + "/" + expectedResultsNum + " results.");
-				break;
-		}
 	}
 	
 	private void computeTotalFailures() {

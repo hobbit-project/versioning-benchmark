@@ -4,6 +4,9 @@
 package org.hobbit.benchmark.versioning;
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+
+import org.hobbit.core.rabbit.RabbitMQUtils;
 
 /**
  * @author papv
@@ -12,30 +15,16 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class Task implements Serializable {
 	
-	/**
-	 * taskType denotes the type of the task and may have the following values:
-	 * 1 - ingestion task
-	 * 2 - storage space task
-	 * 3 - SPARQL query task
-	 */
-	private String taskType;
 	private String taskId;
 	private String query;
+	private int queryType;
 	private byte[] expectedAnswers;
 	
-	public Task(String taskType, String id, String query, byte[] expectedAnswers) {
-		this.taskType = taskType;
+	public Task(int queryType, String id, String query, byte[] expectedAnswers) {
+		this.queryType = queryType;
 		this.taskId = id;
 		this.query = query;
 		this.expectedAnswers = expectedAnswers;
-	}
-	
-	public void setTaskType(String taskType) {
-		this.taskType = taskType;
-	}
-	
-	public String getTaskType() {
-		return this.taskType;
 	}
 	
 	public void setId(String id) {
@@ -54,8 +43,19 @@ public class Task implements Serializable {
 		return this.query;
 	}
 	
+	public void setQueryType(int queryType) {
+		this.queryType = queryType;
+	}
+	
+	public int getQueryType() {
+		return this.queryType;
+	}
+	
+	// the results are preceded by the query type as this information required
+	// by the evaluation module. 
 	public void setExpectedAnswers(byte[] res) {
-		this.expectedAnswers =  res;
+		byte[] queryTypeBytes = ByteBuffer.allocate(4).putInt(queryType).array();
+		this.expectedAnswers = RabbitMQUtils.writeByteArrays(queryTypeBytes, new byte[][]{res}, null);
 	}
 	
 	public byte[] getExpectedAnswers() {

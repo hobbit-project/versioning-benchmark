@@ -162,11 +162,13 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	// triplesToBeLoaded information have to be sent by the external component 
         	// computing the gold standard. Only the number of messages and data generator's
         	// id will be sent with DATA_GEN_VERSION_SENT command
-        	ByteBuffer dataBuffer = ByteBuffer.wrap(data);
-        	triplesToBeLoaded.addAndGet(loadedVersion, Integer.parseInt(RabbitMQUtils.readString(dataBuffer)));
-        	int dataGeneratorId = Integer.parseInt(RabbitMQUtils.readString(dataBuffer));
-        	int dataGenNumOfMessages = Integer.parseInt(RabbitMQUtils.readString(dataBuffer));
+        	ByteBuffer buffer = ByteBuffer.wrap(data);
+        	int triplesNum = buffer.getInt();
+            int dataGeneratorId = buffer.getInt();
+            int dataGenNumOfMessages = buffer.getInt();
+        	triplesToBeLoaded.addAndGet(loadedVersion, triplesNum);
         	numberOfMessages.addAndGet(dataGenNumOfMessages);
+        	
         	// signal sent from data generator that all its data generated successfully
         	LOGGER.info("Recieved signal from Data Generator " + dataGeneratorId + " that all data (#" + dataGenNumOfMessages + ") of version " + loadedVersion + " successfully sent to System Adapter.");
         	versionSentMutex.release();
@@ -195,9 +197,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		LOGGER.info("Start signals sent to Data and Task Generators");
 
 		// iterate through different versions starting from version 0
-		for (int v=0; v<numOfVersions; v++) {
-			boolean lastLoadingPhase = (v == numOfVersions - 1);
-			
+		for (int v=0; v<numOfVersions; v++) {			
 			// wait for all data generators to sent data of version v to system adapter
 			LOGGER.info("Waiting for all data generators to send data of version " + v + " to system adapter.");
 			versionSentMutex.acquire(numberOfDataGenerators);
@@ -206,11 +206,11 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 			// Send signal that all data, generated and sent to system adapter successfully.
 			// The number of messages along with a flag is also sent
 			LOGGER.info("Send signal to System Adapter that the sending of all data of version " + v + " from Data Generators have finished.");
-			byte[][] data = new byte[2][];
-			data[0] = RabbitMQUtils.writeString(Integer.toString(numberOfMessages.get()));
-			data[1] = RabbitMQUtils.writeString(Boolean.toString(lastLoadingPhase));
+			ByteBuffer buffer = ByteBuffer.allocate(5);
+	        buffer.putInt(numberOfMessages.get());
+	        buffer.put(v == numOfVersions - 1 ? (byte) 1 : (byte) 0);
 	        prevLoadingStartedTime = System.currentTimeMillis();
-	        sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED, RabbitMQUtils.writeByteArrays(data));
+	        sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED, buffer.array());
 	        numberOfMessages.set(0);
 	        
 	        LOGGER.info("Waiting for the system to load data of version " + v);
