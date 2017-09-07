@@ -141,13 +141,13 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		InputStream inReceived = new ByteArrayInputStream(receivedData);
 		ResultSet received = ResultSetFactory.fromJSON(inReceived);
 		
-		// compute the returned results row count
+		// compute the returned results row number
 		int resultRowCount = received.getRowNumber();
 		LOGGER.info("resultRowCount: "+resultRowCount);
 		// compute the expected results row number
 		int expectedResultsNum = expected.getRowNumber();
 		LOGGER.info("expectedResultsNum: "+expectedResultsNum);
-		// compute query's execution time by the system
+		// compute query execution time by the system
 		long execTime = responseReceivedTimestamp - taskSentTimestamp;
 		LOGGER.info("execTime: "+execTime);
 

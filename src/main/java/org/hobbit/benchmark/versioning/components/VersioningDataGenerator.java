@@ -279,21 +279,13 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		for (Task task : tasks) {
 			String taskId = task.getTaskId();
 			String taskQuery = task.getQuery();
+			int queryType = task.getQueryType();
 			
 			long queryStart = 0;
 			long queryEnd = 0;
 			ResultSet results = null;
 			
 			byte[] expectedAnswers = null;
-
-			// for query types query1 and query3, that refer to entire versions, we don't
-			// evaluate the query due to extra time cost and expected answer length, but we 
-			// only send the number of expected results
-//					if(taskQuery.startsWith("#  Query Name : query1") ||
-//							taskQuery.startsWith("#  Query Name : query3")) {
-//						countComputed = true;
-//						taskQuery = taskQuery.replace("SELECT ?s ?p ?o", "SELECT (count(*) as ?cnt) ");
-//					}
 			
 			// execute the query on top of virtuoso to compute the expected answers
 			Query query = QueryFactory.create(taskQuery);
@@ -311,7 +303,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			ResultSetFormatter.outputAsJSON(outputStream, results);
 			expectedAnswers = outputStream.toByteArray();
 			//debug
-			LOGGER.info("Expected answers for task " + taskId + " computed. Time : " + (queryEnd - queryStart) + " ms.");			
+			LOGGER.info("Expected answers for task " + taskId + " computed. "
+					+ "Type: " + queryType 
+					+ ", ResultsNum: " + results.getRowNumber() 
+					+ ", Time: " + (queryEnd - queryStart) + " ms.");			
 
 			task.setExpectedAnswers(expectedAnswers);
 			tasks.set(Integer.parseInt(taskId), task);
@@ -325,6 +320,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		resultsDir.mkdirs();
 		int taskId = 1;
 		
+		// mind the non zero-based numbering of query types 
 		for (int queryType = 0; queryType < Statistics.VERSIONING_QUERIES_COUNT; queryType++) {
 			if (Arrays.asList(1,3,7).contains(queryType)) {
 				for (int querySubType = 0; querySubType < Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {	
@@ -366,7 +362,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				for (int querySubType = 0; querySubType < Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {	
 					for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
 						queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
-						tasks.add(new Task(queryType, Integer.toString(taskId++), queryString, null));
+						tasks.add(new Task((queryType + 1), Integer.toString(taskId++), queryString, null));
 						try {
 							FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versionigQuery" + (queryType + 1) + "." + (querySubType + 1) + "." + (querySubstParam + 1) + ".sparql"), queryString);
 						} catch (IOException e) {
@@ -379,7 +375,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			}
 			for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
 				queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
-				tasks.add(new Task(queryType, Integer.toString(taskId++), queryString, null));
+				tasks.add(new Task((queryType + 1), Integer.toString(taskId++), queryString, null));
 				try {
 					FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versionigQuery" + (queryType + 1) + ".1." + (querySubstParam + 1) + ".sparql"), queryString);
 				} catch (IOException e) {
