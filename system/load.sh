@@ -35,16 +35,6 @@ $VIRTUOSO_BIN/isql-v 1111 dba dba exec="checkpoint;" > /dev/null
 end_load=$(($(date +%s%N)/1000000))
 loadingtime=$(($end_load - $start_load))
 
-# get the total size of loaded triples
-start_size=$(($(date +%s%N)/1000000))
-result=$($VIRTUOSO_BIN/isql-v 1111 dba dba exec="sparql select count(*) from <$GRAPH_NAME$VERSION_NUMBER> where { ?s ?p ?o };" | sed -n 9p)
-$VIRTUOSO_BIN/isql-v 1111 dba dba exec="checkpoint;" > /dev/null
-end_size=$(($(date +%s%N)/1000000))
-sizetime=$(($end_size - $start_size))
-
-# from this line system adapter gets the number of loaded triples as long the time required for loading them
-echo "triples:"$result",time:"$loadingtime
-
 # logging
-echo $(echo $result | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') "triples loaded to graph <"$GRAPH_NAME$VERSION_NUMBER">, using" $rdf_loaders "rdf loaders, for version v"$VERSION_NUMBER". Time :" $loadingtime "ms"
+echo "All triples of version "$VERSION_NUMBER" loaded to graph <"$GRAPH_NAME$VERSION_NUMBER">, using "$rdf_loaders" rdf loaders. Time : "$loadingtime" ms"
 
