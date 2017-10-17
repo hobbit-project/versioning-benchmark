@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author papv
- *
+ * 
  */
 public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			
