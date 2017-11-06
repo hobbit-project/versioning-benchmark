@@ -73,6 +73,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int subGeneratorSeed;
 	private int subsParametersAmount;
 	private String generatedDatasetPath = "/versioning/data";
+	private String initialVersionDataPath = generatedDatasetPath + File.separator + "v0";
 	private String ontologiesPath = "/versioning/ontologies";
 	private String serializationFormat;
 	private int taskId = 0;
@@ -91,6 +92,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int[] majorEvents;
 	private int[] minorEvents;
 	private int[] correlations;
+	
+	private int[] dbPediaVersionsDistribution;
 	
 	private Semaphore versionLoadedFromSystemMutex = new Semaphore(0);
 		
@@ -128,7 +131,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// Generate the data.
 		LOGGER.info("Generating Creative Works data files...");
 		long totalTriples = configuration.getLong(Configuration.DATASET_SIZE_TRIPLES);
-		DataGenerator dataGenerator = new DataGenerator(randomGenerator, configuration, definitions, dataGeneratorWorkers, totalTriples, maxTriplesPerFile, generatedDatasetPath, serializationFormat);
+		DataGenerator dataGenerator = new DataGenerator(randomGenerator, configuration, definitions, dataGeneratorWorkers, totalTriples, maxTriplesPerFile, initialVersionDataPath, serializationFormat);
 		dataGenerator.produceData();
 
 		LOGGER.info("Generating tasks...");
@@ -172,6 +175,33 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		serializationFormat = (String) getFromEnv(env, VersioningConstants.GENERATED_DATA_FORMAT, "");
 		subsParametersAmount = (Integer) getFromEnv(env, VersioningConstants.SUBSTITUTION_PARAMETERS_AMOUNT, 0);
 	}	
+	
+	/*
+	 *  Equally distribute the total number of dbpedia versions (5) to the total number of 
+	 *  versions that have to be produced. '1' values appeared in the dbPediaVersionsDistribution 
+	 *  array, denote that in such a position (representing the version) a DBpedia version will 
+	 *  also included to the generated data.
+	 */
+	private void distributeDBpediaVersions() {
+		dbPediaVersionsDistribution = new int[numberOfVersions];
+		double dbpediaVersions = 5;
+		int versionsToMap = 5;
+		double step = (numberOfVersions / dbpediaVersions) < 1 ? Math.floor(numberOfVersions / dbpediaVersions) : Math.ceil(numberOfVersions / dbpediaVersions);
+		Arrays.fill(dbPediaVersionsDistribution, step == 0 ? 1 : 0);
+		while(versionsToMap > 0 && step > 0) {
+			for (int i=0; i<dbPediaVersionsDistribution.length;) {
+				if(versionsToMap == 0) {
+					break;
+				} else if(dbPediaVersionsDistribution[i] == 1) {
+					i++;
+				} else {
+					dbPediaVersionsDistribution[i] = 1;
+					i += step;
+					versionsToMap--;
+				}
+			}
+		}
+	}
 
 	
 	// get the query strings after compiling the mustache templates
@@ -527,7 +557,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		configuration.setIntProperty("generatorRandomSeed", subGeneratorSeed);
 		configuration.setIntProperty("hobbitDataGeneratorId", generatorId);
 		configuration.setStringProperty("generateCreativeWorksFormat", serializationFormat);
-		configuration.setStringProperty("creativeWorksPath", generatedDatasetPath);
+		configuration.setStringProperty("creativeWorksPath", initialVersionDataPath);
 		configuration.setStringProperty("generateCreativeWorksFormat", serializationFormat);
 		configuration.setIntProperty("querySubstitutionParameters", subsParametersAmount);
 		configuration.setIntProperty("dataGeneratorWorkers", dataGeneratorWorkers);
@@ -642,7 +672,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		    			}
 		    	    	LOGGER.info("All ontologies successfully sent to System Adapter.");
 	    			}
-	    	    	File dataPath = new File(generatedDatasetPath + "/v0");
+	    	    	File dataPath = new File(generatedDatasetPath + File.separator + "v0");
 	    			String[] extensions = new String[] { RDFUtils.getFileExtensionFromRdfFormat(serializationFormat) };
 	    			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, extensions, true);
 	    			for (File file : dataFiles) {
@@ -653,7 +683,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	    				numberOfmessages.incrementAndGet();
 	    			}
 	    		} else {
-	    			File dataPath = new File(generatedDatasetPath + "/c" + version);
+	    			File dataPath = new File(generatedDatasetPath + File.separator + "c" + version);
 	    			String[] extensions = new String[] { RDFUtils.getFileExtensionFromRdfFormat(serializationFormat) };
 	    			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, extensions, true);
 	    			for (File file : dataFiles) {
@@ -730,6 +760,12 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	@Override
 	public void close() throws IOException {
 		LOGGER.info("Closing Data Generator...");
+		try {
+			Thread.sleep(1000 * 60 * 60);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         super.close();
 		LOGGER.info("Data Generator closed successfully.");
     }
