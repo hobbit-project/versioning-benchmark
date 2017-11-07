@@ -1,21 +1,17 @@
 package org.hobbit.benchmark.versioning.components;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Properties;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
 import org.hobbit.core.Commands;
 import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractBenchmarkController;
-import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,13 +46,11 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         super.init();
         
 		numberOfDataGenerators = (Integer) getProperty(PREFIX + "hasNumberOfGenerators", 1);
-		int datasetSize =  (Integer) getProperty(PREFIX + "datasetSizeInTriples", 1000000);
+		int v0Size =  (Integer) getProperty(PREFIX + "v0SizeInTriples", 1000000);
 		int generatorSeed =  (Integer) getProperty(PREFIX + "generatorSeed", 0);
 		numOfVersions =  (Integer) getProperty(PREFIX + "numberOfVersions", 12);
-		int seedYear =  (Integer) getProperty(PREFIX + "seedYear", 2010);
-		int dataGenInYears =  (Integer) getProperty(PREFIX + "generationPeriodInYears", 1);
-		String serializationFormat = (String) getProperty(PREFIX + "generatedDataFormat", "n-triples");
-		int subsParametersAmount = (Integer) getProperty(PREFIX + "querySubstitutionParameters", 10);
+		double insRatio = (Double) getProperty(PREFIX + "versionInsertionRatio", 5.0);
+		double delRatio = (Double) getProperty(PREFIX + "versionDeletionRatio", 3.0);
 		
 		loadingTimes = new long[numOfVersions];
 		triplesToBeLoaded = new AtomicIntegerArray(numOfVersions);
@@ -65,12 +59,10 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		dataGenEnvVariables = new String[] {
 				VersioningConstants.NUMBER_OF_DATA_GENERATORS + "=" + numberOfDataGenerators,
 				VersioningConstants.DATA_GENERATOR_SEED + "=" + generatorSeed,
-				VersioningConstants.DATASET_SIZE_IN_TRIPLES + "=" + datasetSize,
+				VersioningConstants.V0_SIZE_IN_TRIPLES + "=" + v0Size,
 				VersioningConstants.NUMBER_OF_VERSIONS + "=" + numOfVersions,
-				VersioningConstants.SEED_YEAR + "=" + seedYear,
-				VersioningConstants.GENERATION_PERIOD_IN_YEARS + "=" + dataGenInYears,
-				VersioningConstants.GENERATED_DATA_FORMAT + "=" + serializationFormat,
-				VersioningConstants.SUBSTITUTION_PARAMETERS_AMOUNT  + "=" + subsParametersAmount
+				VersioningConstants.VERSION_INSERTION_RATIO + "=" + insRatio,
+				VersioningConstants.VERSION_DELETION_RATIO  + "=" + delRatio
 		};
 		
 		// evaluation module environmental values
@@ -127,17 +119,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		if (iterator.hasNext()) {
 			try {
 				if (defaultValue instanceof String) {
-					if(((String) defaultValue).equals("n-triples")) {
-						Properties serializationFormats = new Properties();
-						try {
-							serializationFormats.load(ClassLoader.getSystemResource("formats.properties").openStream());
-						} catch (IOException e) {
-							LOGGER.error("Exception while parsing serialization format.");
-						}
-						return (T) serializationFormats.getProperty(iterator.next().asResource().getLocalName());
-					} else {
-						return (T) iterator.next().asLiteral().getString();
-					}
+					return (T) iterator.next().asLiteral().getString();
 				} else if (defaultValue instanceof Integer) {
 					return (T) ((Integer) iterator.next().asLiteral().getInt());
 				} else if (defaultValue instanceof Long) {
