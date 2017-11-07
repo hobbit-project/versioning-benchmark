@@ -29,7 +29,11 @@ public final class VersioningConstants {
 
 	// =============== DATA GENERATORS CONSTANTS ===============
 
-	public static final String DATASET_SIZE_IN_TRIPLES = "dataset_size_in_triples";
+	public static final String V0_SIZE_IN_TRIPLES = "v0_size_in_triples";
+
+	public static final String VERSION_INSERTION_RATIO = "version_insertion_ratio";
+
+	public static final String VERSION_DELETION_RATIO = "version_deletion_ratio";
 
 	public static final String GENERATED_DATA_FORMAT = "generated_data_format";
 	
