@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +76,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private String generatedDatasetPath = "/versioning/data";
 	private String initialVersionDataPath = generatedDatasetPath + File.separator + "v0";
 	private String ontologiesPath = "/versioning/ontologies";
+	private String dbpediaPath = "/versioning/dbpedia";
 	private String serializationFormat;
 	private int taskId = 0;
 	private int[] triplesExpectedToBeLoaded;
@@ -113,6 +115,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		initFromEnv();
 		triplesExpectedToBeLoaded = new int[numberOfVersions];
 
+		// Equally distribute the 5 dbpedia versions to the total number of versions that will be generated
+		distributeDBpediaVersions();
+		
 		// Given the above input, update configuration files that are necessary for data generation
 		reInitializeSPBProperties();
 		
@@ -193,7 +198,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				if(versionsToMap == 0) {
 					break;
 				} else if(dbPediaVersionsDistribution[i] == 1) {
-					i++;
+					i += step/2;
 				} else {
 					dbPediaVersionsDistribution[i] = 1;
 					i += step;
@@ -651,10 +656,16 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	// to the appropriate components.
 	protected void generateData() throws Exception {
 		try {
-			// send data files to the system
-			// starting for version 0 and continue to the next one until reaching the last version
-			// waits for signal that the sent version successfully loaded by the system 
-			// in order to proceed with the next one
+			// list the 5 dbpedia files
+	    	File dbpediaPathFile = new File(dbpediaPath);
+			List<File> dbpediaFiles = (List<File>) FileUtils.listFiles(dbpediaPathFile, new String[] { "nt" }, true);
+			Collections.sort(dbpediaFiles);
+			int dbpediaIndex = 0;
+			
+			// Send data files to the system.
+			// Starting for version 0 and continue to the next one until reaching the last version.
+			// Waits for signal sent by the system that determines that the sent version successfully 
+			// loaded, in order to proceed with the next one
 	    	for(int version=0; version<numberOfVersions; version++) {
 	    		numberOfmessages.set(0);
 	    		if(version == 0) {
@@ -694,6 +705,18 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	    				numberOfmessages.incrementAndGet();
 	    			}
 	    		}
+    			// external dbpedia data have to be sent only once, so only DG(0) sent them
+	    		if(getGeneratorId() == 0) {
+	    			if(dbPediaVersionsDistribution[version] == 1) {
+	    				File dbpediaFile = dbpediaFiles.get(dbpediaIndex++);
+	    				String graphUri = "http://datagen.dbpedia." + dbpediaFile.getName();
+	    				byte data[] = FileUtils.readFileToByteArray(dbpediaFile);
+	    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
+	    				sendDataToSystemAdapter(dataForSending);
+	    				numberOfmessages.incrementAndGet();
+		    	    	LOGGER.info("DBPedia data successfully sent to System Adapter.");
+	    			}
+    			}
     	    	LOGGER.info("Generated data for version " + version + " successfully sent to System Adapter.");
 			
     	    	// TODO: sending of such signal when data were generated and not when data sent to
