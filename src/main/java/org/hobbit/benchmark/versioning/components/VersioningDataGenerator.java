@@ -39,6 +39,8 @@ import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.Files;
+
 import eu.ldbc.semanticpublishing.generators.data.DataGenerator;
 import eu.ldbc.semanticpublishing.properties.Configuration;
 import eu.ldbc.semanticpublishing.properties.Definitions;
@@ -66,20 +68,24 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningDataGenerator.class);
 		
 	private int numberOfVersions;
-	private int datasetSizeInTriples;
-	private int maxTriplesPerFile = 50000;
-	private int dataGeneratorWorkers = 1;
+	private int v0SizeInTriples;
+	private int maxTriplesPerFile;
+	private int dataGeneratorWorkers;
 	private int seedYear;
 	private int generorPeriodYears;
 	private int subGeneratorSeed;
 	private int subsParametersAmount;
+	private int versionInsertionRatio;
+	private int versionDeletionRatio;
+	private String serializationFormat;
 	private String generatedDatasetPath = "/versioning/data";
 	private String initialVersionDataPath = generatedDatasetPath + File.separator + "v0";
 	private String ontologiesPath = "/versioning/ontologies";
 	private String dbpediaPath = "/versioning/dbpedia";
-	private String serializationFormat;
 	private int taskId = 0;
 	private int[] triplesExpectedToBeLoaded;
+	private int[] cwsToBeLoaded;
+	
 	private AtomicInteger numberOfmessages = new AtomicInteger(0);
 	
 	private Configuration configuration = new Configuration();
@@ -111,12 +117,16 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		configuration.loadFromFile(configurationFile); 
 		definitions.loadFromFile(definitionsFile, configuration.getBoolean(Configuration.VERBOSE)); 
 		
+		maxTriplesPerFile = configuration.getInt(Configuration.GENERATED_TRIPLES_PER_FILE);
+		dataGeneratorWorkers = configuration.getInt(Configuration.DATA_GENERATOR_WORKERS);
+		subsParametersAmount = configuration.getInt(Configuration.QUERY_SUBSTITUTION_PARAMETERS);
+		serializationFormat = configuration.getString(Configuration.GENERATE_CREATIVE_WORKS_FORMAT);
+		seedYear = definitions.getInt(Definitions.YEAR_SEED);
+		
 		// Initialize data generation parameters through the environment variables given by user
 		initFromEnv();
 		triplesExpectedToBeLoaded = new int[numberOfVersions];
-
-		// Equally distribute the 5 dbpedia versions to the total number of versions that will be generated
-		distributeDBpediaVersions();
+		cwsToBeLoaded = new int[numberOfVersions];
 		
 		// Given the above input, update configuration files that are necessary for data generation
 		reInitializeSPBProperties();
@@ -133,11 +143,34 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Populating reference data entities from the appropriated files...");
 		this.populateRefDataEntitiesListsFromFiles();
 
-		// Generate the data.
-		LOGGER.info("Generating Creative Works data files...");
+		// Generate the data of the initial version.
+		LOGGER.info("Generating Creative Works data files of the initial version...");
 		long totalTriples = configuration.getLong(Configuration.DATASET_SIZE_TRIPLES);
 		DataGenerator dataGenerator = new DataGenerator(randomGenerator, configuration, definitions, dataGeneratorWorkers, totalTriples, maxTriplesPerFile, initialVersionDataPath, serializationFormat);
 		dataGenerator.produceData();
+		cwsToBeLoaded[0] = v0SizeInTriples;
+		
+		
+		// Generate the change sets. Only additions/deletions are supported.
+		// TODO: add the different cases between the relation of insertion and deletion ratios
+		// in order to support changes
+		for(int i=1; i<numberOfVersions; i++) {
+			int triplesToBeAdded = Math.round(versionInsertionRatio / 100f * cwsToBeLoaded[i-1]);
+			int triplesToBeDeleted = Math.round(versionDeletionRatio / 100f * cwsToBeLoaded[i-1]);
+			cwsToBeLoaded[i] = cwsToBeLoaded[i-1] + triplesToBeAdded - triplesToBeDeleted;
+			LOGGER.info("Generating version " + i + " changeset: "
+					+ "[+" + triplesToBeAdded + ", -" + triplesToBeDeleted + ", total " + cwsToBeLoaded[i] + "]");
+
+			// produce the add set
+			String destinationPath = generatedDatasetPath + File.separator + "c" + i;
+			dataGenerator.produceAdded(destinationPath, triplesToBeAdded);
+			
+			// produce the delete set
+			// TODO
+		}
+		
+		// Equally distribute the 5 dbpedia versions to the total number of versions that were generated
+		distributeDBpediaVersions();
 
 		LOGGER.info("Generating tasks...");
 		// 3) Generate SPARQL query tasks
@@ -160,7 +193,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		LOGGER.info("Loading generating data, in order to compute gold standard...");
 		// load generated creative works to virtuoso, in order to compute the gold standard
-		loadGeneratedData();
+		long start = System.currentTimeMillis();
+		loadFirstNVersions(numberOfVersions);
+		long end = System.currentTimeMillis();
+		LOGGER.info("Loading of all version completed in " + (end - start) + " ms.");
 		
 		// compute expected answers for all tasks
 		LOGGER.info("Computing expected answers for generated SPARQL tasks...");
@@ -168,17 +204,19 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");	
 	}
 	
+	public void produceAdded() {
+		
+	}
+	
 	public void initFromEnv() {
 		LOGGER.info("Getting Data Generator's properites from the environment...");
 		
 		Map<String, String> env = System.getenv();
-		datasetSizeInTriples = (Integer) getFromEnv(env, VersioningConstants.DATASET_SIZE_IN_TRIPLES, 0);
+		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0);
 		numberOfVersions = (Integer) getFromEnv(env, VersioningConstants.NUMBER_OF_VERSIONS, 0);
 		subGeneratorSeed = (Integer) getFromEnv(env, VersioningConstants.DATA_GENERATOR_SEED, 0) + getGeneratorId();
-		seedYear = (Integer) getFromEnv(env, VersioningConstants.SEED_YEAR, 0);
-		generorPeriodYears = (Integer) getFromEnv(env, VersioningConstants.GENERATION_PERIOD_IN_YEARS, 0);
-		serializationFormat = (String) getFromEnv(env, VersioningConstants.GENERATED_DATA_FORMAT, "");
-		subsParametersAmount = (Integer) getFromEnv(env, VersioningConstants.SUBSTITUTION_PARAMETERS_AMOUNT, 0);
+		versionInsertionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_INSERTION_RATIO, 5);
+		versionDeletionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_DELETION_RATIO, 3);
 	}	
 	
 	/*
@@ -186,6 +224,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	 *  versions that have to be produced. '1' values appeared in the dbPediaVersionsDistribution 
 	 *  array, denote that in such a position (representing the version) a DBpedia version will 
 	 *  also included to the generated data.
+	 *  Such method have to be called after the dataGenerator.produceData(), as it requires
+	 *  each versions underline path to already been generated and before computation of expected 
+	 *  answers.
 	 */
 	private void distributeDBpediaVersions() {
 		dbPediaVersionsDistribution = new int[numberOfVersions];
@@ -193,6 +234,17 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		int versionsToMap = 5;
 		double step = (numberOfVersions / dbpediaVersions) < 1 ? Math.floor(numberOfVersions / dbpediaVersions) : Math.ceil(numberOfVersions / dbpediaVersions);
 		Arrays.fill(dbPediaVersionsDistribution, step == 0 ? 1 : 0);
+		
+		// list the 5 dbpedia files
+    	File dbpediaPathFile = new File(dbpediaPath);
+		List<File> addedDataFiles = (List<File>) FileUtils.listFiles(dbpediaPathFile, new String[] { "added.ttl" }, false);
+		Collections.sort(addedDataFiles);
+
+		List<File> deletedDataFiles = (List<File>) FileUtils.listFiles(dbpediaPathFile, new String[] { "deleted.ttl" }, false);
+		Collections.sort(deletedDataFiles);
+
+		int dbpediaIndex = 0;
+		
 		while(versionsToMap > 0 && step > 0) {
 			for (int i=0; i<dbPediaVersionsDistribution.length;) {
 				if(versionsToMap == 0) {
@@ -201,11 +253,36 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					i += step/2;
 				} else {
 					dbPediaVersionsDistribution[i] = 1;
+					// copy the dbpedia file to the appropriate version dir, determined by the index i
+					try {
+						if(i == 0) {
+							String addedFileName = addedDataFiles.get(dbpediaIndex).getName();
+							File addedFrom = new File(dbpediaPath + File.separator + addedFileName);
+							File addedTo = new File(initialVersionDataPath + File.separator + addedFileName);
+							Files.copy(addedFrom, addedTo);
+						} else {
+							String addedToParentDir = generatedDatasetPath + File.separator + "c" + i + File.separator;							
+							String addedFileName = addedDataFiles.get(dbpediaIndex).getName();
+							File addedFrom = new File(dbpediaPath + File.separator + addedFileName);
+							File addedTo = new File(addedToParentDir + addedFileName);
+							Files.copy(addedFrom, addedTo);
+							
+							// dbpediaIndex-1 because for version 0 we do not have deleted triples
+							String deletedFileName = deletedDataFiles.get(dbpediaIndex - 1).getName();
+							File deletedFrom = new File(dbpediaPath + File.separator + deletedFileName);
+							File deletedTo = new File(addedToParentDir + deletedFileName);
+							Files.copy(deletedFrom, deletedTo);
+						}
+					} catch(IOException e) {
+						LOGGER.error("Exception caught during the copy of dbpedia files to the appropriate version dir", e);
+					}
 					i += step;
 					versionsToMap--;
+					dbpediaIndex++;
 				}
 			}
 		}
+		
 	}
 
 	
@@ -293,22 +370,27 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		return compiledQuery;
 	}
 	
+	private int getVersionSize(int versionNum) {
+		int triplesNum = 0;
+		String sparqlQueryString = ""
+				+ "SELECT (COUNT(*) AS ?cnt) "
+				+ "FROM <http://graph.version." + versionNum + "> "
+				+ "WHERE { ?s ?p ?o }";
+		
+		Query countQuery = QueryFactory.create(sparqlQueryString);
+		QueryExecution cQexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", countQuery);
+		ResultSet results = cQexec.execSelect();
+		if(results.hasNext()) {
+			triplesNum = results.next().getLiteral("cnt").getInt();
+		}
+		return triplesNum;
+	}
+	
 	public void computeExpectedAnswers() {	
 		// compute the number of triples that expected to be loaded by the system.
 		// so the evaluation module can compute the ingestion and average changes speeds
 		for (int version=0; version<numberOfVersions; version++) {
-			String sparqlQueryString = ""
-					+ "SELECT (COUNT(*) AS ?cnt) "
-					+ "FROM <http://graph.version." + version + "> "
-					+ "WHERE { ?s ?p ?o }";
-			
-			Query countQuery = QueryFactory.create(sparqlQueryString);
-			QueryExecution cQexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", countQuery);
-			ResultSet results = cQexec.execSelect();
-			
-			if(results.hasNext()) {
-				triplesExpectedToBeLoaded[version] = results.next().getLiteral("cnt").getInt();
-			}
+			triplesExpectedToBeLoaded[version] = getVersionSize(version);
 		}
 		
 		for (Task task : tasks) {
@@ -485,9 +567,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// the total size of dataset size, in order to let the ratio of the three types of 
 		// modeled data (clusterings, correlations, random) to be 33% : 33% : 33%
 		AllocationsUtil au = new AllocationsUtil();
-		int adjustedMajorEvents = (int) au.adjustAndGetMajorEventsAllocation(datasetSizeInTriples);
-		int adjustedMinorEvents = (int) au.adjustAndGetMinorEventsAllocation(datasetSizeInTriples);
-		int adjustedCorrelations= (int) au.adjustAndGetCorrelationsAllocation(datasetSizeInTriples);
+		int adjustedMajorEvents = (int) au.adjustAndGetMajorEventsAllocation(v0SizeInTriples);
+		int adjustedMinorEvents = (int) au.adjustAndGetMinorEventsAllocation(v0SizeInTriples);
+		int adjustedCorrelations= (int) au.adjustAndGetCorrelationsAllocation(v0SizeInTriples);
 		
 		// distribute the major/minor events and correlations to the data generators
 		// as each generator has to produce the whole event/correlation in order to be valid
@@ -527,7 +609,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// ~160K triples per correlation
 		// The data generators with higher ids may have to generate no data 
 		int triplesBasedOnEvents = currDataGeneratorMajorEvents * 500000 + currDataGeneratorMinorEvents * 50000 + currDataGeneratorCorrelations * 160000;
-		int triplesBasedOnDataGenerators = datasetSizeInTriples / numberOfGenerators;
+		int triplesBasedOnDataGenerators = v0SizeInTriples / numberOfGenerators;
 		int currDataGeneratorDatasetSizeInTriples = triplesBasedOnEvents > triplesBasedOnDataGenerators ? triplesBasedOnEvents : triplesBasedOnDataGenerators;
 
 		// compute the approximated number of triples that have been generated so far
@@ -540,10 +622,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// if the difference between the total size of triples and the approximated number of
 		// triples so far is lower than the number of triples that each data generator have to
 		// produce, let the number of generated triples to be such a difference.
-		currDataGeneratorDatasetSizeInTriples = (approxGeneratedTriplesSoFar + currDataGeneratorDatasetSizeInTriples) >  datasetSizeInTriples ? datasetSizeInTriples - approxGeneratedTriplesSoFar : currDataGeneratorDatasetSizeInTriples;
+		currDataGeneratorDatasetSizeInTriples = (approxGeneratedTriplesSoFar + currDataGeneratorDatasetSizeInTriples) >  v0SizeInTriples ? v0SizeInTriples - approxGeneratedTriplesSoFar : currDataGeneratorDatasetSizeInTriples;
 		// if the number of generated triples so far has reached the target, let the current data generator 
 		// to produce no triples			
-		currDataGeneratorDatasetSizeInTriples = approxGeneratedTriplesSoFar > datasetSizeInTriples ? 0 : currDataGeneratorDatasetSizeInTriples;
+		currDataGeneratorDatasetSizeInTriples = approxGeneratedTriplesSoFar > v0SizeInTriples ? 0 : currDataGeneratorDatasetSizeInTriples;
 		
 		LOGGER.info("Generator '" + generatorId + "' will produce "+ (currDataGeneratorDatasetSizeInTriples > 0 ? "~" : "") 
 				+ currDataGeneratorDatasetSizeInTriples + " triples,"
@@ -554,21 +636,19 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		// get available cores to let data generated through multiple threads. 
 //		dataGeneratorWorkers = Runtime.getRuntime().availableProcessors() / 2;
-		dataGeneratorWorkers = 1;
 		
 		// re-initialize test.properties file that is required for data generation
 		configuration.setIntProperty("datasetSize", currDataGeneratorDatasetSizeInTriples);
 		configuration.setIntProperty("numberOfVersions", numberOfVersions);
 		configuration.setIntProperty("generatorRandomSeed", subGeneratorSeed);
 		configuration.setIntProperty("hobbitDataGeneratorId", generatorId);
-		configuration.setStringProperty("generateCreativeWorksFormat", serializationFormat);
 		configuration.setStringProperty("creativeWorksPath", initialVersionDataPath);
-		configuration.setStringProperty("generateCreativeWorksFormat", serializationFormat);
-		configuration.setIntProperty("querySubstitutionParameters", subsParametersAmount);
-		configuration.setIntProperty("dataGeneratorWorkers", dataGeneratorWorkers);
+		
+		// re-initialize generorPeriodYears according to the total number of versions and the 
+		// version times of dbpedia data ('12, '13, '14, '15, '16)
+		generorPeriodYears = numberOfVersions < 5 ? numberOfVersions : 5;
 
 		// re-initialize definitions.properties file that is required for data generation
-		definitions.setIntProperty("seedYear", seedYear);
 		definitions.setIntProperty("dataGenerationPeriodYears", generorPeriodYears);
 		definitions.setIntProperty("majorEvents", currDataGeneratorMajorEvents);
 		definitions.setIntProperty("minorEvents", currDataGeneratorMinorEvents);
@@ -655,13 +735,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	// This method is used for sending the already generated data, tasks and gold standard
 	// to the appropriate components.
 	protected void generateData() throws Exception {
-		try {
-			// list the 5 dbpedia files
-	    	File dbpediaPathFile = new File(dbpediaPath);
-			List<File> dbpediaFiles = (List<File>) FileUtils.listFiles(dbpediaPathFile, new String[] { "nt" }, true);
-			Collections.sort(dbpediaFiles);
-			int dbpediaIndex = 0;
-			
+		try {			
 			// Send data files to the system.
 			// Starting for version 0 and continue to the next one until reaching the last version.
 			// Waits for signal sent by the system that determines that the sent version successfully 
@@ -683,9 +757,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		    			}
 		    	    	LOGGER.info("All ontologies successfully sent to System Adapter.");
 	    			}
-	    	    	File dataPath = new File(generatedDatasetPath + File.separator + "v0");
-	    			String[] extensions = new String[] { RDFUtils.getFileExtensionFromRdfFormat(serializationFormat) };
-	    			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, extensions, true);
+	    	    	File dataPath = new File(initialVersionDataPath);
+	    			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, new String[] { "added.nt" }, true);
 	    			for (File file : dataFiles) {
 	    				String graphUri = "http://datagen.version.0." + file.getName();
 	    				byte data[] = FileUtils.readFileToByteArray(file);
@@ -695,28 +768,25 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	    			}
 	    		} else {
 	    			File dataPath = new File(generatedDatasetPath + File.separator + "c" + version);
-	    			String[] extensions = new String[] { RDFUtils.getFileExtensionFromRdfFormat(serializationFormat) };
-	    			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, extensions, true);
-	    			for (File file : dataFiles) {
-	    				String graphUri = "http://datagen.added.set." + version + "." + file.getName();
+	    			if(!dataPath.exists()) dataPath.mkdirs();
+	    			List<File> addedDataFiles = (List<File>) FileUtils.listFiles(dataPath, new String[] { "added.nt" }, false);
+	    			for (File file : addedDataFiles) {
+	    				String graphUri = "http://datagen.addset." + version + "." + file.getName();
+	    				byte data[] = FileUtils.readFileToByteArray(file);
+	    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
+	    				sendDataToSystemAdapter(dataForSending);
+	    				numberOfmessages.incrementAndGet();
+	    			}
+	    			List<File> deletedDataFiles = (List<File>) FileUtils.listFiles(dataPath, new String[] { "deleted.nt" }, false);
+	    			for (File file : deletedDataFiles) {
+	    				String graphUri = "http://datagen.deleteset." + version + "." + file.getName();
 	    				byte data[] = FileUtils.readFileToByteArray(file);
 	    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
 	    				sendDataToSystemAdapter(dataForSending);
 	    				numberOfmessages.incrementAndGet();
 	    			}
 	    		}
-    			// external dbpedia data have to be sent only once, so only DG(0) sent them
-	    		if(getGeneratorId() == 0) {
-	    			if(dbPediaVersionsDistribution[version] == 1) {
-	    				File dbpediaFile = dbpediaFiles.get(dbpediaIndex++);
-	    				String graphUri = "http://datagen.dbpedia." + dbpediaFile.getName();
-	    				byte data[] = FileUtils.readFileToByteArray(dbpediaFile);
-	    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
-	    				sendDataToSystemAdapter(dataForSending);
-	    				numberOfmessages.incrementAndGet();
-		    	    	LOGGER.info("DBPedia data successfully sent to System Adapter.");
-	    			}
-    			}
+
     	    	LOGGER.info("Generated data for version " + version + " successfully sent to System Adapter.");
 			
     	    	// TODO: sending of such signal when data were generated and not when data sent to
@@ -750,12 +820,37 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
         }
 	}
 
-	public void loadGeneratedData() {
-		LOGGER.info("Loading generated data files to Virtuoso triplestore in order to compute gold standard...");
+	// method for loading to virtuoso the first N versions. e.g. for first 2 versions
+	// v0 and v1 will be loaded into.
+	public void loadFirstNVersions(int n) {
+		LOGGER.info("Loading generated data, up to version " + n + ", to Virtuoso triplestore...");
 
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load_to_virtuoso.sh";
-			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(serializationFormat), Integer.toString(numberOfVersions) };
+			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(serializationFormat), Integer.toString(n) };
+			Process p = new ProcessBuilder(command).start();
+			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line;
+			while ((line = in.readLine()) != null) {
+				LOGGER.info(line);
+			}
+			p.waitFor();
+			LOGGER.info("Generated data loaded successfully.");
+			in.close();
+		} catch (IOException e) {
+            LOGGER.error("Exception while executing script for loading data.", e);
+		} catch (InterruptedException e) {
+            LOGGER.error("Exception while executing script for loading data.", e);
+		}		
+	}
+	
+	// method for loading to virtuoso a specific version
+	public void loadVersion(int version) {
+		LOGGER.info("Loading generated data, for version " + version + ", to Virtuoso triplestore...");
+
+		try {
+			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load_version_to_virtuoso.sh";
+			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(serializationFormat), Integer.toString(version) };
 			Process p = new ProcessBuilder(command).start();
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
