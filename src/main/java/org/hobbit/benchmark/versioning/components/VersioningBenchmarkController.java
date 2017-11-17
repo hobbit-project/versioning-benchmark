@@ -49,8 +49,8 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		int v0Size =  (Integer) getProperty(PREFIX + "v0SizeInTriples", 1000000);
 		int generatorSeed =  (Integer) getProperty(PREFIX + "generatorSeed", 0);
 		numOfVersions =  (Integer) getProperty(PREFIX + "numberOfVersions", 12);
-		double insRatio = (Double) getProperty(PREFIX + "versionInsertionRatio", 5.0);
-		double delRatio = (Double) getProperty(PREFIX + "versionDeletionRatio", 3.0);
+		int insRatio = (Integer) getProperty(PREFIX + "versionInsertionRatio", 5);
+		int delRatio = (Integer) getProperty(PREFIX + "versionDeletionRatio", 3);
 		
 		loadingTimes = new long[numOfVersions];
 		triplesToBeLoaded = new AtomicIntegerArray(numOfVersions);
