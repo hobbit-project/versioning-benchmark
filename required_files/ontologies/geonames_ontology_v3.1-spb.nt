@@ -6763,4 +6763,4 @@
 <http://www.geonames.org/ontology#S.HMSD> <http://www.w3.org/2004/02/skos/core#inScheme> <http://www.geonames.org/ontology#S> .
 <http://www.geonames.org/ontology#S.HMSD> <http://www.w3.org/2004/02/skos/core#prefLabel> "homestead"@en .
 <http://www.geonames.org/ontology#S.HMSD> <http://www.w3.org/2004/02/skos/core#definition> "a residence, owner's or manager's, on a sheep or cattle station, woolshed, outcamp, or Aboriginal outstation, specific to Australia and New Zealand" .
-_:node1biltk7u9x1 <http://www.ontotext.com/owlim/system#schemaTransaction> "" .
+_:node1bv514c2bx1 <http://www.ontotext.com/owlim/system#schemaTransaction> "" .

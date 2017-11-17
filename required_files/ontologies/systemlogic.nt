@@ -6,4 +6,4 @@
 <urn:ldp-systemlogic/> <http://www.w3.org/2002/07/owl#imports> <http://www.geonames.org/ontology> .
 <urn:ldp-systemlogic/TagConcept> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
 <urn:ldp-systemlogic/TagConcept> <http://www.w3.org/2000/01/rdf-schema#label> "TagConcept"^^<http://www.w3.org/2001/XMLSchema#string> .
-_:node1biltk80ox1 <http://www.ontotext.com/owlim/system#schemaTransaction> "" .
+_:node1bv514c5ox1 <http://www.ontotext.com/owlim/system#schemaTransaction> "" .

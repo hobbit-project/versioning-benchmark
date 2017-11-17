@@ -6,11 +6,11 @@
 <http://www.bbc.co.uk/ontologies/creativework/Audience> <http://www.w3.org/2000/01/rdf-schema#comment> "Enumerated class of the audiences"^^<http://www.w3.org/2001/XMLSchema#string> .
 <http://www.bbc.co.uk/ontologies/creativework/Audience> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://www.bbc.co.uk/ontologies/creativework/> .
 <http://www.bbc.co.uk/ontologies/creativework/Audience> <http://www.w3.org/2000/01/rdf-schema#label> "Audience"^^<http://www.w3.org/2001/XMLSchema#string> .
-_:node1biltk7u1x1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/NationalAudience> .
-_:node1biltk7u1x1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1biltk7u1x2 .
-_:node1biltk7u1x2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/InternationalAudience> .
-_:node1biltk7u1x2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
-<http://www.bbc.co.uk/ontologies/creativework/Audience> <http://www.w3.org/2002/07/owl#oneOf> _:node1biltk7u1x1 .
+_:node1bv514c1ux1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/NationalAudience> .
+_:node1bv514c1ux1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1bv514c1ux2 .
+_:node1bv514c1ux2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/InternationalAudience> .
+_:node1bv514c1ux2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+<http://www.bbc.co.uk/ontologies/creativework/Audience> <http://www.w3.org/2002/07/owl#oneOf> _:node1bv514c1ux1 .
 <http://www.bbc.co.uk/ontologies/creativework/AudioFormat> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.bbc.co.uk/ontologies/creativework/Format> .
 <http://www.bbc.co.uk/ontologies/creativework/AudioFormat> <http://www.w3.org/2000/01/rdf-schema#comment> "Used to represent that the primary format of a CreativeWork is Audio"^^<http://www.w3.org/2001/XMLSchema#string> .
 <http://www.bbc.co.uk/ontologies/creativework/AudioFormat> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://www.bbc.co.uk/ontologies/creativework/> .
@@ -46,19 +46,19 @@ _:node1biltk7u1x2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.
 <http://www.bbc.co.uk/ontologies/creativework/Format> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://www.bbc.co.uk/ontologies/creativework/> .
 <http://www.bbc.co.uk/ontologies/creativework/Format> <http://www.w3.org/2000/01/rdf-schema#label> "Format"^^<http://www.w3.org/2001/XMLSchema#string> .
 <http://www.bbc.co.uk/ontologies/creativework/Format> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2002/07/owl#Thing> .
-_:node1biltk7u1x3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/AudioFormat> .
-_:node1biltk7u1x3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1biltk7u1x4 .
-_:node1biltk7u1x4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/TextualFormat> .
-_:node1biltk7u1x4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1biltk7u1x5 .
-_:node1biltk7u1x5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/ImageFormat> .
-_:node1biltk7u1x5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1biltk7u1x6 .
-_:node1biltk7u1x6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/InteractiveFormat> .
-_:node1biltk7u1x6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1biltk7u1x7 .
-_:node1biltk7u1x7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/PictureGalleryFormat> .
-_:node1biltk7u1x7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1biltk7u1x8 .
-_:node1biltk7u1x8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/VideoFormat> .
-_:node1biltk7u1x8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
-<http://www.bbc.co.uk/ontologies/creativework/Format> <http://www.w3.org/2002/07/owl#oneOf> _:node1biltk7u1x3 .
+_:node1bv514c1ux3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/AudioFormat> .
+_:node1bv514c1ux3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1bv514c1ux4 .
+_:node1bv514c1ux4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/TextualFormat> .
+_:node1bv514c1ux4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1bv514c1ux5 .
+_:node1bv514c1ux5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/ImageFormat> .
+_:node1bv514c1ux5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1bv514c1ux6 .
+_:node1bv514c1ux6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/InteractiveFormat> .
+_:node1bv514c1ux6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1bv514c1ux7 .
+_:node1bv514c1ux7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/PictureGalleryFormat> .
+_:node1bv514c1ux7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1bv514c1ux8 .
+_:node1bv514c1ux8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/VideoFormat> .
+_:node1bv514c1ux8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+<http://www.bbc.co.uk/ontologies/creativework/Format> <http://www.w3.org/2002/07/owl#oneOf> _:node1bv514c1ux3 .
 <http://www.bbc.co.uk/ontologies/creativework/ImageFormat> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.bbc.co.uk/ontologies/creativework/Format> .
 <http://www.bbc.co.uk/ontologies/creativework/ImageFormat> <http://www.w3.org/2000/01/rdf-schema#comment> "Used to represent that the primary format of a CreativeWork is Image"^^<http://www.w3.org/2001/XMLSchema#string> .
 <http://www.bbc.co.uk/ontologies/creativework/ImageFormat> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://www.bbc.co.uk/ontologies/creativework/> .
@@ -107,11 +107,11 @@ _:node1biltk7u1x8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.
 <http://www.bbc.co.uk/ontologies/creativework/ThumbnailType> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://www.bbc.co.uk/ontologies/creativework/> .
 <http://www.bbc.co.uk/ontologies/creativework/ThumbnailType> <http://www.w3.org/2000/01/rdf-schema#label> "ThumbnailType"^^<http://www.w3.org/2001/XMLSchema#string> .
 <http://www.bbc.co.uk/ontologies/creativework/ThumbnailType> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2002/07/owl#Thing> .
-_:node1biltk7u1x9 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/StandardThumbnail> .
-_:node1biltk7u1x9 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1biltk7u1x10 .
-_:node1biltk7u1x10 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/CloseUpThumbnail> .
-_:node1biltk7u1x10 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
-<http://www.bbc.co.uk/ontologies/creativework/ThumbnailType> <http://www.w3.org/2002/07/owl#oneOf> _:node1biltk7u1x9 .
+_:node1bv514c1ux9 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/StandardThumbnail> .
+_:node1bv514c1ux9 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1bv514c1ux10 .
+_:node1bv514c1ux10 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://www.bbc.co.uk/ontologies/creativework/CloseUpThumbnail> .
+_:node1bv514c1ux10 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+<http://www.bbc.co.uk/ontologies/creativework/ThumbnailType> <http://www.w3.org/2002/07/owl#oneOf> _:node1bv514c1ux9 .
 <http://www.bbc.co.uk/ontologies/creativework/VideoFormat> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.bbc.co.uk/ontologies/creativework/Format> .
 <http://www.bbc.co.uk/ontologies/creativework/VideoFormat> <http://www.w3.org/2000/01/rdf-schema#comment> "Used to represent that the primary format of a CreativeWork is Video"^^<http://www.w3.org/2001/XMLSchema#string> .
 <http://www.bbc.co.uk/ontologies/creativework/VideoFormat> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://www.bbc.co.uk/ontologies/creativework/> .
@@ -220,4 +220,4 @@ _:node1biltk7u1x10 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www
 <http://www.bbc.co.uk/ontologies/creativework/mentionsPrefLabel> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://www.bbc.co.uk/ontologies/creativework/> .
 <http://www.bbc.co.uk/ontologies/creativework/mentionsPrefLabel> <http://www.w3.org/2000/01/rdf-schema#label> "mentionsPrefLabel"^^<http://www.w3.org/2001/XMLSchema#string> .
 <http://www.bbc.co.uk/ontologies/creativework/mentionsPrefLabel> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
-_:node1biltk7u1x11 <http://www.ontotext.com/owlim/system#schemaTransaction> "" .
+_:node1bv514c1ux11 <http://www.ontotext.com/owlim/system#schemaTransaction> "" .
