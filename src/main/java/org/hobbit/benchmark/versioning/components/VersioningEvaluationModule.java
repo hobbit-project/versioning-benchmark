@@ -151,40 +151,40 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		long execTime = responseReceivedTimestamp - taskSentTimestamp;
 		LOGGER.info("execTime: "+execTime);
 
-		boolean resultCompleteness = resultRowCount == expectedResultsNum;
+		boolean resultComplete = resultRowCount == expectedResultsNum;
 
 		// TODO extend check for completeness: do not only check the number of results
 		switch (queryType) {
 			case 1:
-				if(resultCompleteness) { 
+				if(resultComplete) { 
 					qts1.reportSuccess(execTime); 
 				} else { 
 					qts1.reportFailure(); 
 				}
 				break;
 			case 2:	
-				if(resultCompleteness) {  
+				if(resultComplete) {  
 					qts2.reportSuccess(execTime); 
 				} else { 
 					qts2.reportFailure();
 				}
 				break;
 			case 3:	
-				if(resultCompleteness) {  
+				if(resultComplete) {  
 					qts3.reportSuccess(execTime); 
 				} else { 
 					qts3.reportFailure(); 
 				}
 				break;
 			case 4:	
-				if(resultCompleteness) {  
+				if(resultComplete) {  
 					qts4.reportSuccess(execTime); 
 				} else { 
 					qts4.reportFailure(); 
 				}
 				break;
 			case 5:	
-				if(resultCompleteness) {  
+				if(resultComplete) {  
 					qts5.reportSuccess(execTime); 
 				} else { 
 					qts5.reportFailure(); 
@@ -204,7 +204,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				LOGGER.info("blogPostsDiffExcpected: "+blogPostsDiffExcpected);
 				LOGGER.info("blogPostsDiffReceived: "+blogPostsDiffReceived);
 				
-				if(resultCompleteness && blogPostsDiffReceived == blogPostsDiffExcpected) {  
+				if(resultComplete && blogPostsDiffReceived == blogPostsDiffExcpected) {  
 					qts6.reportSuccess(execTime); 
 				} else { 
 					qts6.reportFailure(); 
@@ -225,14 +225,14 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				LOGGER.info("avgAddedNewsItemsExcpected: "+avgAddedNewsItemsExcpected);
 				LOGGER.info("avgAddedNewsItemsReceived: "+avgAddedNewsItemsReceived);
 
-				if(resultCompleteness && avgAddedNewsItemsReceived == avgAddedNewsItemsExcpected) {  
+				if(resultComplete && avgAddedNewsItemsReceived == avgAddedNewsItemsExcpected) {  
 					qts7.reportSuccess(execTime); 
 				} else { 
 					qts7.reportFailure(); 
 				}
 				break;
 			case 8:	
-				if(resultCompleteness) {  
+				if(resultComplete) {  
 					qts8.reportSuccess(execTime); 
 				} else { 
 					qts8.reportFailure(); 
