@@ -7,6 +7,17 @@ ONTOLOGIES_PATH=/versioning/ontologies/
 SERIALIZATION_FORMAT=$1
 NUMBER_OF_VERSIONS=$2
 
+# check adjusted virtuoso memory usage
+NumberOfBuffers=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','NumberOfBuffers');" | sed -n 9p)
+MaxDirtyBuffers=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','MaxDirtyBuffers');" | sed -n 9p)
+AsyncQueueMaxThreads=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','AsyncQueueMaxThreads');" | sed -n 9p)
+ThreadsPerQuery=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','ThreadsPerQuery');" | sed -n 9p)
+echo "Virtuoso adjusted memory usage:" 
+echo "NumberOfBuffers="$NumberOfBuffers
+echo "MaxDirtyBuffers="$MaxDirtyBuffers
+echo "AsyncQueueMaxThreads="$AsyncQueueMaxThreads
+echo "ThreadsPerQuery="$ThreadsPerQuery
+
 for ((i=0; i<$NUMBER_OF_VERSIONS; i++)) do
    start_load=$(($(date +%s%N)/1000000))
    $VIRTUOSO_BIN/isql 1112 dba dba exec="delete from load_list;" > /dev/null
