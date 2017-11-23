@@ -1,4 +1,3 @@
-#  Query Name : query8.1
 #  Query Type: 8, Cross-version structured queries
 #  Query Description : 
 #  Retrieve the 10 most recent creative works, that are about or mention different topics from a set of specific past versions. 

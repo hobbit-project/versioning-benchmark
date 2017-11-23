@@ -12,7 +12,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -34,11 +36,16 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
-		
+			
 	private static final Logger LOGGER = LoggerFactory.getLogger(VirtuosoSystemAdapter.class);
-	private ArrayList<byte[][]> ingestionResultsArrays = new ArrayList<byte[][]>();
-	private boolean dataGenFinished = false;
+	
+	private AtomicInteger totalReceived = new AtomicInteger(0);
+	private AtomicInteger totalSent = new AtomicInteger(0);
+	private Semaphore allVersionDataReceivedMutex = new Semaphore(0);
+
+	// used to check if bulk loading phase has finished in  order to proceed with the querying phase
 	private boolean dataLoadingFinished = false;
+	private int loadingVersion = 0;
 	
 	// must match the "Generated data format" parameter given when starting the experiment
 	private String generatedDataFormat = "n-triples";
@@ -47,9 +54,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	@Override
     public void init() throws Exception {
 		LOGGER.info("Initializing virtuoso test system...");
-        super.init();
-        // get the disk space used by the system before any data is loaded to it
-     	initialDatasetsSize = getDatasetSize();		
+        super.init();	
 		LOGGER.info("Virtuoso initialized successfully .");
     }
 
@@ -57,30 +62,50 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	 * @see org.hobbit.core.components.TaskReceivingComponent#receiveGeneratedData(byte[])
 	 */
 	public void receiveGeneratedData(byte[] data) {
+		String dataPath = "/versioning/data/";
+		String ontologiesPath = "/versioning/ontologies/";
 		
 		ByteBuffer dataBuffer = ByteBuffer.wrap(data);
-		// read the file path
-		String receivedFilePath = RabbitMQUtils.readString(dataBuffer);
-		// read the file contents
-		byte[] fileContentBytes = RabbitMQUtils.readByteArray(dataBuffer);
+		// read the graph uri in order to identify the version in which
+		// received data will be loaded into.
+		String graphUri = RabbitMQUtils.readString(dataBuffer);
+		String receivedFilePath;
 		
-		FileOutputStream fos = null;
-		try {
-			File outputFile = new File(receivedFilePath);
-			fos = FileUtils.openOutputStream(outputFile, false);
-			IOUtils.write(fileContentBytes, fos);
-			fos.close();
-			// test
-			BufferedReader reader = new BufferedReader(new FileReader(receivedFilePath));
-			int lines = 0;
-			while (reader.readLine() != null) lines++;
-			reader.close();
-			LOGGER.info(receivedFilePath + " (" + (double) new File(receivedFilePath).length() / 1000 + " KB) received from Data Generator with " + lines + " lines.");
+		if(graphUri.startsWith("http://datagen.ontology")) {
+			receivedFilePath = ontologiesPath + graphUri.replaceFirst(".*/", "");
+		} else if (graphUri.startsWith("http://datagen.version.0")) {
+			receivedFilePath = dataPath + "v0/" + graphUri.replaceFirst(".*/", "");
+		} else {
+			String versionNum = graphUri.substring(25, graphUri.indexOf("generatedCreativeWorks") - 1);
+			receivedFilePath = dataPath + "c" + versionNum + "/" + graphUri.replaceFirst(".*/", "");
+		}
+		// read the data contents
+		byte[] dataContentBytes = new byte[dataBuffer.remaining()];
+		dataBuffer.get(dataContentBytes, 0, dataBuffer.remaining());
+		
+		if (dataContentBytes.length != 0) {
+			FileOutputStream fos = null;
+			try {
+				File outputFile = new File(receivedFilePath);
+				fos = FileUtils.openOutputStream(outputFile, false);
+				IOUtils.write(dataContentBytes, fos);
+				fos.close();
+				// test
+				BufferedReader reader = new BufferedReader(new FileReader(receivedFilePath));
+				int lines = 0;
+				while (reader.readLine() != null) lines++;
+				reader.close();
+				LOGGER.info(receivedFilePath + " (" + (double) new File(receivedFilePath).length() / 1000 + " KB) received from Data Generator with " + lines + " lines.");
 
-		} catch (FileNotFoundException e) {
-			LOGGER.error("Exception while creating/opening files to write received data.", e);
-		} catch (IOException e) {
-			LOGGER.error("Exception while writing data file", e);
+			} catch (FileNotFoundException e) {
+				LOGGER.error("Exception while creating/opening files to write received data.", e);
+			} catch (IOException e) {
+				LOGGER.error("Exception while writing data file", e);
+			}
+		}
+		
+		if(totalReceived.incrementAndGet() == totalSent.get()) {
+			allVersionDataReceivedMutex.release();
 		}
 	}
 
@@ -88,125 +113,39 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	 * @see org.hobbit.core.components.TaskReceivingComponent#receiveGeneratedTask(java.lang.String, byte[])
 	 */
 	public void receiveGeneratedTask(String tId, byte[] data) {
-		LOGGER.info("Task " + tId + " received from task generator");
-		boolean taskExecutedSuccesfully = true;
-		
-		ByteBuffer taskBuffer = ByteBuffer.wrap(data);
-		// read the query type
-		String taskType = RabbitMQUtils.readString(taskBuffer);
-		// read the query
-		String queryText = RabbitMQUtils.readString(taskBuffer);
-		
-		byte[][] resultsArray = null;
-		// 1 stands for ingestion task
-		// 2 for storage space task
-		// 3 for SPARQL query task
-		switch (Integer.parseInt(taskType)) {
-			case 1:
-				if(dataGenFinished) {
-					// get the version that will be loaded.
-					int version = Integer.parseInt(queryText.substring(8, queryText.indexOf(",")));
-					
-					// answer of loading is of type: "triples:xxx,time:xxx"
-					// so we parse it to get the loaded triples and the time required for loading them
-					String answer = loadVersion(version);
-					long loadedTriples = Long.parseLong(answer.split(",")[0].split(":")[1]);
-					long loadingTime = Long.parseLong(answer.split(",")[1].split(":")[1]);
-					LOGGER.info("Version " + version + " loaded successfully in "+ loadingTime + " ms.");
-	
-					// TODO 
-					// in v2.0 of the benchmark the number of changes should be reported instead of 
-					// loaded triples, as we will also have deletions except of additions of triples
-					resultsArray = new byte[3][];
-					resultsArray[0] = RabbitMQUtils.writeString(taskType);
-					resultsArray[1] = RabbitMQUtils.writeString(Long.toString(loadedTriples));
-					resultsArray[2] = RabbitMQUtils.writeString(Long.toString(loadingTime));
-				}
-				break;
-			case 2:
-				// get the storage space required for all versions to be stored in virtuoso
-				long finalDatasetsSize = getDatasetSize();
-				long storageSpaceCost = finalDatasetsSize - initialDatasetsSize;
-				LOGGER.info("Total datasets size: "+ storageSpaceCost / 1000f + " Kbytes.");
+		if(dataLoadingFinished) {
+			LOGGER.info("Task " + tId + " received from task generator");
+			
+			// read the query
+			String queryText = RabbitMQUtils.readString(data);
 
-				resultsArray = new byte[2][];
-				resultsArray[0] = RabbitMQUtils.writeString(taskType);
-				resultsArray[1] = RabbitMQUtils.writeString(Long.toString(storageSpaceCost));
-				break;
-			case 3:
-				if(dataLoadingFinished) {
-					String queryType = queryText.substring(21, 22);
-					LOGGER.info("queryType: " + queryType);
-	
-					Query query = QueryFactory.create(queryText);
-					QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
-					ResultSet results = null;
-	
-					try {
-						results = qexec.execSelect();
-					} catch (Exception e) {
-						LOGGER.error("Task " + tId + " failed to execute.", e);
-						taskExecutedSuccesfully = false;
-					}
-	
-					resultsArray = new byte[4][];
-					resultsArray[0] = RabbitMQUtils.writeString(taskType);
-					resultsArray[1] = RabbitMQUtils.writeString(queryType);
-					
-					if(taskExecutedSuccesfully) {
-						ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
-						ResultSetFormatter.outputAsJSON(queryResponseBos, results);
-						int returnedResults = results.getRowNumber();
-						
-						resultsArray[2] = RabbitMQUtils.writeString(Integer.toString(returnedResults));
-						// comment out when big messages can be retrieved from evalstorage
-						resultsArray[3] = queryResponseBos.toByteArray();
-//						resultsArray[3] = RabbitMQUtils.writeString("insteadOfQueryResponse");
-						LOGGER.info("Task " + tId + " executed successfully and returned "+ returnedResults + " results.");
-					} else {
-						resultsArray[2] = RabbitMQUtils.writeString("-1");
-						resultsArray[3] = RabbitMQUtils.writeString("-1");
-						LOGGER.info("Task " + tId + " failed to executed. Error code (-1) set as result.");
-					}
-					qexec.close();
-				}
-				break;
-		}
-		
-		byte[] results = RabbitMQUtils.writeByteArrays(resultsArray);
-		try {
-			sendResultToEvalStorage(tId, results);
-			LOGGER.info("Results sent to evaluation storage" + (taskExecutedSuccesfully ? "." : " for unsuccessful executed task."));
-		} catch (IOException e) {
-			LOGGER.error("Exception while sending storage space cost to evaluation storage.", e);
-		}
+			Query query = QueryFactory.create(queryText);
+			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
+			ResultSet rs = null;
+
+			try {
+				rs = qexec.execSelect();
+			} catch (Exception e) {
+				LOGGER.error("Task " + tId + " failed to execute.", e);
+			}
+			
+			ByteArrayOutputStream queryResponseBos = new ByteArrayOutputStream();
+			ResultSetFormatter.outputAsJSON(queryResponseBos, rs);
+			byte[] results = queryResponseBos.toByteArray();
+			LOGGER.info("Task " + tId + " executed successfully.");
+			qexec.close();
+			
+			try {
+				sendResultToEvalStorage(tId, results);
+				LOGGER.info("Results sent to evaluation storage.");
+			} catch (IOException e) {
+				LOGGER.error("Exception while sending storage space cost to evaluation storage.", e);
+			}
+		} 
 	}
 	
-	private long getDatasetSize() {
-		checkpoint();
-		File dbFile = new File("/usr/local/virtuoso-opensource/var/lib/virtuoso/db/virtuoso.db");
-		return dbFile.length();
-	}
-	
-	private void checkpoint() {
-		String scriptFilePath = System.getProperty("user.dir") + File.separator + "checkpoint.sh";
-		String[] command = {"/bin/bash", scriptFilePath };
-		try {
-			LOGGER.info("Executing checkpoint...");
-			Process p = new ProcessBuilder(command).redirectErrorStream(true).start();
-			p.waitFor();
-		} catch (IOException e) {
-			LOGGER.error("Exception while executing checkpoint on virtuoso database.", e);
-		} catch (InterruptedException e) {
-			LOGGER.error("Exception while executing checkpoint on virtuoso database.", e);
-		}
-	}
-	
-	// returns the number of loaded triples to check if all version's triples loaded successfully.
-	// have to return the total number of changes with respect to previous version in v2.0 of the benchmark 
-	private String loadVersion(int versionNum) {
+	private void loadVersion(int versionNum) {
 		LOGGER.info("Loading version " + versionNum + "...");
-		String answer = null;
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load.sh";
 			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(generatedDataFormat), Integer.toString(versionNum) };
@@ -214,10 +153,6 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
 			while ((line = in.readLine()) != null) {
-				if(line.startsWith("triples")) {
-					answer = line;
-					continue;
-				}
 				LOGGER.info(line);		
 			}
 			p.waitFor();
@@ -227,18 +162,41 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
             LOGGER.error("Exception while executing script for loading data.", e);
 		} catch (InterruptedException e) {
             LOGGER.error("Exception while executing script for loading data.", e);
-		}	
-		return answer;
+		}
 	}
 	
 	@Override
     public void receiveCommand(byte command, byte[] data) {
-    	if (VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED == command) {
-			LOGGER.info("Received signal from Data Generator that data generation finished.");
-    		dataGenFinished = true;
-    	} else if(VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED == command) {
-			LOGGER.info("Received signal that all generated data loaded successfully.");
-    		dataLoadingFinished = true;
+    	if (command == VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED) {
+    		ByteBuffer buffer = ByteBuffer.wrap(data);
+            int numberOfMessages = buffer.getInt();
+            boolean lastLoadingPhase = buffer.get() != 0;
+   			LOGGER.info("Received signal that all data of version " + loadingVersion + " successfully sent from all data generators (#" + numberOfMessages + ")");
+
+			// if all data have been received before BULK_LOAD_DATA_GEN_FINISHED command received
+   			// release before acquire, so it can immediately proceed to bulk loading
+   			if(totalReceived.get() == totalSent.addAndGet(numberOfMessages)) {
+				allVersionDataReceivedMutex.release();
+			}
+			
+			LOGGER.info("Wait for receiving all data of version " + loadingVersion + ".");
+			try {
+				allVersionDataReceivedMutex.acquire();
+			} catch (InterruptedException e) {
+				LOGGER.error("Exception while waitting for all data of version " + loadingVersion + " to be recieved.", e);
+			}
+			
+			LOGGER.info("All data of version " + loadingVersion + " received. Proceed to the loading of such version.");
+			loadVersion(loadingVersion);
+			
+			LOGGER.info("Send signal to Benchmark Controller that all data of version " + loadingVersion + " successfully loaded.");
+			try {
+				sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED);
+			} catch (IOException e) {
+				LOGGER.error("Exception while sending signal that all data of version " + loadingVersion + " successfully loaded.", e);
+			}
+			loadingVersion++;
+			dataLoadingFinished = lastLoadingPhase;
     	}
     	super.receiveCommand(command, data);
     }
@@ -248,8 +206,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		LOGGER.info("Closing System Adapter...");
         // Always close the super class after yours!
         super.close();
-        //
-		LOGGER.info("System Adapter closed successfully.");
+        LOGGER.info("System Adapter closed successfully.");
 
     }
 }

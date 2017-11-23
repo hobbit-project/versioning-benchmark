@@ -127,7 +127,7 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 					}
 					LOGGER.info(count + " triples loaded for version " + version + ".");
 					
-					// r43ples do not let me execute a query (through curl) and then add more data
+					// r43ples does not let me execute a query (through curl) and then add more data
 					// (through console-client.jar -a), as tdb stays locked from query (pid of server)
 					// So, i restart the server for getting a different pid and overcome this problem
 					serverRestart();

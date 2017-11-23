@@ -1,4 +1,3 @@
-#  Query name : query2.4
 #  Query Type: 2, Modern single-version structured query
 #  Query Description : 
 #  Retrieve from the current version, all creative works that contain a certain word 

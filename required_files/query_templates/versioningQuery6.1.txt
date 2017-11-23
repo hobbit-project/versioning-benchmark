@@ -1,4 +1,3 @@
-#  Query Name : query6
 #  Query Type: 6, Single-delta structured queries (queries performed on changes of two consecutive versions (delta))
 #  Query Description : 
 #  Retreive the difference in the number of Blog Posts between two versions 

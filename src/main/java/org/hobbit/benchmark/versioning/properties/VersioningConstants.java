@@ -9,6 +9,10 @@ package org.hobbit.benchmark.versioning.properties;
  */
 public final class VersioningConstants {
 	
+	// =============== COMMAND QUEUE CONSTANTS ===============
+	
+	public static final byte DATA_GEN_VERSION_DATA_SENT = (byte) 301;
+		
 	// =============== DATA GENERATOR CONSTANTS ===============
 
 	public static final String DATA_GENERATOR_SEED = "data-generator_seed";
@@ -66,5 +70,13 @@ public final class VersioningConstants {
 	public static final String QT_8_AVG_EXEC_TIME = "query-type-8_avgerage_execution_time";
 
 	public static final String QUERY_FAILURES = "query-failures";
+	
+	public static final String QUERIES_PER_SECOND = "queries-per-second";
+	
+	public static final String LOADING_TIMES = "version-%d_loading-time";
+	
+	public static final String TRIPLES_TO_BE_LOADED= "version-%d_triples-to-be-loaded";
+
+	public static final String TOTAL_VERSIONS = "versions_number";
 
 }

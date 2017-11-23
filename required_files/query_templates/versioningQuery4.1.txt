@@ -1,4 +1,3 @@
-#  Query Name : query4.1
 #  Query Type: 4, Historical single-version structured query
 #  Query Description : 
 #  Retrieve the 10 most recent creative works, that are about or mention different topics of a specific past version. 

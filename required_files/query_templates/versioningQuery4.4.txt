@@ -1,4 +1,3 @@
-#  Query name : query4.4
 #  Query Type: 4, Historical single-version structured query
 #  Query Description : 
 #  Retrieve all creative works from a specific past version, which contain a a certain word 

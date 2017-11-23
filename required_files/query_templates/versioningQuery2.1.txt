@@ -1,4 +1,3 @@
-#  Query Name : query2.1
 #  Query Type: 2, Modern single-version structured query
 #  Query Description : 
 #  Retrieve from the current version, the 10 most recent creative works that are about or mention different topics. 

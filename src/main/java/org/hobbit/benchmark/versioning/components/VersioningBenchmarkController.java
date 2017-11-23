@@ -1,14 +1,21 @@
 package org.hobbit.benchmark.versioning.components;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Properties;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
+import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
 import org.hobbit.core.Commands;
 import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractBenchmarkController;
+import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,20 +32,34 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private String[] evalModuleEnvVariables = null;
     private String[] dataGenEnvVariables = null;
     private String[] evalStorageEnvVariables = null;
+    
+    private Semaphore versionSentMutex = new Semaphore(0);
+    private Semaphore versionLoadedMutex = new Semaphore(0);
+    
+    private int numberOfDataGenerators;
+    private int numOfVersions;
+    private int loadedVersion = 0;
+    private long prevLoadingStartedTime = 0;
+    private long[] loadingTimes;
+    private AtomicIntegerArray triplesToBeLoaded;
+    private AtomicInteger numberOfMessages = new AtomicInteger(0);
 
 	@Override
 	public void init() throws Exception {
         LOGGER.info("Initilalizing Benchmark Controller...");
         super.init();
         
-		int numberOfDataGenerators = (Integer) getProperty(PREFIX + "hasNumberOfGenerators", 1);
+		numberOfDataGenerators = (Integer) getProperty(PREFIX + "hasNumberOfGenerators", 1);
 		int datasetSize =  (Integer) getProperty(PREFIX + "datasetSizeInTriples", 1000000);
 		int generatorSeed =  (Integer) getProperty(PREFIX + "generatorSeed", 0);
-		int numOfVersions =  (Integer) getProperty(PREFIX + "numberOfVersions", 12);
+		numOfVersions =  (Integer) getProperty(PREFIX + "numberOfVersions", 12);
 		int seedYear =  (Integer) getProperty(PREFIX + "seedYear", 2010);
 		int dataGenInYears =  (Integer) getProperty(PREFIX + "generationPeriodInYears", 1);
 		String serializationFormat = (String) getProperty(PREFIX + "generatedDataFormat", "n-triples");
 		int subsParametersAmount = (Integer) getProperty(PREFIX + "querySubstitutionParameters", 10);
+		
+		loadingTimes = new long[numOfVersions];
+		triplesToBeLoaded = new AtomicIntegerArray(numOfVersions);
 		
 		// data generators environmental values
 		dataGenEnvVariables = new String[] {
@@ -65,9 +86,9 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 				VersioningConstants.QT_6_AVG_EXEC_TIME + "=" + PREFIX + "queryType6AvgExecTime",
 				VersioningConstants.QT_7_AVG_EXEC_TIME + "=" + PREFIX + "queryType7AvgExecTime",
 				VersioningConstants.QT_8_AVG_EXEC_TIME + "=" + PREFIX + "queryType8AvgExecTime",
-				VersioningConstants.QUERY_FAILURES + "=" + PREFIX + "queryFailures"
+				VersioningConstants.QUERY_FAILURES + "=" + PREFIX + "queryFailures",
+				VersioningConstants.QUERIES_PER_SECOND + "=" + PREFIX + "queriesPerSecond"
 		};
-		
 		
 		evalStorageEnvVariables = ArrayUtils.add(DEFAULT_EVAL_STORAGE_PARAMETERS,
                 Constants.RABBIT_MQ_HOST_NAME_KEY + "=" + this.rabbitMQHostName);
@@ -134,6 +155,34 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		return propertyValue;
 	}
 	
+	@Override
+    public void receiveCommand(byte command, byte[] data) {
+        if (command == VersioningConstants.DATA_GEN_VERSION_DATA_SENT) {
+        	// TODO: 
+        	// triplesToBeLoaded information have to be sent by the external component 
+        	// computing the gold standard. Only the number of messages and data generator's
+        	// id will be sent with DATA_GEN_VERSION_SENT command
+        	ByteBuffer buffer = ByteBuffer.wrap(data);
+        	int triplesNum = buffer.getInt();
+            int dataGeneratorId = buffer.getInt();
+            int dataGenNumOfMessages = buffer.getInt();
+        	triplesToBeLoaded.addAndGet(loadedVersion, triplesNum);
+        	numberOfMessages.addAndGet(dataGenNumOfMessages);
+        	
+        	// signal sent from data generator that all its data generated successfully
+        	LOGGER.info("Recieved signal from Data Generator " + dataGeneratorId + " that all data (#" + dataGenNumOfMessages + ") of version " + loadedVersion + " successfully sent to System Adapter.");
+        	versionSentMutex.release();
+	    } else if (command == VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
+            // signal sent from system adapter that a version loaded successfully
+        	long currTimeMillis = System.currentTimeMillis();
+        	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
+        	loadingTimes[loadedVersion++] = versionLoadingTime;
+        	prevLoadingStartedTime = currTimeMillis;
+        	versionLoadedMutex.release();
+        } 
+        super.receiveCommand(command, data);
+    }
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -146,6 +195,27 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         sendToCmdQueue(Commands.TASK_GENERATOR_START_SIGNAL);
         sendToCmdQueue(Commands.DATA_GENERATOR_START_SIGNAL);
 		LOGGER.info("Start signals sent to Data and Task Generators");
+
+		// iterate through different versions starting from version 0
+		for (int v=0; v<numOfVersions; v++) {			
+			// wait for all data generators to sent data of version v to system adapter
+			LOGGER.info("Waiting for all data generators to send data of version " + v + " to system adapter.");
+			versionSentMutex.acquire(numberOfDataGenerators);
+			LOGGER.info("Signal from all data generators received.");
+			
+			// Send signal that all data, generated and sent to system adapter successfully.
+			// The number of messages along with a flag is also sent
+			LOGGER.info("Send signal to System Adapter that the sending of all data of version " + v + " from Data Generators have finished.");
+			ByteBuffer buffer = ByteBuffer.allocate(5);
+	        buffer.putInt(numberOfMessages.get());
+	        buffer.put(v == numOfVersions - 1 ? (byte) 1 : (byte) 0);
+	        prevLoadingStartedTime = System.currentTimeMillis();
+	        sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED, buffer.array());
+	        numberOfMessages.set(0);
+	        
+	        LOGGER.info("Waiting for the system to load data of version " + v);
+			versionLoadedMutex.acquire();
+		}
 
         // wait for the data generators to finish their work
         LOGGER.info("Waiting for the data generators to finish their work.");
@@ -162,6 +232,19 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         waitForSystemToFinish(1000 * 60 * 5);
         LOGGER.info("System terminated.");
         
+        // pass the number of versions composing the dataset to the environment 
+        // variables of the evaluation module
+        evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, VersioningConstants.TOTAL_VERSIONS + "=" + numOfVersions);
+        
+        // pass the loading times and the number of triples that have to be loaded to 
+        // the environment variables of the evaluation module, so that it can compute
+        // the ingestion and applied changes speeds
+        for(int version=0; version<numOfVersions; version++) {
+        	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
+        			String.format(VersioningConstants.TRIPLES_TO_BE_LOADED, version) + "=" + triplesToBeLoaded.get(version));
+        	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
+        			String.format(VersioningConstants.LOADING_TIMES, version) + "=" + loadingTimes[version]);
+        }
         // create the evaluation module
         createEvaluationModule(EVALUATION_MODULE_CONTAINER_IMAGE, evalModuleEnvVariables);
         
