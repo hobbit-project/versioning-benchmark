@@ -632,7 +632,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	    			if(getGeneratorId() == 0) {
 		    			// send ontology files to the system
 		    			File ontologiesPathFile = new File(ontologiesPath);
-		    			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
+		    			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "ttl" }, true);
 		    			for (File file : ontologiesFiles) {
 		    				String graphUri = "http://datagen.ontology." + file.getName();
 		    				byte data[] = FileUtils.readFileToByteArray(file);

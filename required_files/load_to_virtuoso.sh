@@ -8,15 +8,15 @@ SERIALIZATION_FORMAT=$1
 NUMBER_OF_VERSIONS=$2
 
 # check adjusted virtuoso memory usage
-NumberOfBuffers=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','NumberOfBuffers');" | sed -n 9p)
-MaxDirtyBuffers=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','MaxDirtyBuffers');" | sed -n 9p)
-AsyncQueueMaxThreads=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','AsyncQueueMaxThreads');" | sed -n 9p)
-ThreadsPerQuery=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','ThreadsPerQuery');" | sed -n 9p)
-echo "Virtuoso adjusted memory usage:" 
-echo "NumberOfBuffers="$NumberOfBuffers
-echo "MaxDirtyBuffers="$MaxDirtyBuffers
-echo "AsyncQueueMaxThreads="$AsyncQueueMaxThreads
-echo "ThreadsPerQuery="$ThreadsPerQuery
+#NumberOfBuffers=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','NumberOfBuffers');" | sed -n 9p)
+#MaxDirtyBuffers=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','MaxDirtyBuffers');" | sed -n 9p)
+#AsyncQueueMaxThreads=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','AsyncQueueMaxThreads');" | sed -n 9p)
+#ThreadsPerQuery=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','ThreadsPerQuery');" | sed -n 9p)
+#echo "Virtuoso adjusted memory usage:" 
+#echo "NumberOfBuffers="$NumberOfBuffers
+#echo "MaxDirtyBuffers="$MaxDirtyBuffers
+#echo "AsyncQueueMaxThreads="$AsyncQueueMaxThreads
+#echo "ThreadsPerQuery="$ThreadsPerQuery
 
 for ((i=0; i<$NUMBER_OF_VERSIONS; i++)) do
    start_load=$(($(date +%s%N)/1000000))
@@ -24,7 +24,7 @@ for ((i=0; i<$NUMBER_OF_VERSIONS; i++)) do
    $VIRTUOSO_BIN/isql 1112 dba dba exec="sparql clear GRAPH <$GRAPH_NAME$i>;" > /dev/null
 
    # load ontologies and triples of v0
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$ONTOLOGIES_PATH', '*.nt', '$GRAPH_NAME$i');" > /dev/null
+$VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$ONTOLOGIES_PATH', '*.ttl', '$GRAPH_NAME$i');" > /dev/null
    $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$DATASETS_PATH"v0"', '*.$SERIALIZATION_FORMAT', '$GRAPH_NAME$i');" > /dev/null
 
    # load triples of remaining change sets
