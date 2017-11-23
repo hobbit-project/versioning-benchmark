@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.net.ftp.FTPClient;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -53,7 +51,23 @@ import eu.ldbc.semanticpublishing.substitutionparameters.SubstitutionParametersG
 import eu.ldbc.semanticpublishing.substitutionparameters.SubstitutionQueryParametersManager;
 import eu.ldbc.semanticpublishing.templates.MustacheTemplate;
 import eu.ldbc.semanticpublishing.templates.VersioningMustacheTemplatesHolder;
-import eu.ldbc.semanticpublishing.templates.versioning.*;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery1_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_2Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_3Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_4Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery3_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_2Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_3Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_4Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery5_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery6_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery7_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_2Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_3Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_4Template;
 import eu.ldbc.semanticpublishing.util.AllocationsUtil;
 import eu.ldbc.semanticpublishing.util.RandomUtil;
 
@@ -237,11 +251,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		// list the 5 dbpedia files
     	File dbpediaPathFile = new File(dbpediaPath);
-		List<File> addedDataFiles = (List<File>) FileUtils.listFiles(dbpediaPathFile, new String[] { "added.ttl" }, false);
-		Collections.sort(addedDataFiles);
-
-		List<File> deletedDataFiles = (List<File>) FileUtils.listFiles(dbpediaPathFile, new String[] { "deleted.ttl" }, false);
-		Collections.sort(deletedDataFiles);
+    	List<File> dataFiles = (List<File>) FileUtils.listFiles(dbpediaPathFile, new String[] { ".nt" }, false);
+		Collections.sort(dataFiles);
 
 		int dbpediaIndex = 0;
 		
@@ -255,24 +266,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					dbPediaVersionsDistribution[i] = 1;
 					// copy the dbpedia file to the appropriate version dir, determined by the index i
 					try {
-						if(i == 0) {
-							String addedFileName = addedDataFiles.get(dbpediaIndex).getName();
-							File addedFrom = new File(dbpediaPath + File.separator + addedFileName);
-							File addedTo = new File(initialVersionDataPath + File.separator + addedFileName);
-							Files.copy(addedFrom, addedTo);
-						} else {
-							String addedToParentDir = generatedDatasetPath + File.separator + "c" + i + File.separator;							
-							String addedFileName = addedDataFiles.get(dbpediaIndex).getName();
-							File addedFrom = new File(dbpediaPath + File.separator + addedFileName);
-							File addedTo = new File(addedToParentDir + addedFileName);
-							Files.copy(addedFrom, addedTo);
-							
-							// dbpediaIndex-1 because for version 0 we do not have deleted triples
-							String deletedFileName = deletedDataFiles.get(dbpediaIndex - 1).getName();
-							File deletedFrom = new File(dbpediaPath + File.separator + deletedFileName);
-							File deletedTo = new File(addedToParentDir + deletedFileName);
-							Files.copy(deletedFrom, deletedTo);
-						}
+						String toParentDir = generatedDatasetPath + File.separator + (i == 0 ? "v" : "c") + i + File.separator;							
+						String fileName = dataFiles.get(dbpediaIndex).getName();
+						File from = new File(dbpediaPath + File.separator + fileName);
+						File to = new File(toParentDir + fileName);
+						Files.copy(from, to);
 					} catch(IOException e) {
 						LOGGER.error("Exception caught during the copy of dbpedia files to the appropriate version dir", e);
 					}
@@ -747,7 +745,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	    			if(getGeneratorId() == 0) {
 		    			// send ontology files to the system
 		    			File ontologiesPathFile = new File(ontologiesPath);
-		    			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
+		    			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "ttl" }, true);
 		    			for (File file : ontologiesFiles) {
 		    				String graphUri = "http://datagen.ontology." + file.getName();
 		    				byte data[] = FileUtils.readFileToByteArray(file);
@@ -826,17 +824,22 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Loading generated data, up to version " + n + ", to Virtuoso triplestore...");
 
 		try {
-			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load_to_virtuoso.sh";
+			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load_to_virtuoso_test.sh";
 			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(serializationFormat), Integer.toString(n) };
 			Process p = new ProcessBuilder(command).start();
-			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line;
-			while ((line = in.readLine()) != null) {
+			while ((line = stdInput.readLine()) != null) {
+				LOGGER.info(line);
+			}
+			while ((line = stdError.readLine()) != null) {
 				LOGGER.info(line);
 			}
 			p.waitFor();
 			LOGGER.info("Generated data loaded successfully.");
-			in.close();
+			stdInput.close();
+			stdError.close();
 		} catch (IOException e) {
             LOGGER.error("Exception while executing script for loading data.", e);
 		} catch (InterruptedException e) {
