@@ -32,7 +32,7 @@ prll_rdf_loader_run() {
 
 start_load=$(($(date +%s%N)/1000000))
 # load version 0
-$VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$ONTOLOGIES_PATH', '*.$SERIALIZATION_FORMAT', '"$GRAPH_NAME"0');" > /dev/null
+$VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$ONTOLOGIES_PATH', '*.ttl', '"$GRAPH_NAME"0');" > /dev/null
 $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('"$DATASETS_PATH"v0', '*.added.$SERIALIZATION_FORMAT', '"$GRAPH_NAME"0');" > /dev/null  
 prll_rdf_loader_run $rdf_loaders
 end_load=$(($(date +%s%N)/1000000))

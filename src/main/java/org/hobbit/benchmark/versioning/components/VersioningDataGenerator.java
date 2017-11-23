@@ -250,9 +250,20 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		Arrays.fill(dbPediaVersionsDistribution, step == 0 ? 1 : 0);
 		
 		// list the 5 dbpedia files
-    	File dbpediaPathFile = new File(dbpediaPath);
-    	List<File> dataFiles = (List<File>) FileUtils.listFiles(dbpediaPathFile, new String[] { ".nt" }, false);
-		Collections.sort(dataFiles);
+		String dbpediaFinalPath = dbpediaPath + File.separator + "final";
+    	File finalDbpediaPathFile = new File(dbpediaFinalPath);
+    	List<File> finalDbpediaFiles = (List<File>) FileUtils.listFiles(finalDbpediaPathFile, new String[] { "nt" }, false);
+		Collections.sort(finalDbpediaFiles);
+		LOGGER.info("dbpedia versions: " + finalDbpediaFiles.size());
+		LOGGER.info("dbpediaFinalPath: " + dbpediaFinalPath);
+		
+		// list the changesets for dbpedia files
+		String changesetsPath = dbpediaPath + File.separator + "changesets";
+    	File changesetsDbpediaPathFile = new File(changesetsPath);
+		List<File> addedDataFiles = (List<File>) FileUtils.listFiles(changesetsDbpediaPathFile, new String[] { "added.nt" }, false);
+		Collections.sort(addedDataFiles);
+		List<File> deletedDataFiles = (List<File>) FileUtils.listFiles(changesetsDbpediaPathFile, new String[] { "deleted.nt" }, false);
+		Collections.sort(deletedDataFiles);
 
 		int dbpediaIndex = 0;
 		
@@ -266,11 +277,25 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					dbPediaVersionsDistribution[i] = 1;
 					// copy the dbpedia file to the appropriate version dir, determined by the index i
 					try {
-						String toParentDir = generatedDatasetPath + File.separator + (i == 0 ? "v" : "c") + i + File.separator;							
-						String fileName = dataFiles.get(dbpediaIndex).getName();
-						File from = new File(dbpediaPath + File.separator + fileName);
-						File to = new File(toParentDir + fileName);
-						Files.copy(from, to);
+						String destinationParent = generatedDatasetPath + File.separator + (i == 0 ? "v" : "c") + i + File.separator;							
+
+						// copy the final dbpedia file that will be used from the datagenerator
+						File finalFrom = finalDbpediaFiles.get(dbpediaIndex);
+						File finalTo = new File(destinationParent + "dbpedia_final" + File.separator + finalFrom.getName());
+						FileUtils.copyFile(finalFrom, finalTo);					
+						
+						// copy the addset that will be sent to the system
+						File addedFrom = addedDataFiles.get(dbpediaIndex);
+						File addedTo = new File(destinationParent + addedFrom.getName());
+						FileUtils.copyFile(addedFrom, addedTo);
+						
+						if(i > 0) {
+							// copy the deletset that will be sent to the system
+							// dbpediaIndex-1 because for version 0 we do not have deleted triples
+							File deletedFrom = deletedDataFiles.get(dbpediaIndex - 1);
+							File deletedTo = new File(destinationParent + deletedFrom.getName());
+							FileUtils.copyFile(deletedFrom, deletedTo);
+						}
 					} catch(IOException e) {
 						LOGGER.error("Exception caught during the copy of dbpedia files to the appropriate version dir", e);
 					}
