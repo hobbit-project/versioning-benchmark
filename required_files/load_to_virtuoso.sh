@@ -1,27 +1,18 @@
-#!/bin/sh
+#!/bin/bash
 
 VIRTUOSO_BIN=/opt/virtuoso-opensource/bin
 GRAPH_NAME=http://graph.version.
-DATASETS_PATH=/versioning/data/
-ONTOLOGIES_PATH=/versioning/ontologies/
+DATASETS_PATH=/versioning/data
+DATASETS_PATH_FINAL=/versioning/data/final
+ONTOLOGIES_PATH=/versioning/ontologies
 SERIALIZATION_FORMAT=$1
 NUMBER_OF_VERSIONS=$2
 total_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
 rdf_loaders=$(awk "BEGIN {printf \"%d\", $total_cores/2.5}")
-start_load=0
-end_load=0
-start_size=0
-end_size=0
-start_copy=0
-end_copy=0
-start_add=0
-end_add=0
-start_del=0
-end_del=0
 
 prll_rdf_loader_run() {
    $VIRTUOSO_BIN/isql 1112 dba dba exec="set isolation='uncommitted';" > /dev/null
-   for ((j=0; j<$1; j++)) do  
+   for ((j=0; j<$1; j++)); do  
       $VIRTUOSO_BIN/isql 1112 dba dba exec="rdf_loader_run();" > /dev/null &
    done
    wait
@@ -30,48 +21,70 @@ prll_rdf_loader_run() {
    $VIRTUOSO_BIN/isql 1112 dba dba exec="set isolation='committed';" > /dev/null
 }
 
-start_load=$(($(date +%s%N)/1000000))
-# load version 0
-$VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$ONTOLOGIES_PATH', '*.ttl', '"$GRAPH_NAME"0');" > /dev/null
-$VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('"$DATASETS_PATH"v0', '*.added.$SERIALIZATION_FORMAT', '"$GRAPH_NAME"0');" > /dev/null  
-prll_rdf_loader_run $rdf_loaders
-end_load=$(($(date +%s%N)/1000000))
+# prepare cw data files for loading
+# sort files
+start_sort=$(($(date +%s%N)/1000000))
+for f in $(find $DATASETS_PATH -name 'generatedCreativeWorks-*.nt'); do 
+   sort "$f" -o "$f" 
+done
+end_sort=$(($(date +%s%N)/1000000))
+sorttime=$(($end_sort - $start_sort))
 
-# load the remaining versions
-for ((i=1; i<$NUMBER_OF_VERSIONS; i++)) do
-   prev_version=$((i-1))
-
+# copy and compute the addsets 
+mkdir $DATASETS_PATH_FINAL
+for ((i=0; i<$NUMBER_OF_VERSIONS; i++)); do
    start_load=$(($(date +%s%N)/1000000))
 
-   # get the total size of loaded triples
+   if [ "$i" = "0" ]; then
+      cp -r $DATASETS_PATH/v0 $DATASETS_PATH_FINAL
+      cp $ONTOLOGIES_PATH/* $DATASETS_PATH_FINAL/v0
+   else
+      mkdir $DATASETS_PATH_FINAL/v$i
+      cp $ONTOLOGIES_PATH/* $DATASETS_PATH_FINAL/v$i
+      prev=$((i-1))
+
+      # dbpedia
+      # if current version contains dbpedia copy the dbpedia version, else copy the previous version
+      if ls $DATASETS_PATH/c$i/dbpedia_final/dbpedia_*_1000_entities.nt 1> /dev/null 2>&1; then
+        # copy the current version
+        cp $DATASETS_PATH/c$i/dbpedia_final/dbpedia_*_1000_entities.nt $DATASETS_PATH_FINAL/v$i
+      else
+	 cp $DATASETS_PATH_FINAL/v$prev/dbpedia_*.nt $DATASETS_PATH_FINAL/v$i
+      fi
+      
+      # creative works
+      if ls $DATASETS_PATH/c$i/generatedCreativeWorks-*.deleted.nt 1> /dev/null 2>&1; then
+         # compute the old creative works that still exist
+         for f in $DATASETS_PATH_FINAL/v$prev/generatedCreativeWorks*.added.nt; do
+            comm_command="comm -23 $f "
+            for ff in $DATASETS_PATH/c$i/generatedCreativeWorks*.deleted.nt; do
+               comm_command+="$ff | comm -23 - "
+            done
+            filename=$(basename "$f")
+            comm_command=${comm_command::-14}
+            eval $comm_command > $DATASETS_PATH_FINAL/v$i/$filename
+         done
+      else
+         # copy the previous added
+         cp $DATASETS_PATH_FINAL/v$prev/generatedCreativeWorks*.added.nt $DATASETS_PATH_FINAL/v$i
+      fi
+      # copy the current added
+      cp $DATASETS_PATH/c$i/generatedCreativeWorks*.added.nt $DATASETS_PATH_FINAL/v$i
+   fi
+   end_compute=$(($(date +%s%N)/1000000))
+
+   # bulk load
+   $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$DATASETS_PATH_FINAL/v$i', '*', '$GRAPH_NAME$i');" > /dev/null
+   prll_rdf_loader_run $rdf_loaders
+
    start_size=$(($(date +%s%N)/1000000))
-   result=$($VIRTUOSO_BIN/isql 1112 dba dba exec="sparql select count(*) from <$GRAPH_NAME$prev_version> where { ?s ?p ?o };" | sed -n 9p) > /dev/null
-   end_size=$(($(date +%s%N)/1000000))
+   result=$($VIRTUOSO_BIN/isql 1112 dba dba exec="sparql select count(*) from <$GRAPH_NAME$i> where { ?s ?p ?o };" | sed -n 9p) > /dev/null
+   end_load=$(($(date +%s%N)/1000000))
 
-   loadingtime=$(($end_size - $start_load))
-   sizetime=$(($end_size - $start_size))
-   copytime=$(($end_copy - $start_copy))
-   addtime=$(($end_add - $start_add))
-   deltime=$(($end_del - $start_del))
+   computetime=$(($end_compute - $start_load))
+   sizetime=$(($end_load - $start_size))
+   rdfload=$(($start_size - $end_compute))
+   loadingtime=$(($end_load - $start_load))
 
-   echo $(echo $result | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') "triples loaded to graph <"$GRAPH_NAME$prev_version">, using" $rdf_loaders "rdf loaders. Time : "$loadingtime" ms (size: "$sizetime", copy: "$copytime", add: "$addtime", del: "$deltime")"
-
-   # copy triples of the previous version
-   start_copy=$(($(date +%s%N)/1000000))
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="sparql insert { graph <$GRAPH_NAME$i> { ?s ?p ?o } } where { graph <$GRAPH_NAME$prev_version> { ?s ?p ?o } };" > /dev/null
-   end_copy=$(($(date +%s%N)/1000000))
-
-   # add the addsets
-   start_add=$(($(date +%s%N)/1000000))
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('"$DATASETS_PATH"c"$i"', '*.added.$SERIALIZATION_FORMAT', '$GRAPH_NAME$i');" > /dev/null 
-   prll_rdf_loader_run $rdf_loaders
-   end_add=$(($(date +%s%N)/1000000))
-
-   # delete the deletesets
-   start_del=$(($(date +%s%N)/1000000))
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('"$DATASETS_PATH"c"$i"', '*.deleted.$SERIALIZATION_FORMAT', '$GRAPH_NAME$i.deleted');" > /dev/null
-   prll_rdf_loader_run $rdf_loaders
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="sparql delete { graph <$GRAPH_NAME$i> { ?s ?p ?o} } where { graph <$GRAPH_NAME$i.deleted> { ?s ?p ?o } };" > /dev/null
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="sparql drop silent graph <$GRAPH_NAME$i.deleted>;" > /dev/null
-   end_del=$(($(date +%s%N)/1000000))
+   echo $(echo $result | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') "triples loaded to graph <"$GRAPH_NAME$i">, using" $rdf_loaders "rdf loaders. Time : "$loadingtime" ms (prepare: "$computetime", rdfload: "$rdfload", size: "$sizetime")"
 done

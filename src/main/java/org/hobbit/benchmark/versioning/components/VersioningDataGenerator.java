@@ -169,7 +169,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// TODO: support changes
 		int preVersionDeletedCWs = 0;
 		long changeSetStart = System.currentTimeMillis();
-		for(int i=1; i<numberOfVersions; i++) {
+		for(int i = 1; i < numberOfVersions; i++) {
 			int triplesToBeAdded = Math.round(versionInsertionRatio / 100f * cwsToBeLoaded[i-1]);
 			int triplesToBeDeleted = Math.round(versionDeletionRatio / 100f * cwsToBeLoaded[i-1]);
 			cwsToBeLoaded[i] = cwsToBeLoaded[i-1] + triplesToBeAdded - triplesToBeDeleted;
@@ -184,9 +184,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			int currVersionDeletedCreativeWorks = 0;
 			int currVersionDeletedTriples = 0;
 			int creativeWorkAvgTriples = DataManager.randomTriples.intValue() / DataManager.randomCreativeWorkIdsList.size();
-			LOGGER.info("totalRandomTriples: "+DataManager.randomTriples.intValue());
-			LOGGER.info("totalRandomCWs: "+DataManager.randomCreativeWorkIdsList.size());
-			LOGGER.info("creativeWorkAvgTriples: "+creativeWorkAvgTriples);
 
 			// Estimate the total number of creative works that have to be deleted, using 
 			// creative work average triples that have been generated so far.
@@ -289,8 +286,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
     	File finalDbpediaPathFile = new File(dbpediaFinalPath);
     	List<File> finalDbpediaFiles = (List<File>) FileUtils.listFiles(finalDbpediaPathFile, new String[] { "nt" }, false);
 		Collections.sort(finalDbpediaFiles);
-		LOGGER.info("dbpedia versions: " + finalDbpediaFiles.size());
-		LOGGER.info("dbpediaFinalPath: " + dbpediaFinalPath);
 		
 		// list the changesets for dbpedia files
 		String changesetsPath = dbpediaPath + File.separator + "changesets";
@@ -884,7 +879,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Loading generated data, up to version " + n + ", to Virtuoso triplestore...");
 
 		try {
-			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load_to_virtuoso_test.sh";
+			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load_to_virtuoso.sh";
 			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(serializationFormat), Integer.toString(n) };
 			Process p = new ProcessBuilder(command).start();
 			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
