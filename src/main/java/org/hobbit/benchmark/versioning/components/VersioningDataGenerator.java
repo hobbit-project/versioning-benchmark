@@ -243,10 +243,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		LOGGER.info("Loading generating data, in order to compute gold standard...");
 		// load generated creative works to virtuoso, in order to compute the gold standard
-		long start = System.currentTimeMillis();
 		loadFirstNVersions(numberOfVersions);
-		long end = System.currentTimeMillis();
-		LOGGER.info("Loading of all version completed in " + (end - start) + " ms.");
 		
 		// compute expected answers for all tasks
 		LOGGER.info("Computing expected answers for generated SPARQL tasks...");
@@ -442,7 +439,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	public void computeExpectedAnswers() {	
 		// compute the number of triples that expected to be loaded by the system.
 		// so the evaluation module can compute the ingestion and average changes speeds
-		for (int version=0; version<numberOfVersions; version++) {
+		for (int version = 0; version < numberOfVersions; version++) {
 			triplesExpectedToBeLoaded[version] = getVersionSize(version);
 		}
 		

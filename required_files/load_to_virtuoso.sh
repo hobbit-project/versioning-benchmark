@@ -9,7 +9,7 @@ SERIALIZATION_FORMAT=$1
 NUMBER_OF_VERSIONS=$2
 total_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
 rdf_loaders=$(awk "BEGIN {printf \"%d\", $total_cores/2.5}")
-
+echo "total cores: $total_cores"
 prll_rdf_loader_run() {
    $VIRTUOSO_BIN/isql 1112 dba dba exec="set isolation='uncommitted';" > /dev/null
    for ((j=0; j<$1; j++)); do  
@@ -25,16 +25,17 @@ prll_rdf_loader_run() {
 # sort files
 start_sort=$(($(date +%s%N)/1000000))
 for f in $(find $DATASETS_PATH -name 'generatedCreativeWorks-*.nt'); do 
-   sort "$f" -o "$f" 
+   sort "$f" -o "$f"
 done
 end_sort=$(($(date +%s%N)/1000000))
 sorttime=$(($end_sort - $start_sort))
+echo "Sorted generated Creative Works in $sorttime ms."
 
 # copy and compute the addsets 
+start_prepare=$(($(date +%s%N)/1000000))
 mkdir $DATASETS_PATH_FINAL
 for ((i=0; i<$NUMBER_OF_VERSIONS; i++)); do
-   start_load=$(($(date +%s%N)/1000000))
-
+   echo "Constructing v$i..."
    if [ "$i" = "0" ]; then
       cp -r $DATASETS_PATH/v0 $DATASETS_PATH_FINAL
       cp $ONTOLOGIES_PATH/* $DATASETS_PATH_FINAL/v0
@@ -62,8 +63,9 @@ for ((i=0; i<$NUMBER_OF_VERSIONS; i++)); do
             done
             filename=$(basename "$f")
             comm_command=${comm_command::-14}
-            eval $comm_command > $DATASETS_PATH_FINAL/v$i/$filename
+            eval $comm_command > $DATASETS_PATH_FINAL/v$i/$filename &
          done
+         wait
       else
          # copy the previous added
          cp $DATASETS_PATH_FINAL/v$prev/generatedCreativeWorks*.added.nt $DATASETS_PATH_FINAL/v$i
@@ -73,18 +75,26 @@ for ((i=0; i<$NUMBER_OF_VERSIONS; i++)); do
    fi
    end_compute=$(($(date +%s%N)/1000000))
 
-   # bulk load
+   # prepare bulk load
    $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$DATASETS_PATH_FINAL/v$i', '*', '$GRAPH_NAME$i');" > /dev/null
-   prll_rdf_loader_run $rdf_loaders
-
-   start_size=$(($(date +%s%N)/1000000))
-   result=$($VIRTUOSO_BIN/isql 1112 dba dba exec="sparql select count(*) from <$GRAPH_NAME$i> where { ?s ?p ?o };" | sed -n 9p) > /dev/null
-   end_load=$(($(date +%s%N)/1000000))
-
-   computetime=$(($end_compute - $start_load))
-   sizetime=$(($end_load - $start_size))
-   rdfload=$(($start_size - $end_compute))
-   loadingtime=$(($end_load - $start_load))
-
-   echo $(echo $result | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') "triples loaded to graph <"$GRAPH_NAME$i">, using" $rdf_loaders "rdf loaders. Time : "$loadingtime" ms (prepare: "$computetime", rdfload: "$rdfload", size: "$sizetime")"
 done
+end_prepare=$(($(date +%s%N)/1000000))
+
+# bulk load
+echo "Loading data files into virtuoso using $rdf_loaders rdf loaders..."
+prll_rdf_loader_run $rdf_loaders
+end_load=$(($(date +%s%N)/1000000))
+
+for ((j=0; j<$NUMBER_OF_VERSIONS; j++)); do
+   result=$($VIRTUOSO_BIN/isql 1112 dba dba exec="sparql select count(*) from <$GRAPH_NAME$j> where { ?s ?p ?o };" | sed -n 9p) > /dev/null
+   echo $(echo $result | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') "triples loaded to graph <"$GRAPH_NAME$j">"
+done
+end_size=$(($(date +%s%N)/1000000))
+
+preptime=$(($end_prepare - $start_prepare))
+loadingtime=$(($end_load - $end_prepare))
+sizetime=$(($end_size - $end_load))
+overalltime=$(($end_size - $start_sort))
+
+echo "Loading of all generated data to Virtuoso triple store completed successfully. Time: $overalltime ms (preparation: $preptime, loading: $loadingtime, size: $sizetime)"
+
