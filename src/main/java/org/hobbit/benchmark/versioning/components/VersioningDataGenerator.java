@@ -203,7 +203,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					String sourcePath = generatedDatasetPath + File.separator + (j == 0 ? "v" : "c") + j;
 					deletedTriples = extractDeleted(sourcePath, "/versioning/creativeWorksToBeDeleted.txt", destinationPath);
 					currVersionDeletedTriples += deletedTriples;
-//					LOGGER.info("v"+j+" - deletedTriples: " + deletedTriples+", total: "+currVersionDeletedTriples);
 				}
 				currVersionDeletedCreativeWorks += creativeWorksToBeDeleted;
 				// estimation of the remaining creative works that have to be extracted
