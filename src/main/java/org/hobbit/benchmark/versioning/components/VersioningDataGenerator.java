@@ -190,7 +190,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			// Estimate the total number of creative works that have to be deleted, using 
 			// creative work average triples that have been generated so far.
 			int creativeWorksToBeDeleted = triplesToBeDeleted / creativeWorkAvgTriples;
-			LOGGER.info("~" + creativeWorksToBeDeleted + " cworks, estimated that have to be deleted from v" + (i - 1));
+			LOGGER.info(creativeWorksToBeDeleted + " cworks estimated that have to be deleted from v" + (i - 1));
 			while (currVersionDeletedTriples < triplesToBeDeleted) {
 				ArrayList<String> cwToBeDeleted = new ArrayList<String>();
 				for(int c=0; c<creativeWorksToBeDeleted; c++) {
@@ -454,7 +454,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			
 			// execute the query on top of virtuoso to compute the expected answers
 			Query query = QueryFactory.create(taskQuery);
-			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", query);
+			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
 			queryStart = System.currentTimeMillis();
 			try {
 				results = qexec.execSelect();
@@ -740,7 +740,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	 * of reference datasets from the appropriate files.
 	 */
 	private void populateRefDataEntitiesListsFromFiles() throws IOException {
-		String entitiesFullPath = System.getProperty("user.dir") + File.separator + "entities.txt";
+		String entitiesFullPath = System.getProperty("user.dir") + File.separator + "entities_1000.txt";
 		String dbpediaLocationsFullPathName = System.getProperty("user.dir") + File.separator + "dbpediaLocations.txt";
 		String geonamesFullPathName = System.getProperty("user.dir") + File.separator + "geonamesIDs.txt";
 		
