@@ -177,9 +177,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			String destinationPath = generatedDatasetPath + File.separator + "c" + i;
 			
 			// produce the add set
+			LOGGER.info("Generating version " + i + " add-set.");
 			dataGenerator.produceAdded(destinationPath, triplesToBeAdded);
 			
 			// produce the delete set
+			LOGGER.info("Generating version " + i + " delete-set.");
 			long deleteSetStart = System.currentTimeMillis();
 			int currVersionDeletedCreativeWorks = 0;
 			int currVersionDeletedTriples = 0;
@@ -188,7 +190,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			// Estimate the total number of creative works that have to be deleted, using 
 			// creative work average triples that have been generated so far.
 			int creativeWorksToBeDeleted = triplesToBeDeleted / creativeWorkAvgTriples;
-			LOGGER.info("Initial estimation: " + creativeWorksToBeDeleted + " cworks have to be deleted from v" + (i-1));
+			LOGGER.info("~" + creativeWorksToBeDeleted + " cworks, estimated that have to be deleted from v" + (i - 1));
 			while (currVersionDeletedTriples < triplesToBeDeleted) {
 				ArrayList<String> cwToBeDeleted = new ArrayList<String>();
 				for(int c=0; c<creativeWorksToBeDeleted; c++) {
@@ -197,18 +199,15 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					DataManager.remainingRandomCreativeWorkIdsList.remove(deletedCWIndex);
 					cwToBeDeleted.add("http://www.bbc.co.uk/things/" + getGeneratorId() + "-" + creativeWorkToBeDeleted + "#id");
 				}
+				// write down the creative work uris that are going to be deleted
 				FileUtils.writeLines(new File("/versioning/creativeWorksToBeDeleted.txt") , cwToBeDeleted, false);
-				int deletedTriples = 0;
-				for(int j=0; j<i; j++) {
-					String sourcePath = generatedDatasetPath + File.separator + (j == 0 ? "v" : "c") + j;
-					deletedTriples = extractDeleted(sourcePath, "/versioning/creativeWorksToBeDeleted.txt", destinationPath);
-					currVersionDeletedTriples += deletedTriples;
-				}
+				// extract all triples that have to be deleted
+				currVersionDeletedTriples += extractDeleted(i, "/versioning/creativeWorksToBeDeleted.txt", destinationPath, generatedDatasetPath);
 				currVersionDeletedCreativeWorks += creativeWorksToBeDeleted;
 				// estimation of the remaining creative works that have to be extracted
 				creativeWorksToBeDeleted = (int) Math.ceil((double) (triplesToBeDeleted - currVersionDeletedTriples) / creativeWorkAvgTriples);
 				if(creativeWorksToBeDeleted > 0) {
-					LOGGER.info("Estimation: " + creativeWorksToBeDeleted + " more cwork" + (creativeWorksToBeDeleted > 1 ? "s" : "") +" have to be deleted.");
+					LOGGER.info(creativeWorksToBeDeleted + " more cwork" + (creativeWorksToBeDeleted > 1 ? "s" : "") +" estimated that have to be deleted from v" + (i - 1));
 				}
 			}
 			preVersionDeletedCWs = currVersionDeletedCreativeWorks;
@@ -921,19 +920,25 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}		
 	}
 	
-	private int extractDeleted(String sourcePath, String cwIdsFile, String destPath) {
+	private int extractDeleted(int currentVersion, String cwIdsFile, String destPath, String sourcePath) {
 		int deletedTriples = 0;
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "export_cws_tbd.sh";
 			String[] command = {"/bin/bash", scriptFilePath, 
-					sourcePath, cwIdsFile, destPath };
+					Integer.toString(currentVersion), cwIdsFile, destPath, sourcePath };
 			Process p = new ProcessBuilder(command).start();
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line;
 			while ((line = in.readLine()) != null) {
 				deletedTriples += Integer.parseInt(line);
 			}
+			while ((line = stdError.readLine()) != null) {
+				LOGGER.info(line);
+			}
 			p.waitFor();
+			in.close();
+			stdError.close();
 		} catch (IOException e) {
             LOGGER.error("Exception while executing script for extracting creative works that have to be deleted.", e);
 		} catch (InterruptedException e) {
