@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VIRTUOSO_BIN=/opt/virtuoso-opensource/bin
+VIRTUOSO_BIN=/usr/local/virtuoso-opensource/bin
 GRAPH_NAME=http://graph.version.
 DATASETS_PATH=/versioning/data
 DATASETS_PATH_FINAL=/versioning/data/final
@@ -11,14 +11,14 @@ total_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
 rdf_loaders=$(awk "BEGIN {printf \"%d\", $total_cores/2.5}")
 echo "total cores: $total_cores"
 prll_rdf_loader_run() {
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="set isolation='uncommitted';" > /dev/null
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="set isolation='uncommitted';" > /dev/null
    for ((j=0; j<$1; j++)); do  
-      $VIRTUOSO_BIN/isql 1112 dba dba exec="rdf_loader_run();" > /dev/null &
+      $VIRTUOSO_BIN/isql-v 1111 dba dba exec="rdf_loader_run();" > /dev/null &
    done
    wait
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="checkpoint;" > /dev/null
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="delete from load_list;" > /dev/null
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="set isolation='committed';" > /dev/null
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="checkpoint;" > /dev/null
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="delete from load_list;" > /dev/null
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="set isolation='committed';" > /dev/null
 }
 
 # prepare cw data files for loading
@@ -76,7 +76,7 @@ for ((i=0; i<$NUMBER_OF_VERSIONS; i++)); do
    end_compute=$(($(date +%s%N)/1000000))
 
    # prepare bulk load
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$DATASETS_PATH_FINAL/v$i', '*', '$GRAPH_NAME$i');" > /dev/null
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="ld_dir('$DATASETS_PATH_FINAL/v$i', '*', '$GRAPH_NAME$i');" > /dev/null
 done
 end_prepare=$(($(date +%s%N)/1000000))
 
@@ -86,7 +86,7 @@ prll_rdf_loader_run $rdf_loaders
 end_load=$(($(date +%s%N)/1000000))
 
 for ((j=0; j<$NUMBER_OF_VERSIONS; j++)); do
-   result=$($VIRTUOSO_BIN/isql 1112 dba dba exec="sparql select count(*) from <$GRAPH_NAME$j> where { ?s ?p ?o };" | sed -n 9p) > /dev/null
+   result=$($VIRTUOSO_BIN/isql-v 1111 dba dba exec="sparql select count(*) from <$GRAPH_NAME$j> where { ?s ?p ?o };" | sed -n 9p) > /dev/null
    echo $(echo $result | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') "triples loaded to graph <"$GRAPH_NAME$j">"
 done
 end_size=$(($(date +%s%N)/1000000))

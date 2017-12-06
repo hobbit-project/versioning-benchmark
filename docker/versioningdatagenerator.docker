@@ -1,35 +1,6 @@
-FROM ubuntu:trusty
+FROM tenforce/virtuoso
 
-# get Virtuoso
-ENV VIRT_HOME /opt/virtuoso-opensource
-
-ENV VIRT_BUILD_OPTS --with-readline
-
-ENV VIRT_DB /var/lib/virtuoso/db
-
-RUN apt-get -y update && \
-  apt-get -y clean && \
-  apt-get -y install dpkg-dev build-essential && \
-  apt-get -y install autoconf automake libtool flex bison git gperf gawk m4 make libxml2-dev libssl-dev libreadline-dev wget && \
-  rm -rf /var/lib/apt/lists/* && \
-  rm -rf /tmp/*
-
-WORKDIR /opt
-RUN git clone git://github.com/openlink/virtuoso-opensource.git virtuoso-opensource.src
-
-WORKDIR /opt/virtuoso-opensource.src
-RUN git checkout stable/7
-RUN ./autogen.sh && ./configure --prefix=$VIRT_HOME $VIRT_BUILD_OPTS && make && make install
-
-ADD virtuoso.ini.template /var/lib/virtuoso/db/virtuoso.ini
-ADD virtuoso.ini.template /versioning/virtuoso.ini
-
-RUN export PATH=$PATH:/opt/virtuoso-opensource/bin
-
-EXPOSE 1112
-EXPOSE 8891
-
-# get java8
+# get java 8
 RUN apt-get update && \
   apt-get -y upgrade && \
   apt-get -y install software-properties-common && \
@@ -41,9 +12,6 @@ RUN (echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 ENV PATH $JAVA_HOME/bin:$PATH
-
-# get parallel package
-RUN apt-get install parallel
 
 # benchmark
 ADD target/versioning-0.0.1-SNAPSHOT.jar /versioning/versioning.jar
