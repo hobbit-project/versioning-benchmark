@@ -1012,7 +1012,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private static int extractDeleted(String currentFile, String cwIdsFile, String destPath) {
 		int deletedTriples = 0;
 		try {
-			String scriptFilePath = System.getProperty("user.dir") + File.separator + "export_cws_tbd2.sh";
+			String scriptFilePath = System.getProperty("user.dir") + File.separator + "export_cws_tbd.sh";
 			String[] command = {"/bin/bash", scriptFilePath, currentFile, cwIdsFile, destPath };
 			Process p = new ProcessBuilder(command).start();
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
