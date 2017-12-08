@@ -17,10 +17,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -164,7 +169,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		dataGenerator.produceData();
 		cwsToBeLoaded[0] = v0SizeInTriples;
 		
-		
+		LOGGER.info("initial remainingRandomCreativeWorkIdsList: "+DataManager.remainingRandomCreativeWorkIdsList.size());
+
 		// Generate the change sets. Only additions/deletions are supported.
 		// TODO: support changes
 		int preVersionDeletedCWs = 0;
@@ -175,34 +181,59 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			cwsToBeLoaded[i] = cwsToBeLoaded[i-1] + triplesToBeAdded - triplesToBeDeleted;
 			LOGGER.info("Generating version " + i + " changeset. Target: " + "[+" + triplesToBeAdded + ", -" + triplesToBeDeleted + "]");
 			String destinationPath = generatedDatasetPath + File.separator + "c" + i;
-			
-			// produce the add set
-			LOGGER.info("Generating version " + i + " add-set.");
-			dataGenerator.produceAdded(destinationPath, triplesToBeAdded);
+			File theDir = new File(destinationPath);
+			theDir.mkdir();
 			
 			// produce the delete set
 			LOGGER.info("Generating version " + i + " delete-set.");
 			long deleteSetStart = System.currentTimeMillis();
 			int currVersionDeletedCreativeWorks = 0;
 			int currVersionDeletedTriples = 0;
-			int creativeWorkAvgTriples = DataManager.randomTriples.intValue() / DataManager.randomCreativeWorkIdsList.size();
+			int creativeWorkAvgTriples = DataManager.randomCreativeWorkTriples.intValue() / DataManager.randomCreativeWorkIdsList.size();
 
 			// Estimate the total number of creative works that have to be deleted, using 
-			// creative work average triples that have been generated so far.
-			int creativeWorksToBeDeleted = triplesToBeDeleted / creativeWorkAvgTriples;
+			// creative work average triples that have been generated so far plus 1 for safety reasons.
+			int creativeWorksToBeDeleted = triplesToBeDeleted / (creativeWorkAvgTriples + 1);
 			LOGGER.info(creativeWorksToBeDeleted + " cworks estimated that have to be deleted from v" + (i - 1));
 			while (currVersionDeletedTriples < triplesToBeDeleted) {
 				ArrayList<String> cwToBeDeleted = new ArrayList<String>();
-				for(int c=0; c<creativeWorksToBeDeleted; c++) {
-					int deletedCWIndex = randomGenerator.nextInt(DataManager.remainingRandomCreativeWorkIdsList.size() - 1);
-					long creativeWorkToBeDeleted = DataManager.remainingRandomCreativeWorkIdsList.get(deletedCWIndex);
-					DataManager.remainingRandomCreativeWorkIdsList.remove(deletedCWIndex);
-					cwToBeDeleted.add("http://www.bbc.co.uk/things/" + getGeneratorId() + "-" + creativeWorkToBeDeleted + "#id");
+				// if the estimated number of creative works is larger than the already existing 
+				// random-model one, then take all the existing
+				if(triplesToBeDeleted > DataManager.randomCreativeWorkTriples.get()) {
+					LOGGER.info("Target of " + triplesToBeDeleted + " triples exceedes the already (random-model) existing ones (" + DataManager.randomCreativeWorkTriples.get() + "). Take all the existing.");
+					for (int cworkIdIdx = 0; cworkIdIdx < DataManager.remainingRandomCreativeWorkIdsList.size();  cworkIdIdx++) {
+						cwToBeDeleted.add("http://www.bbc.co.uk/things/" + getGeneratorId() + "-" + DataManager.remainingRandomCreativeWorkIdsList.get(cworkIdIdx) + "#id");
+						DataManager.remainingRandomCreativeWorkIdsList.remove(cworkIdIdx);
+					}
+				} else {
+					for(int c=0; c<creativeWorksToBeDeleted; c++) {
+						int deletedCWIndex = randomGenerator.nextInt(DataManager.remainingRandomCreativeWorkIdsList.size());
+						long creativeWorkToBeDeleted = DataManager.remainingRandomCreativeWorkIdsList.get(deletedCWIndex);
+						DataManager.remainingRandomCreativeWorkIdsList.remove(deletedCWIndex);
+						cwToBeDeleted.add("http://www.bbc.co.uk/things/" + getGeneratorId() + "-" + creativeWorkToBeDeleted + "#id");
+					}
 				}
+				
 				// write down the creative work uris that are going to be deleted
 				FileUtils.writeLines(new File("/versioning/creativeWorksToBeDeleted.txt") , cwToBeDeleted, false);
-				// extract all triples that have to be deleted
-				currVersionDeletedTriples += extractDeleted(i, "/versioning/creativeWorksToBeDeleted.txt", destinationPath, generatedDatasetPath);
+				
+				// extract all triples that have to be deleted using multiple threads
+				ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+				List<Future<Integer>> list = new ArrayList<Future<Integer>>();
+				for(int j = 0; j < i; j++) {
+					String sourcePath = generatedDatasetPath + File.separator + (j == 0 ? "v" : "c") + j + File.separator;
+					File sourcePathFile = new File(sourcePath);
+			    	List<File> previousVersionAddedFiles = (List<File>) FileUtils.listFiles(sourcePathFile, new RegexFileFilter("generatedCreativeWorks-[0-9]+-[0-9]+.added.nt"),  null);
+					for (File f : previousVersionAddedFiles) {
+						Callable<Integer> callable = new ExtractDeleted(f, "/versioning/creativeWorksToBeDeleted.txt", destinationPath);
+						Future<Integer> future = executor.submit(callable);
+						list.add(future);
+					}
+				}
+				for(Future<Integer> fut : list) {
+					currVersionDeletedTriples += fut.get();
+				}
+				executor.shutdown();
 				currVersionDeletedCreativeWorks += creativeWorksToBeDeleted;
 				// estimation of the remaining creative works that have to be extracted
 				creativeWorksToBeDeleted = (int) Math.ceil((double) (triplesToBeDeleted - currVersionDeletedTriples) / creativeWorkAvgTriples);
@@ -212,7 +243,14 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			}
 			preVersionDeletedCWs = currVersionDeletedCreativeWorks;
 			long deleteSetEnd = System.currentTimeMillis();
-			LOGGER.info("Deleteset of total " + preVersionDeletedCWs + " Creative Works generated successfully. Triples: " + currVersionDeletedTriples + ". Target: " + triplesToBeDeleted + " triples. Time: " + (deleteSetEnd - deleteSetStart) + " ms.");
+			LOGGER.info("Deleteset of total " + preVersionDeletedCWs + " Creative Works generated successfully. Triples: " + currVersionDeletedTriples + " . Target: " + triplesToBeDeleted + " triples. Time: " + (deleteSetEnd - deleteSetStart) + " ms.");
+			LOGGER.info("v"+i+" after delete remainingRandomCreativeWorkIdsList: "+DataManager.remainingRandomCreativeWorkIdsList.size());
+
+			// produce the add set
+			LOGGER.info("Generating version " + i + " add-set.");
+			dataGenerator.produceAdded(destinationPath, triplesToBeAdded);
+			LOGGER.info("v"+i+" after add remainingRandomCreativeWorkIdsList: "+DataManager.remainingRandomCreativeWorkIdsList.size());
+
 		}
 		long changeSetEnd = System.currentTimeMillis();
 		LOGGER.info("All changesets generated successfully. Time: " + (changeSetEnd - changeSetStart) + " ms.");
@@ -247,6 +285,30 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Computing expected answers for generated SPARQL tasks...");
 		computeExpectedAnswers();
 		LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");	
+	}
+	
+	// class for implementing extraction of triples that have to be deleted concurrently
+	public static class ExtractDeleted implements Callable<Integer> {
+		private File file;
+		private String cwTBD;
+		private String destinationPath;
+		private int numberOfDeletedTriples;
+ 
+		ExtractDeleted(File file, String cwTBD, String destinationPath) {
+			this.file = file;
+			this.cwTBD = cwTBD;
+			this.destinationPath = destinationPath;
+			this.numberOfDeletedTriples = 0;
+		}
+ 
+		public Integer call() {
+			try {
+				numberOfDeletedTriples = extractDeleted(file.getAbsolutePath(), cwTBD, destinationPath);
+			} catch (Exception e) {
+				LOGGER.error("Exception caught during the extraction of deleted triples from " + file, e);
+			}
+			return numberOfDeletedTriples;
+		}
 	}
 	
 	public void initFromEnv() {
@@ -947,6 +1009,31 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		return deletedTriples;
 	}
 
+	private static int extractDeleted(String currentFile, String cwIdsFile, String destPath) {
+		int deletedTriples = 0;
+		try {
+			String scriptFilePath = System.getProperty("user.dir") + File.separator + "export_cws_tbd2.sh";
+			String[] command = {"/bin/bash", scriptFilePath, currentFile, cwIdsFile, destPath };
+			Process p = new ProcessBuilder(command).start();
+			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			String line;
+			while ((line = in.readLine()) != null) {
+				deletedTriples += Integer.parseInt(line);
+			}
+			while ((line = stdError.readLine()) != null) {
+				LOGGER.info(line);
+			}
+			p.waitFor();
+			in.close();
+			stdError.close();
+		} catch (IOException e) {
+            LOGGER.error("Exception while executing script for extracting creative works that have to be deleted.", e);
+		} catch (InterruptedException e) {
+            LOGGER.error("Exception while executing script for extracting creative works that have to be deleted.", e);
+		}	
+		return deletedTriples;
+	}	
 	@Override
     public void receiveCommand(byte command, byte[] data) {
         if (command == VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
