@@ -201,7 +201,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				LOGGER.info("Target of " + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.') + " triples exceedes the already (random-model) existing ones (" + String.format(Locale.US, "%,d", totalRandomTriplesSoFar).replace(',', '.') + "). Will choose from clustering and correlation models as well.");
 				// take all the random
 				for (long creativeWorkId : randomCreativeWorkIds) {
-					cwToBeDeleted.add("http://www.bbc.co.uk/things/" + getGeneratorId() + "-" + DataManager.randomCreativeWorkIdsList.get(creativeWorkId) + "#id");
+					cwToBeDeleted.add("http://www.bbc.co.uk/things/" + getGeneratorId() + "-" + creativeWorkId + "#id");
 				}
 				DataManager.randomCreativeWorkIdsList.clear();
 				DataManager.randomCreativeWorkTriples.set(0);
@@ -245,6 +245,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				long start = System.currentTimeMillis();
 				parallelyExtract(i, destinationPath);
 				long end = System.currentTimeMillis();
+				DataManager.randomCreativeWorkTriples.addAndGet(-currVersionDeletedTriples);
 				LOGGER.info("extract time: "+(end-start) + " ms");				currVersionDeletedCreativeWorks += cwToBeDeleted.size();
 			}
 			preVersionDeletedCWs = currVersionDeletedCreativeWorks;
