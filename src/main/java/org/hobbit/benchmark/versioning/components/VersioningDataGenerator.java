@@ -15,16 +15,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,8 +41,6 @@ import org.hobbit.core.components.AbstractDataGenerator;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.Files;
 
 import eu.ldbc.semanticpublishing.generators.data.DataGenerator;
 import eu.ldbc.semanticpublishing.properties.Configuration;
@@ -194,7 +187,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			int currVersionDeletedCreativeWorks = 0;
 			int currVersionDeletedTriples = 0;
 			int totalRandomTriplesSoFar =  DataManager.randomCreativeWorkTriples.intValue();
-			LOGGER.info("totalRandomTriplesSoFar: " + totalRandomTriplesSoFar);
+			LOGGER.info("totalRandomTriplesSoFar version " + i + ": " + totalRandomTriplesSoFar);
 
 			ArrayList<String> cwToBeDeleted = new ArrayList<String>();
 			
@@ -202,22 +195,26 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			// random-model ones, take all the random and choose from other data-models (correlations, 
 			// major/minor events) as well
 			List<Long> randomCreativeWorkIds = new ArrayList<Long>(DataManager.randomCreativeWorkIdsList.keySet());
+			LOGGER.info("randomCreativeWorkIds size "+ randomCreativeWorkIds.size());
+
 			if(triplesToBeDeleted > totalRandomTriplesSoFar) {
-				LOGGER.info("Target of " + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.') + " triples exceedes the already (random-model) existing ones (" + String.format(Locale.US, "%,d", totalRandomTriplesSoFar).replace(',', '.') + "). Will choose from other models as well.");
+				LOGGER.info("Target of " + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.') + " triples exceedes the already (random-model) existing ones (" + String.format(Locale.US, "%,d", totalRandomTriplesSoFar).replace(',', '.') + "). Will choose from clustering and correlation models as well.");
 				// take all the random
 				for (long creativeWorkId : randomCreativeWorkIds) {
 					cwToBeDeleted.add("http://www.bbc.co.uk/things/" + getGeneratorId() + "-" + DataManager.randomCreativeWorkIdsList.get(creativeWorkId) + "#id");
 				}
 				DataManager.randomCreativeWorkIdsList.clear();
+				DataManager.randomCreativeWorkTriples.set(0);
 				currVersionDeletedTriples = totalRandomTriplesSoFar;
 				
 				// as delete-set target have not reached yet, choose the rest from correlations or major/minor 
-				List<Long> keys = new ArrayList<Long>(DataManager.corrExpCreativeWorkIdsList.keySet());
+				List<Long> corrExpCreativeWorkIds = new ArrayList<Long>(DataManager.corrExpCreativeWorkIdsList.keySet());
+				LOGGER.info("corrExpCreativeWorkIds size: "+DataManager.corrExpCreativeWorkIdsList.size());
 				while (currVersionDeletedTriples < triplesToBeDeleted) {
-					int creativeWorkToBeDeletedIdx = randomGenerator.nextInt(keys.size());
-					long creativeWorkToBeDeleted = keys.get(creativeWorkToBeDeletedIdx);
+					int creativeWorkToBeDeletedIdx = randomGenerator.nextInt(corrExpCreativeWorkIds.size());
+					long creativeWorkToBeDeleted = corrExpCreativeWorkIds.get(creativeWorkToBeDeletedIdx);
 					currVersionDeletedTriples += DataManager.corrExpCreativeWorkIdsList.get(creativeWorkToBeDeleted);
-					keys.remove(creativeWorkToBeDeletedIdx);
+					corrExpCreativeWorkIds.remove(creativeWorkToBeDeletedIdx);
 					DataManager.corrExpCreativeWorkIdsList.remove(creativeWorkToBeDeleted);
 					cwToBeDeleted.add("http://www.bbc.co.uk/things/" + getGeneratorId() + "-" + creativeWorkToBeDeleted + "#id");					
 				}
@@ -225,7 +222,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				FileUtils.writeLines(new File("/versioning/creativeWorksToBeDeleted.txt") , cwToBeDeleted, false);
 
 				// extract all triples that have to be deleted using multiple threads
+				long start = System.currentTimeMillis();
 				parallelyExtract(i, destinationPath);
+				long end = System.currentTimeMillis();
+				LOGGER.info("extract time: "+(end-start) + " ms");
+
 				currVersionDeletedCreativeWorks += cwToBeDeleted.size();
 			} else {
 				while (currVersionDeletedTriples < triplesToBeDeleted) {
@@ -241,8 +242,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				FileUtils.writeLines(new File("/versioning/creativeWorksToBeDeleted.txt") , cwToBeDeleted, false);
 
 				// extract all triples that have to be deleted using multiple threads
+				long start = System.currentTimeMillis();
 				parallelyExtract(i, destinationPath);
-				currVersionDeletedCreativeWorks += cwToBeDeleted.size();
+				long end = System.currentTimeMillis();
+				LOGGER.info("extract time: "+(end-start) + " ms");				currVersionDeletedCreativeWorks += cwToBeDeleted.size();
 			}
 			preVersionDeletedCWs = currVersionDeletedCreativeWorks;
 			long deleteSetEnd = System.currentTimeMillis();
