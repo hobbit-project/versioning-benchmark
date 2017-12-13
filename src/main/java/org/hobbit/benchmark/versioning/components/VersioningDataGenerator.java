@@ -187,7 +187,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			int currVersionDeletedCreativeWorks = 0;
 			int currVersionDeletedTriples = 0;
 			int totalRandomTriplesSoFar =  DataManager.randomCreativeWorkTriples.intValue();
-			LOGGER.info("totalRandomTriplesSoFar version " + i + ": " + totalRandomTriplesSoFar);
 
 			ArrayList<String> cwToBeDeleted = new ArrayList<String>();
 			
@@ -195,8 +194,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			// random-model ones, take all the random and choose from other data-models (correlations, 
 			// major/minor events) as well
 			List<Long> randomCreativeWorkIds = new ArrayList<Long>(DataManager.randomCreativeWorkIdsList.keySet());
-			LOGGER.info("randomCreativeWorkIds size "+ randomCreativeWorkIds.size());
-
 			if(triplesToBeDeleted > totalRandomTriplesSoFar) {
 				LOGGER.info("Target of " + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.') + " triples exceedes the already (random-model) existing ones (" + String.format(Locale.US, "%,d", totalRandomTriplesSoFar).replace(',', '.') + "). Will choose from clustering and correlation models as well.");
 				// take all the random
@@ -206,14 +203,15 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				DataManager.randomCreativeWorkIdsList.clear();
 				DataManager.randomCreativeWorkTriples.set(0);
 				currVersionDeletedTriples = totalRandomTriplesSoFar;
-				
+
 				// as delete-set target have not reached yet, choose the rest from correlations or major/minor 
 				List<Long> corrExpCreativeWorkIds = new ArrayList<Long>(DataManager.corrExpCreativeWorkIdsList.keySet());
-				LOGGER.info("corrExpCreativeWorkIds size: "+DataManager.corrExpCreativeWorkIdsList.size());
+				int corrExpTotalTriples = 0;
 				while (currVersionDeletedTriples < triplesToBeDeleted) {
 					int creativeWorkToBeDeletedIdx = randomGenerator.nextInt(corrExpCreativeWorkIds.size());
 					long creativeWorkToBeDeleted = corrExpCreativeWorkIds.get(creativeWorkToBeDeletedIdx);
 					currVersionDeletedTriples += DataManager.corrExpCreativeWorkIdsList.get(creativeWorkToBeDeleted);
+					corrExpTotalTriples += DataManager.corrExpCreativeWorkIdsList.get(creativeWorkToBeDeleted);
 					corrExpCreativeWorkIds.remove(creativeWorkToBeDeletedIdx);
 					DataManager.corrExpCreativeWorkIdsList.remove(creativeWorkToBeDeleted);
 					cwToBeDeleted.add("http://www.bbc.co.uk/things/" + getGeneratorId() + "-" + creativeWorkToBeDeleted + "#id");					
@@ -225,7 +223,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				long start = System.currentTimeMillis();
 				parallelyExtract(i, destinationPath);
 				long end = System.currentTimeMillis();
-				LOGGER.info("extract time: "+(end-start) + " ms");
+				DataManager.corrExpCreativeWorkTriples.addAndGet(-corrExpTotalTriples);
 
 				currVersionDeletedCreativeWorks += cwToBeDeleted.size();
 			} else {
@@ -246,7 +244,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				parallelyExtract(i, destinationPath);
 				long end = System.currentTimeMillis();
 				DataManager.randomCreativeWorkTriples.addAndGet(-currVersionDeletedTriples);
-				LOGGER.info("extract time: "+(end-start) + " ms");				currVersionDeletedCreativeWorks += cwToBeDeleted.size();
+				currVersionDeletedCreativeWorks += cwToBeDeleted.size();
 			}
 			preVersionDeletedCWs = currVersionDeletedCreativeWorks;
 			long deleteSetEnd = System.currentTimeMillis();
