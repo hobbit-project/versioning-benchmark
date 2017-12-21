@@ -634,7 +634,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		    			File ontologiesPathFile = new File(ontologiesPath);
 		    			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "ttl" }, true);
 		    			for (File file : ontologiesFiles) {
-		    				String graphUri = "http://datagen.ontology." + file.getName();
+		    				String graphUri = "http://datagen.version.0." + file.getName();
 		    				byte data[] = FileUtils.readFileToByteArray(file);
 		    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
 		    				sendDataToSystemAdapter(dataForSending);
