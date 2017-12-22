@@ -117,7 +117,8 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			LOGGER.info("Task " + tId + " received from task generator");
 			
 			// read the query
-			String queryText = RabbitMQUtils.readString(data);
+			ByteBuffer buffer = ByteBuffer.wrap(data);
+			String queryText = RabbitMQUtils.readString(buffer);
 
 			Query query = QueryFactory.create(queryText);
 			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);

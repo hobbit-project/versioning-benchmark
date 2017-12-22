@@ -40,7 +40,7 @@ public class VersioningTaskGenerator extends AbstractSequencingTaskGenerator {
 			LOGGER.info("taskQuery: "+taskQuery);
 	
 			// Send the task to the system
-			byte[] taskData = RabbitMQUtils.writeString(taskQuery);
+			byte[] taskData = RabbitMQUtils.writeByteArrays(new byte[][] {RabbitMQUtils.writeString(taskQuery)} );
 			long timestamp = System.currentTimeMillis();
 	        sendTaskToSystemAdapter(taskId, taskData);
 			LOGGER.info("Task " + taskId + " sent to System Adapter.");
