@@ -167,7 +167,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		dataGenerator.produceData();
 		cwsToBeLoaded[0] = v0SizeInTriples;
 		
-		// Generate the change sets. Only additions/deletions are supported.
+		// Generate the change sets. Additions and deletions are supported.
 		// TODO: support changes
 		int preVersionDeletedCWs = 0;
 		long changeSetStart = System.currentTimeMillis();
@@ -187,15 +187,16 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			int currVersionDeletedCreativeWorks = 0;
 			int currVersionDeletedTriples = 0;
 			int totalRandomTriplesSoFar =  DataManager.randomCreativeWorkTriples.intValue();
-
 			ArrayList<String> cwToBeDeleted = new ArrayList<String>();
 			
 			// if the number of triples that have to be deleted is larger than the already existing 
-			// random-model ones, take all the random and choose from other data-models (correlations, 
-			// major/minor events) as well
+			// random-model ones, use all the random as a threshold
 			List<Long> randomCreativeWorkIds = new ArrayList<Long>(DataManager.randomCreativeWorkIdsList.keySet());
 			if(triplesToBeDeleted > totalRandomTriplesSoFar) {
-				LOGGER.info("Target of " + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.') + " triples exceedes the already (random-model) existing ones (" + String.format(Locale.US, "%,d", totalRandomTriplesSoFar).replace(',', '.') + "). Will choose from clustering and correlation models as well.");
+				LOGGER.info("Target of " + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.')
+						+ " triples exceedes the already (random-model) existing ones (" 
+						+ String.format(Locale.US, "%,d", totalRandomTriplesSoFar).replace(',', '.') + "). "
+						+ "Will choose all of them.");
 				// take all the random
 				for (long creativeWorkId : randomCreativeWorkIds) {
 					cwToBeDeleted.add("http://www.bbc.co.uk/things/" + getGeneratorId() + "-" + creativeWorkId + "#id");
@@ -203,28 +204,12 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				DataManager.randomCreativeWorkIdsList.clear();
 				DataManager.randomCreativeWorkTriples.set(0);
 				currVersionDeletedTriples = totalRandomTriplesSoFar;
-
-				// as delete-set target have not reached yet, choose the rest from correlations or major/minor 
-				List<Long> corrExpCreativeWorkIds = new ArrayList<Long>(DataManager.corrExpCreativeWorkIdsList.keySet());
-				int corrExpTotalTriples = 0;
-				while (currVersionDeletedTriples < triplesToBeDeleted) {
-					int creativeWorkToBeDeletedIdx = randomGenerator.nextInt(corrExpCreativeWorkIds.size());
-					long creativeWorkToBeDeleted = corrExpCreativeWorkIds.get(creativeWorkToBeDeletedIdx);
-					currVersionDeletedTriples += DataManager.corrExpCreativeWorkIdsList.get(creativeWorkToBeDeleted);
-					corrExpTotalTriples += DataManager.corrExpCreativeWorkIdsList.get(creativeWorkToBeDeleted);
-					corrExpCreativeWorkIds.remove(creativeWorkToBeDeletedIdx);
-					DataManager.corrExpCreativeWorkIdsList.remove(creativeWorkToBeDeleted);
-					cwToBeDeleted.add("http://www.bbc.co.uk/things/" + getGeneratorId() + "-" + creativeWorkToBeDeleted + "#id");					
-				}
+		
 				// write down the creative work uris that are going to be deleted
 				FileUtils.writeLines(new File("/versioning/creativeWorksToBeDeleted.txt") , cwToBeDeleted, false);
 
 				// extract all triples that have to be deleted using multiple threads
-				long start = System.currentTimeMillis();
 				parallelyExtract(i, destinationPath);
-				long end = System.currentTimeMillis();
-				DataManager.corrExpCreativeWorkTriples.addAndGet(-corrExpTotalTriples);
-
 				currVersionDeletedCreativeWorks += cwToBeDeleted.size();
 			} else {
 				while (currVersionDeletedTriples < triplesToBeDeleted) {
@@ -240,9 +225,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				FileUtils.writeLines(new File("/versioning/creativeWorksToBeDeleted.txt") , cwToBeDeleted, false);
 
 				// extract all triples that have to be deleted using multiple threads
-				long start = System.currentTimeMillis();
 				parallelyExtract(i, destinationPath);
-				long end = System.currentTimeMillis();
 				DataManager.randomCreativeWorkTriples.addAndGet(-currVersionDeletedTriples);
 				currVersionDeletedCreativeWorks += cwToBeDeleted.size();
 			}
