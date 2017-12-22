@@ -63,7 +63,6 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	 */
 	public void receiveGeneratedData(byte[] data) {
 		String dataPath = "/versioning/data/";
-		String ontologiesPath = "/versioning/ontologies/";
 		
 		ByteBuffer dataBuffer = ByteBuffer.wrap(data);
 		// read the graph uri in order to identify the version in which
@@ -71,9 +70,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		String graphUri = RabbitMQUtils.readString(dataBuffer);
 		String receivedFilePath;
 		
-		if(graphUri.startsWith("http://datagen.ontology")) {
-			receivedFilePath = ontologiesPath + graphUri.replaceFirst(".*/", "");
-		} else if (graphUri.startsWith("http://datagen.version.0")) {
+		if (graphUri.startsWith("http://datagen.version.0")) {
 			receivedFilePath = dataPath + "v0/" + graphUri.replaceFirst(".*/", "");
 		} else {
 			String versionNum = graphUri.substring(25, graphUri.indexOf("generatedCreativeWorks") - 1);
