@@ -1,32 +1,16 @@
-#  Query Type: 8, Cross-version structured queries
-#  Query Description : 
-#  Retrieve the 10 most recent creative works, that are about or mention different topics from a set of specific past versions. 
+PREFIX dbpedia: <http://dbpedia.org/resource/> 
+PREFIX dbp-prop: <http://dbpedia.org/property/> 
+PREFIX dbp-owl: <http://dbpedia.org/ontology/> 
+PREFIX dbp-yago: <http://dbpedia.org/class/yago/> 
+PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
+PREFIX georss: <http://www.georss.org/georss/> 
+PREFIX dbp-cat: <http://dbpedia.org/resource/Category/> 
 
-#  Query Answering Choke Points : 
-#    - join ordering based on cardinality of functional property cwork:dateCreated
-#      Optimizer should use an efficient cost evaluation method for choosing the optimal join tree
-#    - A sub-select which aggregates results. Optimizer should recognize it and execute it first
-#    - OPTIONAL and nested OPTIONAL clauses (treated by query optimizer as nested sub-queries)
-#      Optimizer should decide to put optional triples on top of the join tree 
-#      (i.e. delay their execution to the last possible moment) because OPTIONALs are treated as a left join
-#    - Reasoning: rdfs:subClassOf, rdf:type
-
-PREFIX cwork:<http://www.bbc.co.uk/ontologies/creativework/> 
-
-SELECT ?creativeWork
+SELECT DISTINCT ?creativeWork ?v1 
 FROM {{{graphVi}}}
 {{{fromIntermediateVersionsClauses}}}
 FROM {{{graphVj}}}
-WHERE {
-      ?creativeWork {{{cwAboutOrMentions}}} {{{cwAboutOrMentionsUri}}} .
-      ?creativeWork a cwork:CreativeWork ;
-                    cwork:dateCreated ?dateCreated ;
-                    cwork:description ?description ; 
-                    cwork:primaryFormat ?primaryFormat ;
-                    cwork:title ?title .
-      OPTIONAL { ?creativeWork cwork:shortTitle ?shortTitle . }
-      OPTIONAL { ?creativeWork cwork:mentions ?mentions . }
-      OPTIONAL { ?creativeWork cwork:altText ?altText . }
+WHERE {	 
+	?creativeWork {{{cwAboutOrMentions}}} {{{cwAboutOrMentionsUri}}} .
+	{{{cwAboutOrMentionsUri}}} rdf:type ?v1 .
 }
-ORDER BY DESC(?dateCreated)
-LIMIT 10

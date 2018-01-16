@@ -6,14 +6,11 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX georss: <http://www.georss.org/georss/> 
 PREFIX dbp-cat: <http://dbpedia.org/resource/Category/> 
 
-SELECT *
-FROM {{{graphVmax}}}
-WHERE { 
-	{ 
-		?creativeWork {{{cwAboutOrMentions}}} {{{cwAboutOrMentionsUri}}} .
-		{{{cwAboutOrMentionsUri}}} rdfs:COMMENT ?v0 . 
-		FILTER (lang (?v0) = 'en') 
-	}
-	UNION { {{{cwAboutOrMentionsUri}}} foaf:depiction ?v1 }
-	UNION { {{{cwAboutOrMentionsUri}}} foaf:homepage ?v2 } 
+SELECT ?v2 
+FROM {{{graphVi}}}
+{{{fromIntermediateVersionsClauses}}}
+FROM {{{graphVj}}}
+WHERE {
+	 ?v3 foaf:homepage ?v2 .
+	 ?v3 rdf:type {{{dbsb}}} .
 }
