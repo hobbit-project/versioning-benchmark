@@ -5,6 +5,7 @@ PREFIX dbp-yago: <http://dbpedia.org/class/yago/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
 PREFIX georss: <http://www.georss.org/georss/> 
 PREFIX dbp-cat: <http://dbpedia.org/resource/Category/> 
+PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
 
 SELECT DISTINCT ?creativeWork ?v7 ?v4 ?v6 ?v5 
 FROM {{{graphVmax}}}

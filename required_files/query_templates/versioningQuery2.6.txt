@@ -5,12 +5,17 @@ PREFIX dbp-yago: <http://dbpedia.org/class/yago/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
 PREFIX georss: <http://www.georss.org/georss/> 
 PREFIX dbp-cat: <http://dbpedia.org/resource/Category/> 
+PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
 
-SELECT ?v1
+SELECT ?creativeWork ?v1
 FROM {{{graphVmax}}}
 WHERE {
-	 { ?v1 rdfs:label {{{dbsb}}} } 
-	 UNION { ?v1 rdfs:label {{{dbsb}}} } .
+	 { 
+		?creativeWork {{{cwAboutOrMentions}}} ?v1 .
+		?v1 rdfs:label {{{dbsb}}} } 
+	 UNION { 
+		?creativeWork {{{cwAboutOrMentions}}} ?v1 .
+		?v1 rdfs:label {{{dbsb}}} } .
 	 FILTER (regex(str(?v1), 'http://dbpedia.org/resource/') || 
 	 REGEX(str(?v1), 'http://dbpedia.org/ontology/') || 
 	 REGEX(str(?v1), 'http://www.w3.org/2002/07/owl') || 

@@ -5,27 +5,28 @@ PREFIX dbp-yago: <http://dbpedia.org/class/yago/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
 PREFIX georss: <http://www.georss.org/georss/> 
 PREFIX dbp-cat: <http://dbpedia.org/resource/Category/> 
+PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
 
 SELECT DISTINCT ?creativeWork ?v3 ?v4 ?v2
 FROM {{{graphVxMinusGraphVmax}}}
 WHERE { 
 	{
-		?creativeWork {{{cwAboutOrMentions}}} {{{cwAboutOrMentionsUri}}} .
-		{{{cwAboutOrMentionsUri}}} dbp-prop:subsid ?v3 
-		OPTIONAL { ?v2 {{{cwAboutOrMentionsUri}}} dbp-prop:parent } 
-		OPTIONAL { {{{cwAboutOrMentionsUri}}} dbp-prop:divisions ?v4 } 
+		?creativeWork cwork:about {{{cwAboutUri}}} .
+		{{{cwAboutUri}}} dbp-prop:subsid ?v3 
+		OPTIONAL { ?v2 {{{cwAboutUri}}} dbp-prop:parent } 
+		OPTIONAL { {{{cwAboutUri}}} dbp-prop:divisions ?v4 } 
 	}
 	UNION { 
-		?creativeWork {{{cwAboutOrMentions}}} {{{cwAboutOrMentionsUri}}} .
-		?v2 {{{cwAboutOrMentionsUri}}} dbp-prop:parent 
-		OPTIONAL { {{{cwAboutOrMentionsUri}}} dbp-prop:subsid ?v3 } 
-		OPTIONAL { {{{cwAboutOrMentionsUri}}} dbp-prop:divisions ?v4 } 
+		?creativeWork cwork:about {{{cwAboutUri}}} .
+		?v2 {{{cwAboutUri}}} dbp-prop:parent 
+		OPTIONAL { {{{cwAboutUri}}} dbp-prop:subsid ?v3 } 
+		OPTIONAL { {{{cwAboutUri}}} dbp-prop:divisions ?v4 } 
 	}
 	UNION { 
-		?creativeWork {{{cwAboutOrMentions}}} {{{cwAboutOrMentionsUri}}} .
-		{{{cwAboutOrMentionsUri}}} dbp-prop:divisions ?v4 
-		OPTIONAL { {{{cwAboutOrMentionsUri}}} dbp-prop:subsid ?v3 } 
-		OPTIONAL { ?v2 {{{cwAboutOrMentionsUri}}} dbp-prop:parent } 
+		?creativeWork cwork:about {{{cwAboutUri}}} .
+		{{{cwAboutUri}}} dbp-prop:divisions ?v4 
+		OPTIONAL { {{{cwAboutUri}}} dbp-prop:subsid ?v3 } 
+		OPTIONAL { ?v2 {{{cwAboutUri}}} dbp-prop:parent } 
 	} 
 }
 
