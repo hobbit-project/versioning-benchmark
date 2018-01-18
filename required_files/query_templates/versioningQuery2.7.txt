@@ -6,11 +6,12 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX georss: <http://www.georss.org/georss/> 
 PREFIX dbp-cat: <http://dbpedia.org/resource/Category/> 
 PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 SELECT ?creativeWork ?v2 
 FROM {{{graphVmax}}}
 WHERE {
-	 ?creativeWork {{{cwAboutOrMentions}}} ?v3
+	 ?creativeWork {{{cwAboutOrMentions}}} ?v3 .
 	 ?v3 foaf:homepage ?v2 .
-	 ?v3 rdf:type {{{dbsb}}} .
+	 ?v3 rdf:type {{{dbsb}}}
 }

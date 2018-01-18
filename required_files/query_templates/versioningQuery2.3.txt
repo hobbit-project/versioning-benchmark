@@ -6,6 +6,7 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX georss: <http://www.georss.org/georss/> 
 PREFIX dbp-cat: <http://dbpedia.org/resource/Category/> 
 PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT *
 FROM {{{graphVmax}}}
