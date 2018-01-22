@@ -35,9 +35,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     
     private Semaphore versionSentMutex = new Semaphore(0);
     private Semaphore versionLoadedMutex = new Semaphore(0);
-    
-    //test
-    
+        
     private int numberOfDataGenerators;
     private int numOfVersions;
     private int loadedVersion = 0;
