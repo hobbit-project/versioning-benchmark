@@ -17,37 +17,21 @@ public final class VersioningConstants {
 
 	public static final String DATA_GENERATOR_SEED = "data-generator_seed";
 
-	public static final String DATA_GENERATOR_WORKERS = "data-generator_workers";
-
 	public static final String NUMBER_OF_DATA_GENERATORS= "data-generators_number";
-		
-	// =============== TASK GENERATOR CONSTANTS ===============
-
-	public static final String NUMBER_OF_TASK_GENERATORS= "task-generators_number";
-
-	public static final String SUBSTITUTION_PARAMETERS_AMOUNT = "substitution-parameters_amount";
-
-	// =============== DATA GENERATORS CONSTANTS ===============
-
+	
 	public static final String V0_SIZE_IN_TRIPLES = "v0_size_in_triples";
 
 	public static final String VERSION_INSERTION_RATIO = "version_insertion_ratio";
 
 	public static final String VERSION_DELETION_RATIO = "version_deletion_ratio";
-
-	public static final String GENERATED_DATA_FORMAT = "generated_data_format";
 	
 	public static final String NUMBER_OF_VERSIONS = "number_of_versions";
+					
+	public static final String SENT_DATA_FORM = "sent_data_form";
 		
-	public static final String CREATIVE_WORKS_INFO = "creative_works_info";
-	
-	public static final String MAX_GENERATED_TRIPLES_PER_FILE = "max_generated_triples_per_file";
-	
-	public static final String SEED_YEAR = "seed_year";
-	
-	public static final String GENERATION_PERIOD_IN_YEARS = "generation_period_in_years";
-	
-	public static final String ARCHIVING_STRATEGY = "archiving_strategy";
+	// =============== TASK GENERATOR CONSTANTS ===============
+
+	public static final String NUMBER_OF_TASK_GENERATORS= "task-generators_number";
 	
 	// =============== EVALUATION MODULE CONSTANTS ===============
 	
