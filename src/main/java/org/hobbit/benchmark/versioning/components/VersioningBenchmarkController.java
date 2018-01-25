@@ -1,6 +1,8 @@
 package org.hobbit.benchmark.versioning.components;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Properties;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -47,10 +49,11 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         
 		numberOfDataGenerators = (Integer) getProperty(PREFIX + "hasNumberOfGenerators", 1);
 		int v0Size =  (Integer) getProperty(PREFIX + "v0SizeInTriples", 1000000);
-		int generatorSeed =  (Integer) getProperty(PREFIX + "generatorSeed", 0);
+		int generatorSeed = (Integer) getProperty(PREFIX + "generatorSeed", 0);
 		numOfVersions =  (Integer) getProperty(PREFIX + "numberOfVersions", 12);
 		int insRatio = (Integer) getProperty(PREFIX + "versionInsertionRatio", 5);
 		int delRatio = (Integer) getProperty(PREFIX + "versionDeletionRatio", 3);
+		String dataForm = (String) getProperty(PREFIX + "generatedDataForm", "ic");
 		
 		loadingTimes = new long[numOfVersions];
 		triplesToBeLoaded = new AtomicIntegerArray(numOfVersions);
@@ -62,7 +65,8 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 				VersioningConstants.V0_SIZE_IN_TRIPLES + "=" + v0Size,
 				VersioningConstants.NUMBER_OF_VERSIONS + "=" + numOfVersions,
 				VersioningConstants.VERSION_INSERTION_RATIO + "=" + insRatio,
-				VersioningConstants.VERSION_DELETION_RATIO  + "=" + delRatio
+				VersioningConstants.VERSION_DELETION_RATIO + "=" + delRatio,
+				VersioningConstants.SENT_DATA_FORM + "=" + dataForm
 		};
 		
 		// evaluation module environmental values
@@ -119,7 +123,17 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		if (iterator.hasNext()) {
 			try {
 				if (defaultValue instanceof String) {
-					return (T) iterator.next().asLiteral().getString();
+					if(((String) defaultValue).equals("ic")) {
+						Properties serializationFormats = new Properties();
+						try {
+							serializationFormats.load(ClassLoader.getSystemResource("data_forms.properties").openStream());
+						} catch (IOException e) {
+							LOGGER.error("Exception while parsing available data forms.");
+						}
+						return (T) serializationFormats.getProperty(iterator.next().asResource().getLocalName());
+					} else {
+						return (T) iterator.next().asLiteral().getString(); 
+					}
 				} else if (defaultValue instanceof Integer) {
 					return (T) ((Integer) iterator.next().asLiteral().getInt());
 				} else if (defaultValue instanceof Long) {
