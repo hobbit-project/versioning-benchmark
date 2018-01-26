@@ -85,7 +85,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private String initialVersionDataPath = generatedDatasetPath + File.separator + "v0";
 	private String ontologiesPath = "/versioning/ontologies";
 	private String dbpediaPath = "/versioning/dbpedia";
-	private int taskId = 0;
 	private int[] triplesExpectedToBeLoaded;
 	private int[] cwsToBeLoaded;
 	
@@ -549,40 +548,32 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			triplesExpectedToBeLoaded[version] = getVersionSize(version);
 		}
 		
-		for (Task task : tasks) {
-			String taskId = task.getTaskId();
-			String taskQuery = task.getQuery();
-			int queryType = task.getQueryType();
-			
-			long queryStart = 0;
-			long queryEnd = 0;
+		for (Task task : tasks) {			
 			ResultSet results = null;
 			
-			byte[] expectedAnswers = null;
-			
 			// execute the query on top of virtuoso to compute the expected answers
-			Query query = QueryFactory.create(taskQuery);
+			Query query = QueryFactory.create(task.getQuery());
 			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
-			queryStart = System.currentTimeMillis();
+			long queryStart = System.currentTimeMillis();
 			try {
 				results = qexec.execSelect();
 			} catch (Exception e) {
-				LOGGER.error("Exception caught during the computation of task " + taskId + " expected answers.", e);
+				LOGGER.error("Exception caught during the computation of task " + task.getTaskId() + " expected answers.", e);
 			}				
-			queryEnd = System.currentTimeMillis();
+			long queryEnd = System.currentTimeMillis();
 
 			// update the task by setting its expected results
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			ResultSetFormatter.outputAsJSON(outputStream, results);
-			expectedAnswers = outputStream.toByteArray();
+			byte[] expectedAnswers = outputStream.toByteArray();
 			//debug
-			LOGGER.info("Expected answers for task " + taskId + " computed. "
-					+ "Type: " + queryType 
+			LOGGER.info("Expected answers for task " + task.getTaskId() + " computed"
+					+ ". Type: " + task.getQuerySubType() 
 					+ ", ResultsNum: " + results.getRowNumber() 
 					+ ", Time: " + (queryEnd - queryStart) + " ms.");			
 
 			task.setExpectedAnswers(expectedAnswers);
-			tasks.set(Integer.parseInt(taskId), task);
+			tasks.set(Integer.parseInt(task.getTaskId()), task);
 			qexec.close();
 		}	
 	}
@@ -591,6 +582,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		String resultsPath = System.getProperty("user.dir") + File.separator + "results";
 		File resultsDir = new File(resultsPath);
 		resultsDir.mkdirs();
+		// skip current version materialization query
 		int taskId = 1;
 		
 		// mind the non zero-based numbering of query types 
@@ -625,6 +617,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	}
 	
 	public void buildSPRQLTasks() {
+		int taskId = 0;
 		String queryString;
 		String queriesPath = System.getProperty("user.dir") + File.separator + "queries";
 		File queriesDir = new File(queriesPath);
@@ -635,7 +628,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				for (int querySubType = 0; querySubType < Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {	
 					for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
 						queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
-						tasks.add(new Task((queryType + 1), Integer.toString(taskId++), queryString, null));
+						tasks.add(new Task((queryType + 1), (queryType + 1) + "." + (querySubType + 1), Integer.toString(taskId++), queryString, null));
 						try {
 							FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versionigQuery" + (queryType + 1) + "." + (querySubType + 1) + "." + (querySubstParam + 1) + ".sparql"), queryString);
 						} catch (IOException e) {
@@ -648,7 +641,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			}
 			for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
 				queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
-				tasks.add(new Task((queryType + 1), Integer.toString(taskId++), queryString, null));
+				tasks.add(new Task((queryType + 1), (queryType + 1) + ".1", Integer.toString(taskId++), queryString, null));
 				try {
 					FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versionigQuery" + (queryType + 1) + ".1." + (querySubstParam + 1) + ".sparql"), queryString);
 				} catch (IOException e) {
@@ -892,9 +885,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			// Starting for version 0 and continue to the next one until reaching the last version.
 			// Waits for signal sent by the system that determines that the sent version successfully 
 			// loaded, in order to proceed with the next one
-	    	for(int version=0; version<numberOfVersions; version++) {
+	    	for(int version = 0; version < numberOfVersions; version++) {
 	    		numberOfmessages.set(0);
-	    		
 	    		// if the benchmark is configured by the system to send change sets
 	    		if(sentDataForm.equals("cs")) {
 	    			if(version == 0) {
