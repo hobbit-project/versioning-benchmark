@@ -887,9 +887,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	// This method is used for sending the already generated data, tasks and gold standard
 	// to the appropriate components.
 	protected void generateData() throws Exception {
-		try {			
-			// >>>>>>>>>>>>>>>>>>> ARXIZW APO EDW AVRIO NA STELNW KAI IC
-			
+		try {						
 			// Send data files to the system.
 			// Starting for version 0 and continue to the next one until reaching the last version.
 			// Waits for signal sent by the system that determines that the sent version successfully 
@@ -906,46 +904,36 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		    			File ontologiesPathFile = new File(ontologiesPath);
 		    			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
 		    			for (File file : ontologiesFiles) {
-		    				String graphUri = "http://datagen.version.0." + file.getName();
-		    				byte data[] = FileUtils.readFileToByteArray(file);
-		    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
-		    				sendDataToSystemAdapter(dataForSending);
-		    				numberOfmessages.incrementAndGet();
-		    			}
-		    	    	LOGGER.info("All ontologies successfully sent to System Adapter.");
-		    	    	
-		    	    	File dataPath = new File(initialVersionDataPath);
-		    			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, new String[] { "added.nt" }, true);
-		    			for (File file : dataFiles) {
-		    				String graphUri = "http://datagen.version.0." + file.getName();
-		    				byte data[] = FileUtils.readFileToByteArray(file);
-		    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
-		    				sendDataToSystemAdapter(dataForSending);
-		    				numberOfmessages.incrementAndGet();
-		    			}
-		    		} else {
-		    			File dataPath = new File(generatedDatasetPath + File.separator + "c" + version);
-		    			if(!dataPath.exists()) dataPath.mkdirs();
-		    			List<File> addedDataFiles = (List<File>) FileUtils.listFiles(dataPath, new String[] { "added.nt" }, false);
-		    			for (File file : addedDataFiles) {
 		    				String graphUri = "http://datagen.addset." + version + "." + file.getName();
 		    				byte data[] = FileUtils.readFileToByteArray(file);
 		    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
 		    				sendDataToSystemAdapter(dataForSending);
 		    				numberOfmessages.incrementAndGet();
 		    			}
-		    			List<File> deletedDataFiles = (List<File>) FileUtils.listFiles(dataPath, new String[] { "deleted.nt" }, false);
-		    			for (File file : deletedDataFiles) {
-		    				String graphUri = "http://datagen.deleteset." + version + "." + file.getName();
-		    				byte data[] = FileUtils.readFileToByteArray(file);
-		    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
-		    				sendDataToSystemAdapter(dataForSending);
-		    				numberOfmessages.incrementAndGet();
-		    			}
+		    	    	LOGGER.info("All ontologies successfully sent to System Adapter.");
 		    		}
-	    		} 
-	    		// if benchmark is configured by the system to send independent copies of versions
-	    		else {
+	    			
+	    			File dataPath = new File(generatedDatasetPath + File.separator + (version == 0 ? "v" : "c") + version);
+	    			if(!dataPath.exists()) dataPath.mkdirs();
+	    			List<File> addedDataFiles = (List<File>) FileUtils.listFiles(dataPath, new String[] { "added.nt" }, false);
+	    			for (File file : addedDataFiles) {
+	    				String graphUri = "http://datagen.addset." + version + "." + file.getName();
+	    				byte data[] = FileUtils.readFileToByteArray(file);
+	    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
+	    				sendDataToSystemAdapter(dataForSending);
+	    				numberOfmessages.incrementAndGet();
+	    			}
+	    			List<File> deletedDataFiles = (List<File>) FileUtils.listFiles(dataPath, new String[] { "deleted.nt" }, false);
+	    			for (File file : deletedDataFiles) {
+	    				String graphUri = "http://datagen.deleteset." + version + "." + file.getName();
+	    				byte data[] = FileUtils.readFileToByteArray(file);
+	    				byte[] dataForSending = RabbitMQUtils.writeByteArrays(null, new byte[][]{RabbitMQUtils.writeString(graphUri)}, data);
+	    				sendDataToSystemAdapter(dataForSending);
+	    				numberOfmessages.incrementAndGet();
+	    			}
+	    		} else {
+		    		// if the benchmark is configured by the system to send independent copy of each version.
+	    			// send the final data that previously computed when computed expected answers.
 	    			File dataPath = new File(generatedDatasetPath + File.separator + "final" + File.separator + "v" + version);
 	    			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, new String[] { "nt" }, false);
 	    			for (File file : dataFiles) {
@@ -956,8 +944,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	    				numberOfmessages.incrementAndGet();
 	    			}
 	    		}
-	    		
-
     	    	LOGGER.info("Generated data for version " + version + " successfully sent to System Adapter.");
 			
     	    	// TODO: sending of such signal when data were generated and not when data sent to
