@@ -170,6 +170,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	versionSentMutex.release();
 	    } else if (command == VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
             // signal sent from system adapter that a version loaded successfully
+	    	LOGGER.info("Recieved signal that all data of version " + loadedVersion + " successfully loaded from system.");
         	long currTimeMillis = System.currentTimeMillis();
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
