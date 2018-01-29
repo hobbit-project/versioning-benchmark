@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import org.apache.jena.datatypes.xsd.XSDDatatype;
-import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Literal;

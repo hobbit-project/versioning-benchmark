@@ -29,7 +29,6 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.query.ResultSetRewindable;
-import org.apache.jena.sparql.resultset.ResultSetMem;
 import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
@@ -319,12 +318,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			ResultSetFormatter.outputAsJSON(outputStream, results);
 			expectedAnswers = outputStream.toByteArray();
-			LOGGER.info("ResultsMemNum prin to rewind: "+results.size());
-			results.reset();
 			//debug
 			LOGGER.info("Expected answers for task " + taskId + " computed"
 					+ ". Type: " + queryType 
-					+ ", ResultsMemNum meta to rewind: " + results.size() 
+					+ ", ResultsNum: " + results.size() 
 					+ ", Time: " + (queryEnd - queryStart) + " ms.");			
 
 			task.setExpectedAnswers(expectedAnswers);
