@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -85,6 +84,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private String initialVersionDataPath = generatedDatasetPath + File.separator + "v0";
 	private String ontologiesPath = "/versioning/ontologies";
 	private String dbpediaPath = "/versioning/dbpedia";
+	private int[] triplesExpectedToBeAdded;
+	private int[] triplesExpectedToBeDeleted;
 	private int[] triplesExpectedToBeLoaded;
 	private int[] cwsToBeLoaded;
 	
@@ -137,6 +138,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		// Initialize data generation parameters through the environment variables given by user
 		initFromEnv();
+		triplesExpectedToBeAdded = new int[numberOfVersions];
+		triplesExpectedToBeDeleted = new int[numberOfVersions];
 		triplesExpectedToBeLoaded = new int[numberOfVersions];
 		cwsToBeLoaded = new int[numberOfVersions];
 		
@@ -164,7 +167,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		DataGenerator dataGenerator = new DataGenerator(randomGenerator, configuration, definitions, dataGeneratorWorkers, totalTriples, maxTriplesPerFile, initialVersionDataPath, serializationFormat);
 		dataGenerator.produceData();
 		cwsToBeLoaded[0] = v0SizeInTriples;
-		
+		triplesExpectedToBeAdded[0] = dataGenerator.getTriplesGeneratedSoFar().intValue();
+		triplesExpectedToBeDeleted[0] = 0;
+
 		// Generate the change sets. Additions and deletions are supported.
 		// TODO: support changes
 		int preVersionDeletedCWs = 0;
@@ -228,12 +233,15 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				currVersionDeletedCreativeWorks += cwToBeDeleted.size();
 			}
 			preVersionDeletedCWs = currVersionDeletedCreativeWorks;
+			triplesExpectedToBeDeleted[i] = currVersionDeletedTriples;
 			long deleteSetEnd = System.currentTimeMillis();
 			LOGGER.info("Deleteset of total " + String.format(Locale.US, "%,d", preVersionDeletedCWs).replace(',', '.') + " Creative Works generated successfully. Triples: " + String.format(Locale.US, "%,d", currVersionDeletedTriples).replace(',', '.') + " . Target: " + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.') + " triples. Time: " + (deleteSetEnd - deleteSetStart) + " ms.");
 
 			// produce the add set
 			LOGGER.info("Generating version " + i + " add-set.");
 			dataGenerator.produceAdded(destinationPath, triplesToBeAdded);
+			triplesExpectedToBeAdded[i] = dataGenerator.getTriplesGeneratedSoFar().intValue();
+
 		}
 		long changeSetEnd = System.currentTimeMillis();
 		LOGGER.info("All changesets generated successfully. Time: " + (changeSetEnd - changeSetStart) + " ms.");
@@ -338,7 +346,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		dbPediaVersionsDistribution = new int[numberOfVersions];
 		double dbpediaVersions = 5;
-		int versionsToMap = 5;
+		int versionsDistributed = 0;
+		int[] triplesToBeAdded = { 40362, 9315, 45991, 16053, 32884 }; 
+		int[] triplesToBeDeleted = { 0, 14260, 16888, 20479, 21957};
 		double step = (numberOfVersions / dbpediaVersions) < 1 ? Math.floor(numberOfVersions / dbpediaVersions) : Math.ceil(numberOfVersions / dbpediaVersions);
 		Arrays.fill(dbPediaVersionsDistribution, step == 0 ? 1 : 0);
 		
@@ -358,16 +368,18 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		// if the number of versions that have to be produced is larger than the total 5 of dbpedia
 		// determine in which versions the dbpedia ones will be assigned
-		while(versionsToMap > 0 && step > 0) {
-			for (int i = 0; i<dbPediaVersionsDistribution.length;) {
-				if(versionsToMap == 0) {
+		while(versionsDistributed < dbpediaVersions && step > 0) {
+			for (int i = 0; i < dbPediaVersionsDistribution.length;) {
+				if(versionsDistributed == 5) {
 					break;
 				} else if(dbPediaVersionsDistribution[i] == 1) {
 					i += step/2;
 				} else {
 					dbPediaVersionsDistribution[i] = 1;
+					triplesExpectedToBeAdded[i] += triplesToBeAdded[versionsDistributed];
+					triplesExpectedToBeDeleted[i] += triplesToBeDeleted[versionsDistributed];
 					i += step;
-					versionsToMap--;
+					versionsDistributed++;
 				}
 			}
 		}
@@ -943,7 +955,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
             	// computation removed from datagen implementation) now cannot to be done as 
             	// all data generated in the init function (before datagen's start)
             	LOGGER.info("Send signal to benchmark controller that all data (#" + numberOfmessages + ") of version " + version +" successfully sent to system adapter.");
-            	ByteBuffer buffer = ByteBuffer.allocate(12);
+            	ByteBuffer buffer = ByteBuffer.allocate(20);
+            	buffer.putInt(triplesExpectedToBeAdded[version]);
+            	buffer.putInt(triplesExpectedToBeDeleted[version]);
             	buffer.putInt(triplesExpectedToBeLoaded[version]);
             	buffer.putInt(getGeneratorId());
             	buffer.putInt(numberOfmessages.get());

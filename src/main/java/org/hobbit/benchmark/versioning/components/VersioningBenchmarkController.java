@@ -39,6 +39,8 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private int loadedVersion = 0;
     private long prevLoadingStartedTime = 0;
     private long[] loadingTimes;
+    private AtomicIntegerArray triplesToBeAdded;
+    private AtomicIntegerArray triplesToBeDeleted;
     private AtomicIntegerArray triplesToBeLoaded;
     private AtomicInteger numberOfMessages = new AtomicInteger(0);
 
@@ -56,6 +58,8 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		String dataForm = (String) getProperty(PREFIX + "generatedDataForm", "ic");
 		
 		loadingTimes = new long[numOfVersions];
+		triplesToBeAdded = new AtomicIntegerArray(numOfVersions);
+		triplesToBeDeleted = new AtomicIntegerArray(numOfVersions);
 		triplesToBeLoaded = new AtomicIntegerArray(numOfVersions);
 		
 		// data generators environmental values
@@ -159,10 +163,11 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	// computing the gold standard. Only the number of messages and data generator's
         	// id will be sent with DATA_GEN_VERSION_SENT command
         	ByteBuffer buffer = ByteBuffer.wrap(data);
-        	int triplesNum = buffer.getInt();
+        	triplesToBeAdded.addAndGet(loadedVersion, buffer.getInt());
+        	triplesToBeDeleted.addAndGet(loadedVersion, buffer.getInt());
+        	triplesToBeLoaded.addAndGet(loadedVersion, buffer.getInt());
             int dataGeneratorId = buffer.getInt();
             int dataGenNumOfMessages = buffer.getInt();
-        	triplesToBeLoaded.addAndGet(loadedVersion, triplesNum);
         	numberOfMessages.addAndGet(dataGenNumOfMessages);
         	
         	// signal sent from data generator that all its data generated successfully
@@ -236,9 +241,13 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         // pass the loading times and the number of triples that have to be loaded to 
         // the environment variables of the evaluation module, so that it can compute
         // the ingestion and applied changes speeds
-        for(int version=0; version<numOfVersions; version++) {
+        for(int version = 0; version < numOfVersions; version++) {
         	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
-        			String.format(VersioningConstants.TRIPLES_TO_BE_LOADED, version) + "=" + triplesToBeLoaded.get(version));
+        			String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_ADDED, version) + "=" + triplesToBeAdded.get(version));
+        	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
+        			String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_DELETED, version) + "=" + triplesToBeDeleted.get(version));
+        	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
+        			String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_LOADED, version) + "=" + triplesToBeLoaded.get(version));
         	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
         			String.format(VersioningConstants.LOADING_TIMES, version) + "=" + loadingTimes[version]);
         }

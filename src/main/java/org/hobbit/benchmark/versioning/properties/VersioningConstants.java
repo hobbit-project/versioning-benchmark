@@ -63,7 +63,11 @@ public final class VersioningConstants {
 	
 	public static final String LOADING_TIMES = "version_%d_loading_time";
 	
-	public static final String TRIPLES_TO_BE_LOADED= "version_%d_triples_to_be_loaded";
+	public static final String VERSION_TRIPLES_TO_BE_LOADED = "version_%d_triples_to_be_loaded";
+
+	public static final String VERSION_TRIPLES_TO_BE_ADDED = "version_%d_triples_to_be_added";
+
+	public static final String VERSION_TRIPLES_TO_BE_DELETED = "version_%d_triples_to_be_deleted";
 
 	public static final String TOTAL_VERSIONS = "versions_number";
 

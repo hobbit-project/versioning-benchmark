@@ -78,9 +78,11 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         numberOfVersions = Integer.parseInt(env.get(VersioningConstants.TOTAL_VERSIONS));
         for(int version=0; version<numberOfVersions; version++) {
         	long loadingTime = Long.parseLong(env.get(String.format(VersioningConstants.LOADING_TIMES, version)));
-        	int triplesToBeLoaded = Integer.parseInt(env.get(String.format(VersioningConstants.TRIPLES_TO_BE_LOADED, version)));
-    		LOGGER.info("version " + version + " loaded in " + loadingTime + " ms (" + triplesToBeLoaded + " triples had to be loaded).");
-        	is.reportSuccess(version, triplesToBeLoaded, loadingTime);
+        	int triplesToBeAdded = Integer.parseInt(env.get(String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_ADDED, version)));
+        	int triplesToBeDeleted = Integer.parseInt(env.get(String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_DELETED, version)));
+        	int triplesToBeLoaded = Integer.parseInt(env.get(String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_LOADED, version)));
+        	LOGGER.info("version " + version + " loaded in " + loadingTime + " ms (" + triplesToBeLoaded + " triples had to be loaded).");
+        	is.reportSuccess(version, triplesToBeAdded, triplesToBeDeleted, triplesToBeLoaded, loadingTime);
         }
         
         INITIAL_VERSION_INGESTION_SPEED = initFinalModelFromEnv(env, VersioningConstants.INITIAL_VERSION_INGESTION_SPEED);

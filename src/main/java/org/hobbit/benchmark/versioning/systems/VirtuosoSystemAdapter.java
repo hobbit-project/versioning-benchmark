@@ -8,15 +8,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -60,12 +57,9 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 
 	/* (non-Javadoc)
 	 * @see org.hobbit.core.components.TaskReceivingComponent#receiveGeneratedData(byte[])
-	 * EFTIAKSA TO RECEIVE NA KSEKINISW APO EDW AVRIO PARASKEVI
 	 */
 	public void receiveGeneratedData(byte[] data) {		
 		ByteBuffer dataBuffer = ByteBuffer.wrap(data);
-		// read the graph uri in order to identify the version in which
-		// received data will be loaded into.
 		String fileName = RabbitMQUtils.readString(dataBuffer);
 
 		// read the data contents
@@ -81,15 +75,6 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 				fos = new FileOutputStream(datasetFolderName + File.separator + fileName);
 				IOUtils.write(dataContentBytes, fos);
 				fos.close();
-				
-				// test
-				BufferedReader reader = new BufferedReader(new FileReader(datasetFolderName));
-				int lines = 0;
-				while (reader.readLine() != null) lines++;
-				reader.close();
-				LOGGER.info(datasetFolderName + " (" + (double) new File(datasetFolderName).length() / 1000 + " KB) received from Data Generator with " + lines + " lines.");
-				// test
-
 			} catch (FileNotFoundException e) {
 				LOGGER.error("Exception while creating/opening files to write received data.", e);
 			} catch (IOException e) {
@@ -114,7 +99,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			String queryText = RabbitMQUtils.readString(buffer);
 
 			Query query = QueryFactory.create(queryText);
-			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
+			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://" + virtuosoContName + ":8890/sparql", query);
 			ResultSet rs = null;
 
 			try {

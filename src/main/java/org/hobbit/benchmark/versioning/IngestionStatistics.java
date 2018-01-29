@@ -18,8 +18,9 @@ public class IngestionStatistics {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningEvaluationModule.class);
 
-	// the total number of triples up to every version
-	private HashMap<Integer,Integer> totalTriples = new HashMap<Integer,Integer>();
+	// a map containing the version number as key and an arraylist with the number 
+	// of total added, deleted and total triples at indexes 0, 1 and 2 respectively.
+	private HashMap<Integer,int[]> versionStats = new HashMap<Integer,int[]>(); // anti gia integer arraylist me added, deleted, total
 	// the total number of each version's changes with respect to the previous one
 	private HashMap<Integer,Long> loadingTimes = new HashMap<Integer,Long>();
 	
@@ -34,9 +35,9 @@ public class IngestionStatistics {
 		failuresCount = new AtomicLong(0);
 	}
 		
-	public synchronized void reportSuccess(int version, int loadedTriples, long currentLoadingTimeMs) {
+	public synchronized void reportSuccess(int version, int triplesToBeAdded, int triplesToBeDeleted, int triplesToBeLoaded, long currentLoadingTimeMs) {
 		loadingTimes.put(version, currentLoadingTimeMs);
-		totalTriples.put(version, loadedTriples);
+		versionStats.put(version, new int[] { triplesToBeAdded, triplesToBeDeleted, triplesToBeLoaded });
 	}
 	
 	public void reportFailure() {
@@ -44,9 +45,9 @@ public class IngestionStatistics {
 	}
 	
 	public float getInitialVersionIngestionSpeed() {
-		if(loadingTimes.containsKey(0) && totalTriples.containsKey(0)) {
+		if(loadingTimes.containsKey(0) && versionStats.containsKey(0)) {
 			long initVersionLoadingTimeMS = loadingTimes.get(0);
-			int initVersionTriples = totalTriples.get(0);
+			int initVersionTriples = versionStats.get(0)[2];
 			// result should be returned in seconds
 			return  initVersionTriples / (initVersionLoadingTimeMS / 1000f);
 		} else {
@@ -55,10 +56,8 @@ public class IngestionStatistics {
 	}
 	
 	private void computeChanges() {
-		// TODO: have to be changed in the 2nd version of the benchmark in which
-		// there will be deletions, or changes too
-		for(int i=1; i<totalTriples.size(); i++) {
-			int changedTriples = getVersionTriples(i) - getVersionTriples(i-1);
+		for(int i = 1; i < versionStats.size(); i++) {
+			int changedTriples = getVersionAddedTriples(i) + getVersionDeletedTriples(i);
 			float loadingTime = loadingTimes.get(i) / 1000f;
 			avgChangesPS += changedTriples / loadingTime;
 		}
@@ -72,9 +71,19 @@ public class IngestionStatistics {
 		return avgChangesPS / (loadingTimes.size() - 1);
 	}
 	
-	public int getVersionTriples(int version) {
-		return totalTriples.get(version);
+	public int getVersionAddedTriples(int version) {
+		return versionStats.get(version)[0];
 	}
+	
+	
+	public int getVersionDeletedTriples(int version) {
+		return versionStats.get(version)[1];
+	}
+	
+	public int getVersionTriples(int version) {
+		return versionStats.get(version)[2];
+	}
+
 	
 	public long getRunsCount() {
 		return runsCount.get();
