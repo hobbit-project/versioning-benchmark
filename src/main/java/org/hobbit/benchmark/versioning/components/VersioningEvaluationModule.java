@@ -13,11 +13,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
+import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.sparql.resultset.ResultSetCompare;
 import org.apache.jena.vocabulary.RDF;
 import org.hobbit.benchmark.versioning.IngestionStatistics;
 import org.hobbit.benchmark.versioning.QueryTypeStatistics;
@@ -124,124 +126,86 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 	protected void evaluateResponse(byte[] expectedData, byte[] receivedData, long taskSentTimestamp,
 			long responseReceivedTimestamp) throws Exception {
 		
-		ByteBuffer expectedBuffer = ByteBuffer.wrap(expectedData);
-				
-		LOGGER.info("taskSentTimestamp: "+taskSentTimestamp);
-		LOGGER.info("responseReceivedTimestamp: "+responseReceivedTimestamp);
-		
 		LOGGER.info("Evaluating response of query performance task...");		
+		ByteBuffer expectedBuffer = ByteBuffer.wrap(expectedData);
 		
 		// get the query type
 		int queryType = expectedBuffer.getInt();
 		LOGGER.info("queryType: "+queryType);
+		
 		// get the expected results
 		byte expectedDataBytes[] = RabbitMQUtils.readByteArray(expectedBuffer);
 		InputStream inExpected = new ByteArrayInputStream(expectedDataBytes);
-		ResultSet expected = ResultSetFactory.fromJSON(inExpected);
+		ResultSetRewindable expected = ResultSetFactory.makeRewindable(ResultSetFactory.fromJSON(inExpected));
 				
 		// get the returned results
 		InputStream inReceived = new ByteArrayInputStream(receivedData);
-		ResultSet received = ResultSetFactory.fromJSON(inReceived);
-		
-		// compute the returned results row number
-		int resultRowCount = received.getRowNumber();
-		LOGGER.info("resultRowCount: "+resultRowCount);
-		// compute the expected results row number
-		int expectedResultsNum = expected.getRowNumber();
-		LOGGER.info("expectedResultsNum: "+expectedResultsNum);
-		// compute query execution time by the system
-		long execTime = responseReceivedTimestamp - taskSentTimestamp;
-		LOGGER.info("execTime: "+execTime);
+		ResultSetRewindable received = ResultSetFactory.makeRewindable(ResultSetFactory.fromJSON(inReceived));
 
-		boolean resultCompleteness = resultRowCount == expectedResultsNum;
-
-		// TODO extend check for completeness: do not only check the number of results
+		// for query types 1, 3 and 5 where we have materialization results (so large results)
+		// we only compare result sizes to check completeness 
 		switch (queryType) {
 			case 1:
-				if(resultCompleteness) { 
-					qts1.reportSuccess(execTime); 
-				} else { 
+				if(expected.size() == received.size()) {
+					qts1.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
+				} else {
 					qts1.reportFailure(); 
 				}
 				break;
 			case 2:	
-				if(resultCompleteness) {  
-					qts2.reportSuccess(execTime); 
+				if(ResultSetCompare.equalsByValue(expected, received)) {  
+					qts2.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts2.reportFailure();
 				}
 				break;
 			case 3:	
-				if(resultCompleteness) {  
-					qts3.reportSuccess(execTime); 
+				if(expected.size() == received.size()) {  
+					qts3.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts3.reportFailure(); 
 				}
 				break;
 			case 4:	
-				if(resultCompleteness) {  
-					qts4.reportSuccess(execTime); 
+				if(ResultSetCompare.equalsByValue(expected, received)) {  
+					qts4.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts4.reportFailure(); 
 				}
 				break;
 			case 5:	
-				if(resultCompleteness) {  
-					qts5.reportSuccess(execTime); 
+				if(expected.size() == received.size()) {  
+					qts5.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts5.reportFailure(); 
 				}
 				break;
-			case 6:	
-				int blogPostsDiffReceived = -1;
-				int blogPostsDiffExcpected = -2;
-				
-				if(expected.hasNext()) {
-					blogPostsDiffExcpected = expected.next().getLiteral("blog_posts_diff").getInt();
-				}
-				if(received.hasNext()) {
-					blogPostsDiffReceived = received.next().getLiteral("blog_posts_diff").getInt();
-				}
-
-				LOGGER.info("blogPostsDiffExcpected: "+blogPostsDiffExcpected);
-				LOGGER.info("blogPostsDiffReceived: "+blogPostsDiffReceived);
-				
-				if(resultCompleteness && blogPostsDiffReceived == blogPostsDiffExcpected) {  
-					qts6.reportSuccess(execTime); 
+			case 6:				
+				if(ResultSetCompare.equalsByValue(expected, received)) {  
+					qts6.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts6.reportFailure(); 
 				}
 				break;
 			case 7:	
-				int avgAddedNewsItemsReceived = -1;
-				int avgAddedNewsItemsExcpected = -2;
-				
-				if(expected.hasNext()) {							
-					avgAddedNewsItemsExcpected = expected.next().getLiteral("avg_added_news_items").getInt();
-
-				}
-				if(received.hasNext()) {
-					avgAddedNewsItemsReceived = received.next().getLiteral("avg_added_news_items").getInt();
-				}
-				
-				LOGGER.info("avgAddedNewsItemsExcpected: "+avgAddedNewsItemsExcpected);
-				LOGGER.info("avgAddedNewsItemsReceived: "+avgAddedNewsItemsReceived);
-
-				if(resultCompleteness && avgAddedNewsItemsReceived == avgAddedNewsItemsExcpected) {  
-					qts7.reportSuccess(execTime); 
+				if(ResultSetCompare.equalsByValue(expected, received)) {  
+					qts7.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts7.reportFailure(); 
 				}
 				break;
 			case 8:	
-				if(resultCompleteness) {  
-					qts8.reportSuccess(execTime); 
+				if(ResultSetCompare.equalsByValue(expected, received)) {  
+					qts8.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts8.reportFailure(); 
 				}
 				break;
-				}
-				LOGGER.info("Query task of type: " + queryType + " executed in " + execTime + " ms and returned " + resultRowCount + "/" + expectedResultsNum + " results.");
+		}
+		
+		expected.reset();
+		received.reset();
+		LOGGER.info("Query task of type: " + queryType + " executed in " + (responseReceivedTimestamp - taskSentTimestamp) + " ms and returned " + received.size() + "/" + expected.size() + " results.");
 	}
 	
 	private void computeTotalFailures() {

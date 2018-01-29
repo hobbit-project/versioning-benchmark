@@ -32,7 +32,9 @@ import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.query.ResultSetRewindable;
 import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
@@ -561,14 +563,14 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}
 		
 		for (Task task : tasks) {			
-			ResultSet results = null;
+			ResultSetRewindable results = null;
 			
 			// execute the query on top of virtuoso to compute the expected answers
 			Query query = QueryFactory.create(task.getQuery());
 			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
 			long queryStart = System.currentTimeMillis();
 			try {
-				results = qexec.execSelect();
+				results = ResultSetFactory.makeRewindable(qexec.execSelect());
 			} catch (Exception e) {
 				LOGGER.error("Exception caught during the computation of task " + task.getTaskId() + " expected answers.", e);
 			}				
@@ -581,7 +583,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			//debug
 			LOGGER.info("Expected answers for task " + task.getTaskId() + " computed"
 					+ ". Type: " + task.getQuerySubType() 
-					+ ", ResultsNum: " + results.getRowNumber() 
+					+ ", ResultsNum: " + results.size() 
 					+ ", Time: " + (queryEnd - queryStart) + " ms.");			
 
 			task.setExpectedAnswers(expectedAnswers);
