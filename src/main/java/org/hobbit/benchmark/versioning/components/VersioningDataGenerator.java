@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,13 +21,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.net.ftp.FTPClient;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.sparql.resultset.ResultSetMem;
 import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
@@ -50,7 +51,23 @@ import eu.ldbc.semanticpublishing.substitutionparameters.SubstitutionParametersG
 import eu.ldbc.semanticpublishing.substitutionparameters.SubstitutionQueryParametersManager;
 import eu.ldbc.semanticpublishing.templates.MustacheTemplate;
 import eu.ldbc.semanticpublishing.templates.VersioningMustacheTemplatesHolder;
-import eu.ldbc.semanticpublishing.templates.versioning.*;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery1_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_2Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_3Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery2_4Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery3_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_2Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_3Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery4_4Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery5_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery6_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery7_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_1Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_2Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_3Template;
+import eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery8_4Template;
 import eu.ldbc.semanticpublishing.util.AllocationsUtil;
 import eu.ldbc.semanticpublishing.util.RandomUtil;
 
@@ -283,7 +300,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			
 			long queryStart = 0;
 			long queryEnd = 0;
-			ResultSet results = null;
+			ResultSetRewindable results = null;
 			
 			byte[] expectedAnswers = null;
 			
@@ -292,7 +309,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8891/sparql", query);
 			queryStart = System.currentTimeMillis();
 			try {
-				results = qexec.execSelect();
+				results = ResultSetFactory.makeRewindable(qexec.execSelect());
 			} catch (Exception e) {
 				LOGGER.error("Exception caught during the computation of task " + taskId + " expected answers.", e);
 			}				
@@ -302,10 +319,12 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			ResultSetFormatter.outputAsJSON(outputStream, results);
 			expectedAnswers = outputStream.toByteArray();
+			LOGGER.info("ResultsMemNum prin to rewind: "+results.size());
+			results.reset();
 			//debug
-			LOGGER.info("Expected answers for task " + taskId + " computed. "
-					+ "Type: " + queryType 
-					+ ", ResultsNum: " + results.getRowNumber() 
+			LOGGER.info("Expected answers for task " + taskId + " computed"
+					+ ". Type: " + queryType 
+					+ ", ResultsMemNum meta to rewind: " + results.size() 
 					+ ", Time: " + (queryEnd - queryStart) + " ms.");			
 
 			task.setExpectedAnswers(expectedAnswers);
