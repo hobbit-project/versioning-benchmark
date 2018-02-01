@@ -1103,8 +1103,8 @@
 <http://dbpedia.org/resource/Aer_Lingus_Regional>	<http://xmlns.com/foaf/0.1/name>	"Aer Lingus Regional"@en .
 <http://dbpedia.org/resource/Aer_Lingus_Regional>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Aer_Lingus_Regional> .
 <http://dbpedia.org/resource/Aero_Engineers_Australia>	<http://dbpedia.org/ontology/abstract>	"Aeronautical Engineers Australia (AEA) is an Australian aeronautical engineering consultancy and aircraft technical service provider. It is the largest civil aircraft design organisation in the Asia Pacific region and is now headquartered in Brisbane."@en .
-<http://dbpedia.org/resource/Aero_Engineers_Australia>	<http://dbpedia.org/ontology/formationYear>	"1978-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Aero_Engineers_Australia>	<http://dbpedia.org/ontology/foundingYear>	"1978-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Aero_Engineers_Australia>	<http://dbpedia.org/ontology/formationYear>	"1978+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Aero_Engineers_Australia>	<http://dbpedia.org/ontology/foundingYear>	"1978+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Aero_Engineers_Australia>	<http://dbpedia.org/ontology/numberOfEmployees>	"30"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Aero_Engineers_Australia>	<http://dbpedia.org/ontology/numberOfStaff>	"30"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Aero_Engineers_Australia>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/7/7b/VHVHA.JPG/200px-VHVHA.JPG> .
@@ -1452,9 +1452,9 @@
 <http://dbpedia.org/resource/Alain_Prost>	<http://dbpedia.org/property/championships>	"4"^^<http://www.w3.org/2001/XMLSchema#int> .
 <http://dbpedia.org/resource/Alain_Prost>	<http://dbpedia.org/property/years>	"1980"^^<http://www.w3.org/2001/XMLSchema#int> .
 <http://dbpedia.org/resource/Alenia_Aermacchi>	<http://dbpedia.org/ontology/abstract>	"Alenia Aermacchi is an Italian aircraft manufacturer. Formerly known as Aeronautica Macchi, the company was founded in 1913 by Giulio Macchi at Varese in north-western Lombardy. With a factory located on the shores of Lake Varese, the firm originally manufactured seaplanes. After the Second World War, the company began producing motorcycles as a way to fill the post-war need for cheap, efficient transportation. The motorcycle branch was sold in 1974. The company now specialises in civil and military pilot training. Alenia Aermacchi has sold about 2,000 trainers to more than 40 countries and has collaborated in major international military programs. In July 2003, Alenia Aermacchi was integrated into the Finmeccanica Group, which increased its shareholding to 99%. The company's facilities are located at Venegono Superiore (Varese province). Its workforce totals about 1,800 and its plants occupy an area of 274,000 m\u00B2. Facilities include laboratories and workshops for structural tests and a wind and a water tunnel in addition to an airfield for flight test activities."@en .
-<http://dbpedia.org/resource/Alenia_Aermacchi>	<http://dbpedia.org/ontology/formationYear>	"1913-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Alenia_Aermacchi>	<http://dbpedia.org/ontology/foundingYear>	"1913-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Alenia_Aermacchi>	<http://dbpedia.org/ontology/foundingYear>	"1913-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Alenia_Aermacchi>	<http://dbpedia.org/ontology/formationYear>	"1913+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Alenia_Aermacchi>	<http://dbpedia.org/ontology/foundingYear>	"1913+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Alenia_Aermacchi>	<http://dbpedia.org/ontology/foundingYear>	"1913+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Alenia_Aermacchi>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Varese> .
 <http://dbpedia.org/resource/Alenia_Aermacchi>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Aermacchi_SF260.jpg/200px-Aermacchi_SF260.jpg> .
 <http://dbpedia.org/resource/Alenia_Aermacchi>	<http://dbpedia.org/ontology/wikiPageExternalLink>	<http://www.aermacchi.it/> .
@@ -1815,7 +1815,7 @@
 <http://dbpedia.org/resource/Austin_Automobile_Company>	<http://dbpedia.org/property/locationCountry>	"United States"@en .
 <http://dbpedia.org/resource/Austin_Automobile_Company>	<http://dbpedia.org/property/products>	"Automotive parts"@en .
 <http://dbpedia.org/resource/Austin_Automobile_Company>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Austin_Automobile_Company> .
-<http://dbpedia.org/resource/Axcelis_Technologies>	<http://dbpedia.org/ontology/foundingYear>	"1995-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Axcelis_Technologies>	<http://dbpedia.org/ontology/foundingYear>	"1995+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Axcelis_Technologies>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Beverly,_Massachusetts> .
 <http://dbpedia.org/resource/Axcelis_Technologies>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/United_States> .
 <http://dbpedia.org/resource/Axcelis_Technologies>	<http://dbpedia.org/ontology/netIncome>	"-1.9666E8"^^<http://dbpedia.org/datatype/usDollar> .
@@ -1867,7 +1867,7 @@
 <http://dbpedia.org/resource/Azizi_Bank>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Azizi_Bank> .
 <http://dbpedia.org/resource/BAE_Systems_Land_&_Armaments>	<http://dbpedia.org/ontology/abstract>	"BAE Systems Land &amp; Armaments is a subsidiary of BAE Systems Inc. and is responsible for the design, development and production of combat vehicles, ammunition, artillery systems, naval guns and missile launchers. It is the largest such company in the world. It was created on June 24, 2005, following the completion of BAE Systems plc's acquisition of United Defense and its merger with BAE Systems Land Systems. The L&amp;A group In 2007 BAE Systems acquired Armor Holdings adding to the size of Land &amp; Armaments significantly."@en .
 <http://dbpedia.org/resource/BAE_Systems_Land_&_Armaments>	<http://dbpedia.org/ontology/foundingDate>	"2005-06-24"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/BAE_Systems_Land_&_Armaments>	<http://dbpedia.org/ontology/foundingYear>	"2005-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/BAE_Systems_Land_&_Armaments>	<http://dbpedia.org/ontology/foundingYear>	"2005+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/BAE_Systems_Land_&_Armaments>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Defense_contractor> .
 <http://dbpedia.org/resource/BAE_Systems_Land_&_Armaments>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Arlington,_Virginia> .
 <http://dbpedia.org/resource/BAE_Systems_Land_&_Armaments>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/United_States> .
@@ -2604,8 +2604,8 @@
 <http://dbpedia.org/resource/Berkshire_Hathaway>	<http://dbpedia.org/ontology/abstract>	"Berkshire Hathaway Inc. is an American multinational conglomerate holding company headquartered in Omaha, Nebraska, United States, that oversees and manages a number of subsidiary companies. The company averaged an annual growth in book value of 20.3% to its shareholders for the last 44 years, while employing large amounts of capital, and minimal debt. Berkshire Hathaway stock produced a total return of 76% from 2000\u20132010 versus a negative 11.3% return for the S&amp;P 500. The company is known for its control by investor Warren Buffett, who is the company's chairman and CEO. Buffett has used the \"float\" provided by Berkshire Hathaway's insurance operations (paid premiums which are not held in reserves for reported claims and may be invested) to finance his investments. In the early part of his career at Berkshire, he focused on long-term investments in publicly quoted stocks, but more recently he has turned to buying whole companies. Berkshire now owns a diverse range of businesses including confectionery, retail, railroad, home furnishings, encyclopedias, manufacturers of vacuum cleaners, jewelry sales; newspaper publishing; manufacture and distribution of uniforms; as well as several regional electric and gas utilities. According to the Forbes Global 2000 List Berkshire Hathaway is the eighth largest public company in the world."@en .
 <http://dbpedia.org/resource/Berkshire_Hathaway>	<http://dbpedia.org/ontology/assets>	"3.92647E11"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Berkshire_Hathaway>	<http://dbpedia.org/ontology/equity>	"1.68961E11"^^<http://dbpedia.org/datatype/usDollar> .
-<http://dbpedia.org/resource/Berkshire_Hathaway>	<http://dbpedia.org/ontology/formationYear>	"1839-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Berkshire_Hathaway>	<http://dbpedia.org/ontology/foundingYear>	"1839-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Berkshire_Hathaway>	<http://dbpedia.org/ontology/formationYear>	"1839+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Berkshire_Hathaway>	<http://dbpedia.org/ontology/foundingYear>	"1839+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Berkshire_Hathaway>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Conglomerate_%28company%29> .
 <http://dbpedia.org/resource/Berkshire_Hathaway>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Chairman> .
 <http://dbpedia.org/resource/Berkshire_Hathaway>	<http://dbpedia.org/ontology/netIncome>	"1.0254E10"^^<http://dbpedia.org/datatype/usDollar> .
@@ -2637,8 +2637,8 @@
 <http://dbpedia.org/resource/Berkshire_Hathaway>	<http://xmlns.com/foaf/0.1/homepage>	<http://www.berkshirehathaway.com/> .
 <http://dbpedia.org/resource/Berkshire_Hathaway>	<http://xmlns.com/foaf/0.1/name>	"Berkshire Hathaway"@en .
 <http://dbpedia.org/resource/Bertelsmann>	<http://dbpedia.org/ontology/abstract>	"Bertelsmann AG is a German multinational media corporation founded in 1835, based in G\u00FCtersloh, Germany. The company operates in 63 countries and employs 102,983 workers (as of December 31, 2009). In 2008 the company reported a \u20AC16.118 billion consolidated revenue and an operating EBIT of \u20AC1.568 billion. Among its some 2000 subdivisions, subsidiaries, and branches are Random House, RTL Group, Gruner + Jahr, Arvato, and BMG Rights Management. Bertelsmann is majority owned (77.4%) by the Bertelsmann Foundation, a non-profit organisation and political think tank founded by the Mohn family. The Mohn family owns the remaining 22.6% of the company."@en .
-<http://dbpedia.org/resource/Bertelsmann>	<http://dbpedia.org/ontology/formationYear>	"1835-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Bertelsmann>	<http://dbpedia.org/ontology/foundingYear>	"1835-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Bertelsmann>	<http://dbpedia.org/ontology/formationYear>	"1835+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Bertelsmann>	<http://dbpedia.org/ontology/foundingYear>	"1835+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Bertelsmann>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Hartmut_Ostrowski> .
 <http://dbpedia.org/resource/Bertelsmann>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/G%C3%BCtersloh> .
 <http://dbpedia.org/resource/Bertelsmann>	<http://dbpedia.org/ontology/netIncome>	"3.5E7"^^<http://dbpedia.org/datatype/euro> .
@@ -2902,8 +2902,8 @@
 <http://dbpedia.org/resource/Brixton>	<http://www.w3.org/2000/01/rdf-schema#comment>	"Brixton is a district in the London Borough of Lambeth in south London, England. It is 3.8 miles (6.1 km) south south-east of Charing Cross. The area is identified in the London Plan as one of 35 major centres in Greater London. Brixton is mainly residential with a prominent street market and substantial retail sector. It is a multiethnic community, with around 24 percent of its population being of African and Caribbean descent,."@en .
 <http://dbpedia.org/resource/Brixton>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Brixton> .
 <http://dbpedia.org/resource/Broughton_Ales>	<http://dbpedia.org/ontology/abstract>	"Broughton Ales is a brewery near Broughton, which lies between the towns of Biggar and Peebles in Scotland. The brewery was founded in 1980."@en .
-<http://dbpedia.org/resource/Broughton_Ales>	<http://dbpedia.org/ontology/formationYear>	"1980-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Broughton_Ales>	<http://dbpedia.org/ontology/foundingYear>	"1980-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Broughton_Ales>	<http://dbpedia.org/ontology/formationYear>	"1980+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Broughton_Ales>	<http://dbpedia.org/ontology/foundingYear>	"1980+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Broughton_Ales>	<http://dbpedia.org/ontology/locationCity>	<http://dbpedia.org/resource/Biggar> .
 <http://dbpedia.org/resource/Broughton_Ales>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/b/b8/Broughtonales.jpg/200px-Broughtonales.jpg> .
 <http://dbpedia.org/resource/Broughton_Ales>	<http://dbpedia.org/property/foundation>	"1980"^^<http://www.w3.org/2001/XMLSchema#int> .
@@ -2925,9 +2925,9 @@
 <http://dbpedia.org/resource/Broughton_Ales>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Broughton_Ales> .
 <http://dbpedia.org/resource/Candydate_jobs>	<http://dbpedia.org/ontology/abstract>	"CandyDate Jobs India is an employment agency headquartered in New Delhi, India. Promoters hold 92 per cent of the company. The firm is operational in United States of America, India, United Kingdom, Australia, Japan &amp; Dubai. CandyDate Jobs India is primarily used to help those seeking work to find job openings that match their skills and location. Internationally, over 70 million resumes are registered with CandyDate Jobs."@en .
 <http://dbpedia.org/resource/Candydate_jobs>	<http://dbpedia.org/ontology/assets>	"2.921E7"^^<http://dbpedia.org/datatype/usDollar> .
-<http://dbpedia.org/resource/Candydate_jobs>	<http://dbpedia.org/ontology/formationYear>	"1999-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Candydate_jobs>	<http://dbpedia.org/ontology/foundingYear>	"1999-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Candydate_jobs>	<http://dbpedia.org/ontology/foundingYear>	"2007-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Candydate_jobs>	<http://dbpedia.org/ontology/formationYear>	"1999+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Candydate_jobs>	<http://dbpedia.org/ontology/foundingYear>	"1999+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Candydate_jobs>	<http://dbpedia.org/ontology/foundingYear>	"2007+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Candydate_jobs>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Human_Resource_Consulting> .
 <http://dbpedia.org/resource/Candydate_jobs>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Palo_Alto> .
 <http://dbpedia.org/resource/Candydate_jobs>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/United_States_of_America> .
@@ -3082,8 +3082,8 @@
 <http://dbpedia.org/resource/Cenikor_Foundation>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Cenikor_Foundation> .
 <http://dbpedia.org/resource/CenturyLink>	<http://dbpedia.org/ontology/abstract>	"CenturyLink, Inc. is a global broadband and telecommunications company headquartered in Monroe, Louisiana. The company, founded as Central Telephone &amp; Electronics Corporation in 1968, later changed its name to Century Telephone Enterprises, Inc. in 1971, and then was called CenturyTel, Inc. from 1999 to 2010. A member of the S&amp;P 500 index, the company operates as a local exchange carrier and Internet service provider in U.S. markets and is the third-largest telecommunications company in the United States in terms of lines served, behind AT&amp;T and Verizon Communications. It also provides long distance service. Approximately 45% of total employees are represented by two labor unions; the Communications Workers of America and the International Brotherhood of Electrical Workers. It acquired Embarq in 2009 and began doing business as CenturyLink, officially changing its corporate name to CenturyLink, Inc. in May 2010. The company completed its acquisition of Qwest on April 1, 2011."@en .
 <http://dbpedia.org/resource/CenturyLink>	<http://dbpedia.org/ontology/formationDate>	"1968-04-30"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/CenturyLink>	<http://dbpedia.org/ontology/formationYear>	"1968-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/CenturyLink>	<http://dbpedia.org/ontology/foundingYear>	"1968-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/CenturyLink>	<http://dbpedia.org/ontology/formationYear>	"1968+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/CenturyLink>	<http://dbpedia.org/ontology/foundingYear>	"1968+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/CenturyLink>	<http://dbpedia.org/ontology/numberOfEmployees>	"47500"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/CenturyLink>	<http://dbpedia.org/ontology/wikiPageExternalLink>	<http://www.centurylink.com/> .
 <http://dbpedia.org/resource/CenturyLink>	<http://dbpedia.org/ontology/wikiPageExternalLink>	<http://www.thetimesnews.com/articles/company-1624-telephone-centurytel.html> .
@@ -3254,11 +3254,11 @@
 <http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/abstract>	"Cisco Systems, Inc. is an American multinational corporation headquartered in San Jose, California, United States, that designs, manufactures, and sells networking equipment. The stock was added to the Dow Jones Industrial Average on June 8, 2009, and is also included in the S&amp;P 500 Index, the Russell 1000 Index, NASDAQ 100 Index and the Russell 1000 Growth Stock Index."@en .
 <http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/assets>	"8.709E10"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/equity>	"4.725E10"^^<http://dbpedia.org/datatype/usDollar> .
-<http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/formationYear>	"1984-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/formationYear>	"1984+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Len_Bosack> .
 <http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Nicholas_Pham> .
 <http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Richard_Troiano> .
-<http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/foundingYear>	"1984-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/foundingYear>	"1984+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Computer_network> .
 <http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/John_Chambers_%28CEO%29> .
 <http://dbpedia.org/resource/Cisco_Systems>	<http://dbpedia.org/ontology/netIncome>	"6.49E9"^^<http://dbpedia.org/datatype/usDollar> .
@@ -3364,9 +3364,9 @@
 <http://dbpedia.org/resource/Comcast>	<http://dbpedia.org/ontology/assets>	"1.18584E11"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Comcast>	<http://dbpedia.org/ontology/assets>	"1.57818E11"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Comcast>	<http://dbpedia.org/ontology/equity>	"4.4434E10"^^<http://dbpedia.org/datatype/usDollar> .
-<http://dbpedia.org/resource/Comcast>	<http://dbpedia.org/ontology/formationYear>	"1963-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Comcast>	<http://dbpedia.org/ontology/formationYear>	"1963+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Comcast>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Daniel_Aaron_(founder)> .
-<http://dbpedia.org/resource/Comcast>	<http://dbpedia.org/ontology/foundingYear>	"1963-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Comcast>	<http://dbpedia.org/ontology/foundingYear>	"1963+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Comcast>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Box_Office> .
 <http://dbpedia.org/resource/Comcast>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Cable_industry> .
 <http://dbpedia.org/resource/Comcast>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Commercial_broadcasting> .
@@ -3480,7 +3480,7 @@
 <http://dbpedia.org/resource/Copa_Tres_Diamantes>	<http://dbpedia.org/property/wikiPageUsesTemplate>	<http://dbpedia.org/resource/Template:Infobox_Golf_Tournament> .
 <http://dbpedia.org/resource/Copa_Tres_Diamantes>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Copa_Tres_Diamantes> .
 <http://dbpedia.org/resource/Cosworth>	<http://dbpedia.org/ontology/abstract>	"Cosworth is a high-performance engineering company founded in London in 1958, specialising in engines and electronics for automobile racing (motorsport), mainstream automotive and defence industries. Cosworth is based in Northampton, England, with North American facilities in Torrance, Indianapolis and Mooresville and an Indian facility in Pune. Cosworth has had a long and distinguished career in Formula One, beginning in 1963. Two Formula One teams were supplied with Cosworth engines in 2006: the Williams team using Cosworth V8 engines, transmissions, and associated electronics; and the Scuderia Toro Rosso team using rev-limited Cosworth V10s based on 2005 spec engines. The end of the 2006 F1 season marked the end of Cosworth's remarkable 43 year association with the series, as no team opted to use Cosworth for 2007. Cosworth returned to Formula One in 2010 as an engine supplier to Williams and three new teams, with first units shipped in January. Cosworth's 176 wins make it one of the most successful engine manufacturers to race in F1, second only to Ferrari in victories. Cosworth was initially an independent company, later becoming part of United Engineering Industries (UEI) and subsequently Vickers, but also had a long association with Ford Motor Company and was a subsidiary of Ford between 1998 and 2004. In 2004, Cosworth and Pi Research were sold by Ford to the current Cosworth Group owned by Gerald Forsythe and Kevin Kalkhoven. Since 2006, Cosworth has committed itself to engineering consultancy and component manufacture for an increasingly diverse customer base, including original equipment manufacturer (OEM) automotive, aerospace, defence and aftermarket sectors. The company is AS9100 and ISO9001 accredited, therefore enabling it to operate in the most demanding and safety critical environments. Current publicised projects range from an 80 cc diesel engine for unmanned aerial vehicles, through to an engineering partnership on one of the world's most powerful normally aspirated road car engines. Participation in world class competition continues, with hardware and consultancy support being applied to 2009 entrants in World Touring Car Championship, Formula One, and a variety of GT and sportscar series. A foundation of the company's aftermarket product line is its Ford Duratec inline-4. Cosworth has broadened this range to supply complete high-performance Subaru EJ25 engines and components for Subaru Imprezas, as well as components for Mitsubishi Lancer Evolution and Nissan vehicles with the VQ35 engine. The company is also a specialist piston supplier, designing and manufacturing forged pistons for road and race vehicles from vintage and classic eras through to leading edge designs for Superbike, World Touring Car, and Formula One."@en .
-<http://dbpedia.org/resource/Cosworth>	<http://dbpedia.org/ontology/foundingYear>	"1958-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Cosworth>	<http://dbpedia.org/ontology/foundingYear>	"1958+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Cosworth>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Defence_industry> .
 <http://dbpedia.org/resource/Cosworth>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Energy_generation_industry> .
 <http://dbpedia.org/resource/Cosworth>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Sports_industry> .
@@ -3542,10 +3542,10 @@
 <http://dbpedia.org/resource/Courvoisier>	<http://www.w3.org/2000/01/rdf-schema#comment>	"Courvoisier is a brand of cognac owned by Beam Inc. The production is now based in the town of Jarnac in the Charente department of France."@en .
 <http://dbpedia.org/resource/Courvoisier>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Courvoisier> .
 <http://dbpedia.org/resource/Coventry_Climax>	<http://dbpedia.org/ontology/abstract>	"Coventry Climax was a British forklift truck, fire pump, and speciality engine manufacturer."@en .
-<http://dbpedia.org/resource/Coventry_Climax>	<http://dbpedia.org/ontology/extinctionYear>	"1986-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Coventry_Climax>	<http://dbpedia.org/ontology/extinctionYear>	"1986+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Coventry_Climax>	<http://dbpedia.org/ontology/fate>	"Purchased by Jaguar Cars, businesses merged by British Leyland or divested"@en .
-<http://dbpedia.org/resource/Coventry_Climax>	<http://dbpedia.org/ontology/formationYear>	"1903-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Coventry_Climax>	<http://dbpedia.org/ontology/foundingYear>	"1903-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Coventry_Climax>	<http://dbpedia.org/ontology/formationYear>	"1903+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Coventry_Climax>	<http://dbpedia.org/ontology/foundingYear>	"1903+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Coventry_Climax>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Henry_Pelham_Lee> .
 <http://dbpedia.org/resource/Coventry_Climax>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Lee_Stroyer> .
 <http://dbpedia.org/resource/Coventry_Climax>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Coventry> .
@@ -3634,8 +3634,8 @@
 <http://dbpedia.org/resource/Cravens>	<http://dbpedia.org/resource/Template:Infobox_Defunct_company>	"successor"@en .
 <http://dbpedia.org/resource/Cravens>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Cravens> .
 <http://dbpedia.org/resource/Crowdspring>	<http://dbpedia.org/ontology/abstract>	"Crowdspring (written \"crowdSPRING\") is one of the largest marketplaces in the world for crowdsourced creative services. Entrepreneurs, small businesses, startups, big Brands and agencies who need a custom logo design, website design, other graphic design, industrial design or copywriting post what they need, when they need it and how much they'll pay. Once posted, creatives from around the world (over 100,000 from 200 countries) submit actual work. Buyers choose from among actual work (currently an average of more than 110 entries per project), not bids and proposals. crowdSPRING was co-founded in May 2007 by Ross Kimbarovsky and Michael Samson. crowdSPRING launched its online marketplace publicly in May 2008. crowdSPRING is based in Chicago. More than 100,000 graphic designers and writers from 200 countries work on crowdSPRING. Unlike traditional marketplaces, where buyers select from among bids and proposals, crowdSPRING uses an innovative business model - buyers select from among actual designs to the buyer's specification, submitted by multiple designers. Buyers average more than 110 designs per project. More than 25,000 entrepreneurs, small businesses and agencies from over 73 countries have leveraged crowdSPRING's creative community for help with graphic, web and industrial design, and for help with written content (including company and product names). crowdSPRING handles full project management, file transfer, payment, legal contracts, and communication (public and private). Designers can create profiles and create portfolios on the site. The crowdSPRING marketplace offers comprehensive feedback, statistics, ratings, and community forums. crowdSPRING offers all buyers a money back guarantee"@en .
-<http://dbpedia.org/resource/Crowdspring>	<http://dbpedia.org/ontology/formationYear>	"2007-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Crowdspring>	<http://dbpedia.org/ontology/foundingYear>	"2007-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Crowdspring>	<http://dbpedia.org/ontology/formationYear>	"2007+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Crowdspring>	<http://dbpedia.org/ontology/foundingYear>	"2007+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Crowdspring>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/7/75/CrowdSPRINGlogo.jpg/200px-CrowdSPRINGlogo.jpg> .
 <http://dbpedia.org/resource/Crowdspring>	<http://dbpedia.org/property/companyLogo>	"500"^^<http://www.w3.org/2001/XMLSchema#int> .
 <http://dbpedia.org/resource/Crowdspring>	<http://dbpedia.org/property/companyLogo>	"500px|CrowdSpring"@en .
@@ -3699,7 +3699,7 @@
 <http://dbpedia.org/resource/Crusades>	<http://www.w3.org/2000/01/rdf-schema#comment>	"The Crusades were a series of religious expeditionary wars blessed by Pope Urban II and the Catholic Church, with the stated goal of restoring Christian access to the holy places in and near Jerusalem. Jerusalem was and is a sacred city and symbol of all three Abrahamic faiths, Jews, Christians and Muslims. Events leading up to the Crusades began in 1071 when the Seljuk Turks decisively defeated the Byzantine army. The Byzantine emperor, Alexis I feared that all Asia Minor would be overrun."@en .
 <http://dbpedia.org/resource/Crusades>	<http://xmlns.com/foaf/0.1/depiction>	<http://upload.wikimedia.org/wikipedia/commons/5/53/Battle-of-Ager-Sanguinis.jpg> .
 <http://dbpedia.org/resource/Cube_Entertainment>	<http://dbpedia.org/ontology/abstract>	"Cube Entertainment/ Play CUBE Entertainment is a South Korean record label, founded in South Korea 2008 by Hong Seung-Sung, the former CEO of JYP Entertainment. Because of its founder's past relations it is often mistaken as a subsidiary of JYP Entertainment; however, it is an independent corporation. A-Cube Entertainment, founded in 2011, was its first subsidiary company. Another subsidiary, Cube DC, was added in 2012. Four idol groups belongs to Cube: 4Minute, Beast, A Pink (A Cube) and BTOB(Cube DC). It also host solo artists: G. NA, Mario (A Cube), and Huh Gak (A Cube). The label is distributed by Universal Music."@en .
-<http://dbpedia.org/resource/Cube_Entertainment>	<http://dbpedia.org/ontology/formationYear>	"2008-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Cube_Entertainment>	<http://dbpedia.org/ontology/formationYear>	"2008+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Cube_Entertainment>	<http://dbpedia.org/ontology/genre>	<http://dbpedia.org/resource/Motorpop> .
 <http://dbpedia.org/resource/Cube_Entertainment>	<http://dbpedia.org/ontology/owner>	<http://dbpedia.org/resource/Hong_Seung-Sung> .
 <http://dbpedia.org/resource/Cube_Entertainment>	<http://dbpedia.org/ontology/owningCompany>	<http://dbpedia.org/resource/Hong_Seung-Sung> .
@@ -3801,8 +3801,8 @@
 <http://dbpedia.org/resource/Daimler_AG>	<http://dbpedia.org/ontology/abstract>	"is a German multinational automotive corporation. Daimler AG is headquartered in Stuttgart, Baden-W\u00FCrttemberg, Germany. By unit sales, it is the thirteenth-largest car manufacturer and second-largest truck manufacturer in the world. In addition to automobiles, Daimler manufactures buses and provides financial services through its Daimler Financial Services arm. The company also owns major stakes in aerospace group EADS, high-technology and parent company of the Vodafone McLaren Mercedes racing team McLaren Group (which currently is in the process of becoming a fully independent stand-alone corporate entity), and Japanese truck maker Mitsubishi Fuso Truck and Bus Corporation. Daimler produces cars and trucks under the brands of Mercedes-Benz, Maybach, Smart, Freightliner and many others."@en .
 <http://dbpedia.org/resource/Daimler_AG>	<http://dbpedia.org/ontology/assets>	"1.3583E11"^^<http://dbpedia.org/datatype/euro> .
 <http://dbpedia.org/resource/Daimler_AG>	<http://dbpedia.org/ontology/equity>	"3.795E10"^^<http://dbpedia.org/datatype/euro> .
-<http://dbpedia.org/resource/Daimler_AG>	<http://dbpedia.org/ontology/formationYear>	"1886-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Daimler_AG>	<http://dbpedia.org/ontology/foundingYear>	"1998-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Daimler_AG>	<http://dbpedia.org/ontology/formationYear>	"1886+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Daimler_AG>	<http://dbpedia.org/ontology/foundingYear>	"1998+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Daimler_AG>	<http://dbpedia.org/ontology/netIncome>	"4.498E9"^^<http://dbpedia.org/datatype/euro> .
 <http://dbpedia.org/resource/Daimler_AG>	<http://dbpedia.org/ontology/numberOfEmployees>	"260100"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Daimler_AG>	<http://dbpedia.org/ontology/operatingIncome>	"7.274E9"^^<http://dbpedia.org/datatype/euro> .
@@ -3840,8 +3840,8 @@
 <http://dbpedia.org/resource/Daisy_Group>	<http://xmlns.com/foaf/0.1/depiction>	<http://upload.wikimedia.org/wikipedia/en/4/4b/Daisy_Group.png> .
 <http://dbpedia.org/resource/Daisy_Group>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Daisy_Group> .
 <http://dbpedia.org/resource/Daktronics>	<http://dbpedia.org/ontology/abstract>	"Daktronics is an American company based in Brookings, South Dakota that designs, manufactures, sells, and services video board, scoreboards, digital billboards and related products. The company is best known for its electronic LED displays. Founded in 1968 by two South Dakota State University professors, Daktronics grew from a provider of electronic voting systems for state legislatures to one of the world's largest suppliers of electronic signs."@en .
-<http://dbpedia.org/resource/Daktronics>	<http://dbpedia.org/ontology/formationYear>	"1968-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Daktronics>	<http://dbpedia.org/ontology/foundingYear>	"1968-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Daktronics>	<http://dbpedia.org/ontology/formationYear>	"1968+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Daktronics>	<http://dbpedia.org/ontology/foundingYear>	"1968+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Daktronics>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Brookings,_South_Dakota> .
 <http://dbpedia.org/resource/Daktronics>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/United_States> .
 <http://dbpedia.org/resource/Daktronics>	<http://dbpedia.org/ontology/netIncome>	"1.5536E8"^^<http://dbpedia.org/datatype/usDollar> .
@@ -4176,8 +4176,8 @@
 <http://dbpedia.org/resource/Domtar>	<http://dbpedia.org/property/logo>	"200"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Domtar>	<http://xmlns.com/foaf/0.1/homepage>	<http://www.domtar.com> .
 <http://dbpedia.org/resource/DoubleClick>	<http://dbpedia.org/ontology/abstract>	"DoubleClick is a subsidiary of Google that develops and provides Internet ad serving services. Its clients include agencies, marketers (Universal McCann Interactive, AKQA etc. ) and publishers who serve customers like Microsoft, General Motors, Coca-Cola, Motorola, L'Or\u00E9al, Palm, Inc. , Apple Inc. , Visa USA, Nike, Carlsberg among others. DoubleClick's headquarters is in New York City, United States. DoubleClick was founded in 1995 by Kevin O'Connor and Dwight Merriman. It was formerly listed as \"DCLK\" on the NASDAQ, and was purchased by private equity firms Hellman &amp; Friedman and JMI Equity in July 2005. In March 2008, Google acquired DoubleClick for US$3.1 billion. Unlike many other dot-com companies, it survived the bursting of the dot-com bubble. Today, it focuses on uploading ads and reporting their performance."@en .
-<http://dbpedia.org/resource/DoubleClick>	<http://dbpedia.org/ontology/formationYear>	"1996-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/DoubleClick>	<http://dbpedia.org/ontology/foundingYear>	"1996-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/DoubleClick>	<http://dbpedia.org/ontology/formationYear>	"1996+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/DoubleClick>	<http://dbpedia.org/ontology/foundingYear>	"1996+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/DoubleClick>	<http://dbpedia.org/ontology/wikiPageExternalLink>	<http://www.doubleclick.com> .
 <http://dbpedia.org/resource/DoubleClick>	<http://dbpedia.org/property/companyLogo>	"Image:DoubleClick logo.png"@en .
 <http://dbpedia.org/resource/DoubleClick>	<http://dbpedia.org/property/foundation>	"New York, New York, USA"@en .
@@ -4518,7 +4518,7 @@
 <http://dbpedia.org/resource/Electronic_Entertainment_Expo>	<http://www.w3.org/2000/01/rdf-schema#comment>	"Electronic Entertainment Expo, commonly known as E3, is an annual trade fair for the computer and video games industry presented by the Entertainment Software Association (ESA). It is used by many video game publishers and accessory manufacturers to show off their upcoming games and game-related merchandise. E3 is widely considered to be the ultimate expo in the video game industry and major video game critics routinely document the event and sometimes even provide a series of E3 awards."@en .
 <http://dbpedia.org/resource/Electronic_Entertainment_Expo>	<http://xmlns.com/foaf/0.1/depiction>	<http://upload.wikimedia.org/wikipedia/commons/0/09/Los_Angeles_Convention_Center_E3_2012.jpg> .
 <http://dbpedia.org/resource/Electronic_Entertainment_Expo>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Electronic_Entertainment_Expo> .
-<http://dbpedia.org/resource/El_Palacio_de_Hierro>	<http://dbpedia.org/ontology/foundingYear>	"1850-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/El_Palacio_de_Hierro>	<http://dbpedia.org/ontology/foundingYear>	"1850+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/El_Palacio_de_Hierro>	<http://dbpedia.org/property/companyLogo>	"center|250px"@en .
 <http://dbpedia.org/resource/El_Palacio_de_Hierro>	<http://dbpedia.org/property/companyType>	"Department store"@en .
 <http://dbpedia.org/resource/El_Palacio_de_Hierro>	<http://dbpedia.org/property/foundation>	"1850 as Las Fabricas de Francia, 1891 as El Palacio de Hierro"@en .
@@ -4539,8 +4539,8 @@
 <http://dbpedia.org/resource/El_Palacio_de_Hierro>	<http://dbpedia.org/resource/Template:Infobox_Company>	"products"@en .
 <http://dbpedia.org/resource/El_Palacio_de_Hierro>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/El_Palacio_de_Hierro> .
 <http://dbpedia.org/resource/Emergent_BioSolutions>	<http://dbpedia.org/ontology/abstract>	"Emergent BioSolutions is a multinational biopharmaceutical company headquartered in Rockville, Maryland. Emergent develops vaccines and therapeutics targeting infectious diseases, oncology and autoimmune disorders. Founded as BioPort Corporation in 1998, the company was named Emergent BioSolutions in 2004. Since the early 2000s, Emergent has expanded its product development, including research and development of products through joint ventures with its most well-known product being an anthrax vaccine."@en .
-<http://dbpedia.org/resource/Emergent_BioSolutions>	<http://dbpedia.org/ontology/formationYear>	"2004-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Emergent_BioSolutions>	<http://dbpedia.org/ontology/foundingYear>	"2004-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Emergent_BioSolutions>	<http://dbpedia.org/ontology/formationYear>	"2004+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Emergent_BioSolutions>	<http://dbpedia.org/ontology/foundingYear>	"2004+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Emergent_BioSolutions>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/b/bf/Emergent_BioSolutions_logo.png/200px-Emergent_BioSolutions_logo.png> .
 <http://dbpedia.org/resource/Emergent_BioSolutions>	<http://dbpedia.org/property/keyPeople>	"CEO Fuad El-Hibri, President & COO Daniel J. Abdun-Nabi"@en .
 <http://dbpedia.org/resource/Emergent_BioSolutions>	<http://dbpedia.org/property/logo>	"225"^^<http://www.w3.org/2001/XMLSchema#int> .
@@ -4563,8 +4563,8 @@
 <http://dbpedia.org/resource/Emergent_BioSolutions>	<http://xmlns.com/foaf/0.1/depiction>	<http://upload.wikimedia.org/wikipedia/en/b/bf/Emergent_BioSolutions_logo.png> .
 <http://dbpedia.org/resource/Emergent_BioSolutions>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Emergent_BioSolutions> .
 <http://dbpedia.org/resource/EMI>	<http://dbpedia.org/ontology/abstract>	"The EMI Group, also known as EMI Music or simply EMI, is a British multinational music company headquartered in London, United Kingdom. It is the fourth-largest business group and family of record labels in the recording industry and was one of the \"big four\" record companies. EMI Group also has a major publishing arm, EMI Music Publishing \u2013 also based in London with offices globally. The company was once a constituent of the FTSE 100 Index but since February 2011 it has been wholly owned by Citigroup (which took the then financially troubled company over because of more than $4 billion in debt it held). EMI is a member of the RIAA &amp; IFPI. In November 2011 Citigroup announced a tentative deal to sell off pieces of the company with the music arm going to Vivendi's Universal Music Group for $1.9 billion and the publishing business going to a Sony/ATV consortium for around $2.2 billion. Other members of the Sony consortium include Blackstone and Abu Dhabi-owned investment fund Mubadala. Both before and after the sale announcement, Universal Music Group pledged to sell off EMI assets to the value of half a billion euros."@en .
-<http://dbpedia.org/resource/EMI>	<http://dbpedia.org/ontology/formationYear>	"1931-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/EMI>	<http://dbpedia.org/ontology/foundingYear>	"1931-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/EMI>	<http://dbpedia.org/ontology/formationYear>	"1931+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/EMI>	<http://dbpedia.org/ontology/foundingYear>	"1931+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/EMI>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/CFO> .
 <http://dbpedia.org/resource/EMI>	<http://dbpedia.org/ontology/locationCity>	<http://dbpedia.org/resource/London> .
 <http://dbpedia.org/resource/EMI>	<http://dbpedia.org/ontology/locationCountry>	<http://dbpedia.org/resource/United_Kingdom> .
@@ -4653,10 +4653,10 @@
 <http://dbpedia.org/resource/ESP-Disk>	<http://purl.org/dc/terms/subject>	<http://dbpedia.org/resource/Category:ESP-Disk_artists> .
 <http://dbpedia.org/resource/ESP-Disk>	<http://www.w3.org/2000/01/rdf-schema#comment>	"ESP-Disk is a New York-based record label, founded in 1964 by lawyer Bernard Stollman. The label's discography was important in the history of jazz. From the beginning, the label's goal has been to provide its recording artists with complete artistic freedom, unimpeded by any record company interference or commercial expectations\u2014a philosophy summed-up by the ESP motto, printed on every release: \u201CThe artists alone decide what you will hear on their ESP-Disk\u201D."@en .
 <http://dbpedia.org/resource/ESP-Disk>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/ESP-Disk> .
-<http://dbpedia.org/resource/Essar_Hypermart>	<http://dbpedia.org/ontology/formationYear>	"2006-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Essar_Hypermart>	<http://dbpedia.org/ontology/formationYear>	"2006+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Essar_Hypermart>	<http://dbpedia.org/ontology/foundationPerson>	<http://dbpedia.org/resource/Essar_Steel> .
 <http://dbpedia.org/resource/Essar_Hypermart>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Essar_Steel> .
-<http://dbpedia.org/resource/Essar_Hypermart>	<http://dbpedia.org/ontology/foundingYear>	"2006-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Essar_Hypermart>	<http://dbpedia.org/ontology/foundingYear>	"2006+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Essar_Hypermart>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Steel> .
 <http://dbpedia.org/resource/Essar_Hypermart>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Chief_executive_officer> .
 <http://dbpedia.org/resource/Essar_Hypermart>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Essar_Steel> .
@@ -4847,7 +4847,7 @@
 <http://dbpedia.org/resource/Fontana_Distribution>	<http://xmlns.com/foaf/0.1/depiction>	<http://upload.wikimedia.org/wikipedia/en/c/c2/Fontana_Distribution.png> .
 <http://dbpedia.org/resource/Fontana_Distribution>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Fontana_Distribution> .
 <http://dbpedia.org/resource/Ford_Motor_Company>	<http://dbpedia.org/ontology/abstract>	"Ford Motor Company, is an American multinational automaker headquartered in Dearborn, Michigan, a suburb of Detroit. It was founded by Henry Ford and incorporated on June 16, 1903. The company sells automobiles and light commercial vehicles under the Ford brand and luxury cars under the Lincoln brand. It has in the past also produced trucks, tractors and automotive components. Ford also owns small stakes in Mazda of Japan and Aston Martin of the United Kingdom. It is listed on the New York Stock Exchange and is controlled by the Ford family, although they have minority ownership. Ford introduced methods for large-scale manufacturing of cars and large-scale management of an industrial workforce using elaborately engineered manufacturing sequences typified by moving assembly lines; by 1914 these methods were known around the world as Fordism. Ford's former UK subsidiaries Jaguar and Land Rover, acquired in 1989 and 2000 respectively, were sold to Tata Motors in March 2008. Ford owned the Swedish automaker Volvo from 1999 to 2010. In 2011, Ford discontinued the Mercury brand, under which it had marketed entry-level luxury cars in the United States since 1938. Ford is the second-largest U.S. -based automaker and the fifth-largest in the world based on 2010 vehicle sales. At the end of 2010, Ford was the fifth largest automaker in Europe. Ford is the eighth-ranked overall American-based company in the 2010 Fortune 500 list, based on global revenues in 2009 of $118.3\u00A0billion. In 2008, Ford produced 5.532\u00A0million automobiles and employed about 213,000 employees at around 90 plants and facilities worldwide."@en .
-<http://dbpedia.org/resource/Ford_Motor_Company>	<http://dbpedia.org/ontology/foundingYear>	"1903-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Ford_Motor_Company>	<http://dbpedia.org/ontology/foundingYear>	"1903+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Ford_Motor_Company>	<http://dbpedia.org/ontology/locationCountry>	<http://dbpedia.org/resource/United_States> .
 <http://dbpedia.org/resource/Ford_Motor_Company>	<http://dbpedia.org/ontology/subsidiary>	<http://dbpedia.org/resource/Ford_Australia> .
 <http://dbpedia.org/resource/Ford_Motor_Company>	<http://dbpedia.org/ontology/subsidiary>	<http://dbpedia.org/resource/Ford_do_Brasil> .
@@ -5021,7 +5021,7 @@
 <http://dbpedia.org/resource/Gaumont_British>	<http://xmlns.com/foaf/0.1/depiction>	<http://upload.wikimedia.org/wikipedia/en/5/55/Gaumont_British_logo.png> .
 <http://dbpedia.org/resource/Gaumont_British>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Gaumont_British> .
 <http://dbpedia.org/resource/Gazprom>	<http://dbpedia.org/ontology/abstract>	"Open Joint Stock Company Gazprom is the largest extractor of natural gas in the world and the largest Russian company. Its headquarters are in the Cheryomushki District, South-Western Administrative Okrug, Moscow. Its name is a contraction of Russian: \u0413\u0430\u0437\u043E\u0432\u0430\u044F \u043F\u0440\u043E\u043C\u044B\u0448\u043B\u0435\u043D\u043D\u043E\u0441\u0442\u044C, Gazovaya Promyshlennost, meaning \"gas industry\". Gazprom was created in 1989 when the Ministry of Gas Industry of the Soviet Union transformed itself into a corporation, keeping all its assets intact. The company was later privatized in part, but currently the Russian government holds most of the control in its hands. In 2008, the company produced 549.7 billion cubic metres (19.41\u00D710^ cu ft) of natural gas, amounting to 17% of worldwide gas production. In addition, Gazprom produced 32\u00A0million tons of crude oil and 10.9\u00A0million tons of gas condensate. Gazprom's activities accounted for 10% of Russia's gross domestic product in 2008. The major part of Gazprom's production fields are located around the Gulf of Ob in the Yamalo-Nenets Autonomous Okrug in Western Siberia, while the Yamal Peninsula is expected to become the company's main gas producing region in the future. Gazprom possesses the largest gas transport system in the world, with 158,200 kilometres of gas trunk lines. Major new pipeline projects include Nord Stream and South Stream. The company possesses subsidiaries in many different industry sectors, including finance, media and aviation. In addition, it controls a majority of stakes in various companies."@en .
-<http://dbpedia.org/resource/Gazprom>	<http://dbpedia.org/ontology/foundingYear>	"1989-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Gazprom>	<http://dbpedia.org/ontology/foundingYear>	"1989+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Gazprom>	<http://dbpedia.org/property/locationCity>	"16"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Gazprom>	<http://dbpedia.org/property/netIncome>	"US$44.6 billion"@en .
 <http://dbpedia.org/resource/Gazprom>	<http://dbpedia.org/property/revenue>	"US$158.1 billion"@en .
@@ -5031,8 +5031,8 @@
 <http://dbpedia.org/resource/General_Electric>	<http://dbpedia.org/ontology/assets>	"7.51216E11"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/General_Electric>	<http://dbpedia.org/ontology/equity>	"1.18134E11"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/General_Electric>	<http://dbpedia.org/ontology/equity>	"1.24198E11"^^<http://dbpedia.org/datatype/usDollar> .
-<http://dbpedia.org/resource/General_Electric>	<http://dbpedia.org/ontology/formationYear>	"1892-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/General_Electric>	<http://dbpedia.org/ontology/foundingYear>	"1892-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/General_Electric>	<http://dbpedia.org/ontology/formationYear>	"1892+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/General_Electric>	<http://dbpedia.org/ontology/foundingYear>	"1892+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/General_Electric>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Conglomerate_%28company%29> .
 <http://dbpedia.org/resource/General_Electric>	<http://dbpedia.org/ontology/netIncome>	"1.2163E10"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/General_Electric>	<http://dbpedia.org/ontology/numberOfEmployees>	"287000"^^<http://www.w3.org/2001/XMLSchema#integer> .
@@ -5081,14 +5081,14 @@
 <http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/division>	<http://dbpedia.org/resource/GMC_(automobile)> .
 <http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/formationDate>	"1908-09-16"^^<http://www.w3.org/2001/XMLSchema#date> .
 <http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/formationDate>	"2009-06-10"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/formationYear>	"1908-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/formationYear>	"2009-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/formationYear>	"1908+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/formationYear>	"2009+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/William_C._Durant> .
 <http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/foundingDate>	"1908-09-16"^^<http://www.w3.org/2001/XMLSchema#date> .
 <http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/foundingDate>	"2009-07-10"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/foundingYear>	"1908-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/foundingYear>	"1908-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/foundingYear>	"2009-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/foundingYear>	"1908+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/foundingYear>	"1908+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/foundingYear>	"2009+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Automotive_industry> .
 <http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Daniel_F._Akerson> .
 <http://dbpedia.org/resource/General_Motors>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Michigan> .
@@ -5360,7 +5360,7 @@
 <http://dbpedia.org/resource/German_federal_election,_1907>	<http://www.w3.org/2000/01/rdf-schema#label>	"German federal election, 1907"@en .
 <http://dbpedia.org/resource/German_federal_election,_1907>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/German_federal_election,_1907> .
 <http://dbpedia.org/resource/Ghirardelli_Chocolate_Company>	<http://dbpedia.org/ontology/abstract>	"The Ghirardelli Chocolate Company is a United States division of Swiss candymaker Lindt &amp; Spr\u00FCngli. The company was founded by and is named after Italian chocolatier Domingo Ghirardelli, who, after working in South America, moved to California. The Ghirardelli Chocolate Company was incorporated in 1852, and is the second-oldest chocolate company in the United States, after Baker's Chocolate."@en .
-<http://dbpedia.org/resource/Ghirardelli_Chocolate_Company>	<http://dbpedia.org/ontology/formationYear>	"1852-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Ghirardelli_Chocolate_Company>	<http://dbpedia.org/ontology/formationYear>	"1852+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Ghirardelli_Chocolate_Company>	<http://dbpedia.org/ontology/parentCompany>	<http://dbpedia.org/resource/Lindt_&_Spr%C3%BCngli> .
 <http://dbpedia.org/resource/Ghirardelli_Chocolate_Company>	<http://dbpedia.org/ontology/wikiPageExternalLink>	<http://www.lindt.com/international/splash/> .
 <http://dbpedia.org/resource/Ghirardelli_Chocolate_Company>	<http://dbpedia.org/property/parent>	<http://dbpedia.org/resource/Lindt_&_Spr%C3%BCngli> .
@@ -5514,8 +5514,8 @@
 <http://dbpedia.org/resource/Godiva_Fire_Pumps>	<http://dbpedia.org/resource/Template:Infobox_Company>	"industry"@en .
 <http://dbpedia.org/resource/Godiva_Fire_Pumps>	<http://dbpedia.org/resource/Template:Infobox_Company>	"products"@en .
 <http://dbpedia.org/resource/Godiva_Fire_Pumps>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Godiva_Fire_Pumps> .
-<http://dbpedia.org/resource/Gold_Key_Comics>	<http://dbpedia.org/ontology/extinctionYear>	"1984-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Gold_Key_Comics>	<http://dbpedia.org/ontology/foundingYear>	"1962-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Gold_Key_Comics>	<http://dbpedia.org/ontology/extinctionYear>	"1984+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Gold_Key_Comics>	<http://dbpedia.org/ontology/foundingYear>	"1962+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Gold_Key_Comics>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/a/aa/Goldkeycomics.jpeg/200px-Goldkeycomics.jpeg> .
 <http://dbpedia.org/resource/Gold_Key_Comics>	<http://dbpedia.org/ontology/wikiPageExternalLink>	<http://www.goldkeystories.com/> .
 <http://dbpedia.org/resource/Gold_Key_Comics>	<http://dbpedia.org/ontology/wikiPageExternalLink>	<http://www.treasurycomics.com/gallery/galleryOTHERgolden.htm#gps1> .
@@ -5548,10 +5548,10 @@
 <http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/equity>	"4.6241E10"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/equity>	"5.8145E10"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/formationDate>	"1998-09-04"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/formationYear>	"1998-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/formationYear>	"1998+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Larry_Page> .
 <http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Sergey_Brin> .
-<http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/foundingYear>	"1998-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/foundingYear>	"1998+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Computer_software> .
 <http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/locationCity>	<http://dbpedia.org/resource/Googleplex> .
 <http://dbpedia.org/resource/Google>	<http://dbpedia.org/ontology/locationCity>	<http://dbpedia.org/resource/Mountain_View,_California> .
@@ -5783,7 +5783,7 @@
 <http://dbpedia.org/resource/Great_Northern_War>	<http://www.w3.org/2000/01/rdf-schema#comment>	"The Great Northern War (1700\u201321) was a conflict in which a coalition led by the Tsardom of Russia successfully contested the supremacy of the Swedish Empire in northern Central Europe and Eastern Europe. The initial leaders of the anti-Swedish alliance were Peter I the Great of Russia, Frederick IV of Denmark\u2013Norway and August II the Strong of Saxony-Poland-Lithuania. Frederik IV and August II were forced out of the alliance in 1700 and 1706 respectively, but re-joined it in 1709."@en .
 <http://dbpedia.org/resource/Green_Cargo>	<http://dbpedia.org/ontology/abstract>	"Green Cargo AB is a Swedish logistics company transporting various types of goods by train. It was created on 1 January 2001 out of the logistics division of Statens J\u00E4rnv\u00E4gar (SJ) and became a government-owned limited company. Green Cargo operates SJ Rc-class locomotives; 42 are being refurbished and upgraded to \"Rd\" class by Bombardier Transportation. Green Cargo have purchased 16 Bombardier TRAXX locomotives, named Re by Green Cargo."@en .
 <http://dbpedia.org/resource/Green_Cargo>	<http://dbpedia.org/ontology/foundingDate>	"2001-01-01"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/Green_Cargo>	<http://dbpedia.org/ontology/foundingYear>	"2001-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Green_Cargo>	<http://dbpedia.org/ontology/foundingYear>	"2001+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Green_Cargo>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Logistics> .
 <http://dbpedia.org/resource/Green_Cargo>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/CEO> .
 <http://dbpedia.org/resource/Green_Cargo>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Chairman> .
@@ -5846,7 +5846,7 @@
 <http://dbpedia.org/resource/Gretsch_Drums>	<http://www.w3.org/2000/01/rdf-schema#comment>	"Gretsch Drums is a leading drum manufacturing company, based in Ridgeland, South Carolina. Their motto is \"That Great Gretsch Sound!\""@en .
 <http://dbpedia.org/resource/Gretsch_Drums>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Gretsch_Drums> .
 <http://dbpedia.org/resource/Grupo_Industrial_Ramirez>	<http://dbpedia.org/ontology/fate>	"Still Unknown"@en .
-<http://dbpedia.org/resource/Grupo_Industrial_Ramirez>	<http://dbpedia.org/ontology/foundingYear>	"1946-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Grupo_Industrial_Ramirez>	<http://dbpedia.org/ontology/foundingYear>	"1946+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Grupo_Industrial_Ramirez>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Automotive> .
 <http://dbpedia.org/resource/Grupo_Industrial_Ramirez>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Gregorio_Ramirez_Gonzalez> .
 <http://dbpedia.org/resource/Grupo_Industrial_Ramirez>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Mexico> .
@@ -5876,7 +5876,7 @@
 <http://dbpedia.org/resource/Gyrodyne_Company_of_America>	<http://dbpedia.org/ontology/abstract>	"The Gyrodyne Company of America was founded in 1946 by Peter J. Papadakos (26 July 1914 &ndash;26 May 1992), using the assets he bought from the bankrupt Bendix Helicopter Company that was developing a one-man synchronized co-axial rotor helicopter. Initially, the company pursued the development of the co-axial system at facilities at Fitzmaurice Field at Massapequa, New York, on Long Island. On 1 July 1951 Mr. Papadakos acquired property, originally known as \"Flowerfield,\" at St. James, New York. It was at this location that he continued development of the co-axial rotor helicopter concept. Having successfully overcome control problems with the concept, the company first built the XRON-1 Rotorcycle that became the basis for the Drone Anti-Submarine Helicopter (DASH), first called the DSN-1 before re-designation as the QH-50A. This development began in the mid-1950s and, with production, continued until the late 1960s, through a number of improved models. The DASH was employed on destroyer-sized ships through the 1960s and into the 1970s until it was replaced by the Light Airborne Multi-Purpose System (LAMPS) based helicopters, initially the SH-2 Seasprite. Subsequently, the company engaged in various activities using the QH-50 design and concepts. Following Papadakos' death, in 1999 all QH-50 assets of the company were placed in the care of Aviodyne U.S.A. of Los Angeles, California. Gyrodyne Company of America converted its former manufacturing facilities to rental properties, and its current business is property rental."@en .
 <http://dbpedia.org/resource/Gyrodyne_Company_of_America>	<http://www.w3.org/2000/01/rdf-schema#comment>	"The Gyrodyne Company of America was founded in 1946 by Peter J. Papadakos (26 July 1914 &ndash;26 May 1992), using the assets he bought from the bankrupt Bendix Helicopter Company that was developing a one-man synchronized co-axial rotor helicopter. Initially, the company pursued the development of the co-axial system at facilities at Fitzmaurice Field at Massapequa, New York, on Long Island. On 1 July 1951 Mr. Papadakos acquired property, originally known as \"Flowerfield,\" at St."@en .
 <http://dbpedia.org/resource/Gyrodyne_Company_of_America>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Gyrodyne_Company_of_America> .
-<http://dbpedia.org/resource/Harmony_House>	<http://dbpedia.org/ontology/formationYear>	"1947-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Harmony_House>	<http://dbpedia.org/ontology/formationYear>	"1947+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Harmony_House>	<http://dbpedia.org/ontology/numberOfStaff>	"400"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Harmony_House>	<http://dbpedia.org/property/areaServed>	"Metro Detroit"@en .
 <http://dbpedia.org/resource/Harmony_House>	<http://dbpedia.org/property/industry>	"Retail"@en .
@@ -5885,7 +5885,7 @@
 <http://dbpedia.org/resource/Harmony_House>	<http://dbpedia.org/property/numEmployees>	"400"^^<http://www.w3.org/2001/XMLSchema#int> .
 <http://dbpedia.org/resource/Harmony_House>	<http://purl.org/dc/terms/subject>	<http://dbpedia.org/resource/Category:Companies_established_in_1947> .
 <http://dbpedia.org/resource/Harmony_House>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Harmony_House> .
-<http://dbpedia.org/resource/Health_Integrated>	<http://dbpedia.org/ontology/foundingYear>	"1996-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Health_Integrated>	<http://dbpedia.org/ontology/foundingYear>	"1996+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Health_Integrated>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Health_Care> .
 <http://dbpedia.org/resource/Health_Integrated>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Sam_D._Toney,_M.D.> .
 <http://dbpedia.org/resource/Health_Integrated>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Shan_Padda> .
@@ -6105,11 +6105,11 @@
 <http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/assets>	"1.1643E11"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/equity>	"2.013E10"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/formationDate>	"1911-06-16"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/formationYear>	"1911-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/formationYear>	"1911+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Thomas_J._Watson> .
 <http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/foundingDate>	"1911-06-16"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/foundingYear>	"1911-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/foundingYear>	"1911-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/foundingYear>	"1911+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/foundingYear>	"1911+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Chairman> .
 <http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Chief_executive_officer> .
 <http://dbpedia.org/resource/IBM>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Samuel_J._Palmisano> .
@@ -6240,7 +6240,7 @@
 <http://dbpedia.org/resource/InDevR>	<http://xmlns.com/foaf/0.1/depiction>	<http://upload.wikimedia.org/wikipedia/commons/d/d0/InDevRLogo.jpg> .
 <http://dbpedia.org/resource/InDevR>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/InDevR> .
 <http://dbpedia.org/resource/International_Bank_of_Azerbaijan>	<http://dbpedia.org/ontology/abstract>	"The International Bank of Azerbaijan is the state-controlled bank operating in the Republic of Azerbaijan. Headquartered in Baku, the bank consists of 36 branches and 95 service outlets in more than 40 cities. The Azerbaijan Ministry of Finance is the bank\u2019s main shareholder, possessing a 50.2 percent equity stake. The bank, which reported a 2007 consolidated net income of US$88.1 million and total assets of US$3.2 billion, currently holds 39 percent of the Azerbaijan banking system\u2019s total assets. In May 2008, the bank became the Azerbaijan source for the issuance of Eurobonds and American Express credit cards. In July 2008, the bank received permission from the U.S. Federal Reserve Board to open a representative office in New York City. Dr. Jahangir Hajiyev joined the bank in 1995 as Chairman of the Credit Committee and Director of Credit and Investments. He has served as Chairman since 2001."@en .
-<http://dbpedia.org/resource/International_Bank_of_Azerbaijan>	<http://dbpedia.org/ontology/foundingYear>	"1992-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/International_Bank_of_Azerbaijan>	<http://dbpedia.org/ontology/foundingYear>	"1992+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/International_Bank_of_Azerbaijan>	<http://dbpedia.org/property/foundation>	"10"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/International_Bank_of_Azerbaijan>	<http://dbpedia.org/property/keyPeople>	"Chairman of the Board"@en .
 <http://dbpedia.org/resource/International_Bank_of_Azerbaijan>	<http://dbpedia.org/property/keyPeople>	"Dr. Jahangir F. Hajiyev,"@en .
@@ -6580,7 +6580,7 @@
 <http://dbpedia.org/resource/Janssen-Cilag>	<http://dbpedia.org/resource/Template:Unreferenced_stub>	"date"@en .
 <http://dbpedia.org/resource/Janssen-Cilag>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Janssen-Cilag> .
 <http://dbpedia.org/resource/Japan_Atomic_Power_Company>	<http://dbpedia.org/ontology/foundationPlace>	<http://dbpedia.org/resource/1957> .
-<http://dbpedia.org/resource/Japan_Atomic_Power_Company>	<http://dbpedia.org/ontology/foundingYear>	"1957-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Japan_Atomic_Power_Company>	<http://dbpedia.org/ontology/foundingYear>	"1957+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Japan_Atomic_Power_Company>	<http://dbpedia.org/property/foundation>	"1957"^^<http://www.w3.org/2001/XMLSchema#int> .
 <http://dbpedia.org/resource/Japan_Atomic_Power_Company>	<http://dbpedia.org/property/wikiPageUsesTemplate>	<http://dbpedia.org/resource/Template:Infobox_Company> .
 <http://dbpedia.org/resource/Japan_Atomic_Power_Company>	<http://dbpedia.org/resource/Template:Infobox_company>	"assets"@en .
@@ -6619,8 +6619,8 @@
 <http://dbpedia.org/resource/JDub_Records>	<http://dbpedia.org/ontology/abstract>	"JDub Records is a non-profit record and event production company striving to build community through new and innovative Jewish music and cross cultural musical dialogue."@en .
 <http://dbpedia.org/resource/JDub_Records>	<http://www.w3.org/2000/01/rdf-schema#comment>	"JDub Records is a non-profit record and event production company striving to build community through new and innovative Jewish music and cross cultural musical dialogue."@en .
 <http://dbpedia.org/resource/JDub_Records>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/JDub_Records> .
-<http://dbpedia.org/resource/Jinro>	<http://dbpedia.org/ontology/formationYear>	"1924-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Jinro>	<http://dbpedia.org/ontology/foundingYear>	"1924-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Jinro>	<http://dbpedia.org/ontology/formationYear>	"1924+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Jinro>	<http://dbpedia.org/ontology/foundingYear>	"1924+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Jinro>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Soju_jinro_gfdl.jpg/200px-Soju_jinro_gfdl.jpg> .
 <http://dbpedia.org/resource/Jinro>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Chamisul_hite_jinro.jpg/200px-Chamisul_hite_jinro.jpg> .
 <http://dbpedia.org/resource/Jinro>	<http://dbpedia.org/ontology/wikiPageExternalLink>	<http://www.jinro.co.kr/> .
@@ -6742,11 +6742,11 @@
 <http://dbpedia.org/resource/John_McEnroe>	<http://xmlns.com/foaf/0.1/name>	"John Macenroe"@en .
 <http://dbpedia.org/resource/John_McEnroe>	<http://xmlns.com/foaf/0.1/surname>	"Macenroe"@en .
 <http://dbpedia.org/resource/K-1>	<http://dbpedia.org/ontology/abstract>	"K-1 is a world-wide kickboxing promotion founded in Tokyo, Japan by Kazuyoshi Ishii, a former Kyokushin karate practitioner. Its rules are similar to those of kickboxing but they have been simplified to promote exciting matches that may end in a knockout win. The main difference between K-1 rules and kickboxing is the use of knees, allowed in K-1 but not in International kickboxing There are K-1 Regional Elimination Tournaments which qualify fighters for the K-1 World Grand Prix, along with licensed K-1 Fighting Network events designed to develop new talent internationally and there is also a 70\u00A0kg (154\u00A0lb) Middleweight division called K-1 MAX (\"Middleweight Artistic Xtreme\"). In 2007, K-1 introduced two new Title belts separate from K-1 World GP Champions, Super Heavyweight World Title for fighters over 100\u00A0kg/220\u00A0lbs and Heavyweight World Title for fighters under 100\u00A0kg/156\u2013220\u00A0lbs. The letter K in K-1 is officially designated by the organisation as a representation of words karate, kickboxing and kung fu. Nevertheless, some reports suggest that it represents the initial K found in competing disciplines such as karate, kickboxing, kung fu, kempo, kakutogi (the generic Japanese term for \"combat sports\"), and tae tae] kwon do. Yet another theory claims that the K simply comes from kakutogi and the \"1\" component pertains to the single weight division (in earlier competition) and the champion's unique position."@en .
-<http://dbpedia.org/resource/K-1>	<http://dbpedia.org/ontology/formationYear>	"1993-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/K-1>	<http://dbpedia.org/ontology/formationYear>	"1993+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/K-1>	<http://dbpedia.org/ontology/foundationPlace>	<http://dbpedia.org/resource/K-1_Grand_Prix_%2793> .
 <http://dbpedia.org/resource/K-1>	<http://dbpedia.org/ontology/foundationPlace>	<http://dbpedia.org/resource/K-1_Grand_Prix_\u002793> .
 <http://dbpedia.org/resource/K-1>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Kazuyoshi_Ishii> .
-<http://dbpedia.org/resource/K-1>	<http://dbpedia.org/ontology/foundingYear>	"1993-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/K-1>	<http://dbpedia.org/ontology/foundingYear>	"1993+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/K-1>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Masato_(kickboxer)> .
 <http://dbpedia.org/resource/K-1>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Nobuaki_Kakuda> .
 <http://dbpedia.org/resource/K-1>	<http://dbpedia.org/ontology/wikiPageExternalLink>	<http://www.k-1.co.jp> .
@@ -6865,7 +6865,7 @@
 <http://dbpedia.org/resource/Ken_Flach>	<http://xmlns.com/foaf/0.1/homepage>	<http://www.atptennis.com/en/players/playerprofiles/default2.asp?playernumber=F029> .
 <http://dbpedia.org/resource/Ken_Flach>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Ken_Flach> .
 <http://dbpedia.org/resource/Kistefos>	<http://dbpedia.org/ontology/abstract>	"Kistefos is a privately owned holding company that pursues investments within venture capital, private equity, offshore, shipping and other sectors. It is owned by Christen Sveaas and led by CEO \u00C5ge Korsvold. Among the subsidiaries of Kistefos are Viking Supply Ships, Viking Barges and half of Trans Viking Icebreaking &amp; Offshore, Waterfront Shipping and Western Bulk, all in shipping. The group also owns a number of smaller technology venture companies in addition to a large real estate portfolio managed by Kistefos Eiendom. The company dates back to 1889 when Sveaas' family founded the lumber mill Kistefos Tr\u00E6sliberi."@en .
-<http://dbpedia.org/resource/Kistefos>	<http://dbpedia.org/ontology/foundingYear>	"1889-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Kistefos>	<http://dbpedia.org/ontology/foundingYear>	"1889+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Kistefos>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/%C3%85ge_Korsvold> .
 <http://dbpedia.org/resource/Kistefos>	<http://dbpedia.org/ontology/netIncome>	"1.58E8"^^<http://dbpedia.org/datatype/norwegianKrone> .
 <http://dbpedia.org/resource/Kistefos>	<http://dbpedia.org/ontology/numberOfEmployees>	"17"^^<http://www.w3.org/2001/XMLSchema#integer> .
@@ -7160,8 +7160,8 @@
 <http://dbpedia.org/resource/Lifebooker>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Lifebooker> .
 <http://dbpedia.org/resource/LightSquared>	<http://dbpedia.org/ontology/abstract>	"LightSquared is a company that seeks to develop a wholesale 4G LTE wireless broadband communications network integrated with satellite coverage across the United States using a block of frequencies located near the band used by the Global Positioning System (GPS). However, the issue of interference (using high-powered ground transmitters in spectrum intended for low-powered signals from satellites) has caused problems. On February 14, 2012, the U.S. Federal Communications Commission (FCC) moved to bar LightSquared's planned national broadband network after being informed by the National Telecommunications and Information Administration (NTIA), \"the federal agency that coordinates spectrum uses for the military and other federal government entities,\" that \"there is no practical way to mitigate potential interference at this time. \" LightSquared is challenging the FCC's action. As of April, 2012, LightSquared was in negotiations with creditors to avoid bankruptcy. It filed for bankruptcy on 14th May, 2012."@en .
 <http://dbpedia.org/resource/LightSquared>	<http://dbpedia.org/ontology/formationDate>	"2010-07-20"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/LightSquared>	<http://dbpedia.org/ontology/formationYear>	"2010-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/LightSquared>	<http://dbpedia.org/ontology/foundingYear>	"2010-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/LightSquared>	<http://dbpedia.org/ontology/formationYear>	"2010+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/LightSquared>	<http://dbpedia.org/ontology/foundingYear>	"2010+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/LightSquared>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Virginia_%28state%29> .
 <http://dbpedia.org/resource/LightSquared>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/LIGHTSQUARED_LOGO.jpg/200px-LIGHTSQUARED_LOGO.jpg> .
 <http://dbpedia.org/resource/LightSquared>	<http://dbpedia.org/property/content>	"--03-22"^^<http://www.w3.org/2001/XMLSchema#gMonthDay> .
@@ -7368,7 +7368,7 @@
 <http://dbpedia.org/resource/Maghe_Sankranti>	<http://dbpedia.org/ontology/wikiPageExternalLink>	<http://www.rajan.com/calendar/> .
 <http://dbpedia.org/resource/Maghe_Sankranti>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Maghe_Sankranti> .
 <http://dbpedia.org/resource/Magic_Pixel_Games>	<http://dbpedia.org/ontology/abstract>	"Magic Pixel Games is a video game development company founded by key members of the Boom Blox team from Electronic Arts' Los Angeles studio."@en .
-<http://dbpedia.org/resource/Magic_Pixel_Games>	<http://dbpedia.org/ontology/foundingYear>	"2010-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Magic_Pixel_Games>	<http://dbpedia.org/ontology/foundingYear>	"2010+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Magic_Pixel_Games>	<http://dbpedia.org/ontology/numberOfEmployees>	"20"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Magic_Pixel_Games>	<http://dbpedia.org/property/keyPeople>	"Jeff Dixon, William Farquhar, Sean Hyde-Moyer, Steven Riesenberger, Michael Seegers, Mark Tsai"@en .
 <http://dbpedia.org/resource/Magic_Pixel_Games>	<http://dbpedia.org/property/numEmployees>	"20"^^<http://www.w3.org/2001/XMLSchema#int> .
@@ -7510,8 +7510,8 @@
 <http://dbpedia.org/resource/Mark_Woodforde>	<http://xmlns.com/foaf/0.1/givenName>	"Mark"@en .
 <http://dbpedia.org/resource/Mark_Woodforde>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Mark_Woodforde> .
 <http://dbpedia.org/resource/Marlabs>	<http://dbpedia.org/ontology/abstract>	"Marlabs Inc. is a provider of Information Technology and Knowledge Process Outsourcing services and is headquartered in Piscataway, New Jersey, US. The company has offices and solution delivery centers across the US, Canada, Latin America, India, and Malaysia. In-house data centers in the US and in India are used to provide hosting and other managed IT services to their clients. Marlabs operates Technology Centers in Bethlehem, Pennsylvania and Mysore, India to conduct training programs for clients and employees, and to carry out ongoing research into technology platforms such as Cloud Computing, Mobile, Information Security, Microsoft, Java, Open Source and ERP Technologies. Among other accolades and recognitions, Marlabs was featured in the 2010 and 2011 GS100 Lists: \"100 Companies That Define Global Outsourcing. Marlabs has been certified as a Minority Business Enterprise (MBE) by the National Minority Supplier Development Council, Inc. (NMSDC)."@en .
-<http://dbpedia.org/resource/Marlabs>	<http://dbpedia.org/ontology/formationYear>	"1996-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Marlabs>	<http://dbpedia.org/ontology/foundingYear>	"1996-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Marlabs>	<http://dbpedia.org/ontology/formationYear>	"1996+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Marlabs>	<http://dbpedia.org/ontology/foundingYear>	"1996+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Marlabs>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/e/e0/Marlabs_Logo.jpg/200px-Marlabs_Logo.jpg> .
 <http://dbpedia.org/resource/Marlabs>	<http://dbpedia.org/resource/Template:Infobox_company>	"area_served"@en .
 <http://dbpedia.org/resource/Marlabs>	<http://dbpedia.org/resource/Template:Infobox_company>	"company_logo"@en .
@@ -8011,8 +8011,8 @@
 <http://dbpedia.org/resource/Natasha_Zvereva>	<http://dbpedia.org/property/tennishofyear>	"2010"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Natasha_Zvereva>	<http://dbpedia.org/property/updated>	"13"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/National_Amusements>	<http://dbpedia.org/ontology/abstract>	"National Amusements, Inc. is a privately owned theater company based in Dedham, Massachusetts, United States. The company was founded in 1936 as the Northeast Theatre Corporation by Michael Redstone. National Amusements is now owned by Michael Redstone's son, Sumner Redstone, who holds 80% of the company, and Sumner's daughter, Shari Redstone, who owns the remaining 20%. Through National Amusements, the Redstones control both the CBS Corporation and Viacom through supervoting shares. The company operates more than 1,500 movie screens across the United States, the United Kingdom, Latin America, and Russia under its Showcase Cinemas, Multiplex Cinemas, Cinema de Lux, and KinoStar brands. National Amusements is equal partners in MovieTickets. com."@en .
-<http://dbpedia.org/resource/National_Amusements>	<http://dbpedia.org/ontology/formationYear>	"1936-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/National_Amusements>	<http://dbpedia.org/ontology/foundingYear>	"1936-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/National_Amusements>	<http://dbpedia.org/ontology/formationYear>	"1936+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/National_Amusements>	<http://dbpedia.org/ontology/foundingYear>	"1936+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/National_Amusements>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Na-logo.gif/200px-Na-logo.gif> .
 <http://dbpedia.org/resource/National_Amusements>	<http://dbpedia.org/ontology/wikiPageExternalLink>	<http://www.national-amusements.com/> .
 <http://dbpedia.org/resource/National_Amusements>	<http://dbpedia.org/property/founder>	"Michael Redstone"@en .
@@ -8091,7 +8091,7 @@
 <http://dbpedia.org/resource/NBCUniversal>	<http://dbpedia.org/ontology/division>	<http://dbpedia.org/resource/USA_Network> .
 <http://dbpedia.org/resource/NBCUniversal>	<http://dbpedia.org/ontology/foundationPlace>	<http://dbpedia.org/resource/Vivendi> .
 <http://dbpedia.org/resource/NBCUniversal>	<http://dbpedia.org/ontology/foundingDate>	"2004-05-11"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/NBCUniversal>	<http://dbpedia.org/ontology/foundingYear>	"2004-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/NBCUniversal>	<http://dbpedia.org/ontology/foundingYear>	"2004+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/NBCUniversal>	<http://dbpedia.org/ontology/parentCompany>	<http://dbpedia.org/resource/General_Electric> .
 <http://dbpedia.org/resource/NBCUniversal>	<http://dbpedia.org/ontology/subsidiary>	<http://dbpedia.org/resource/Canal+> .
 <http://dbpedia.org/resource/NBCUniversal>	<http://dbpedia.org/ontology/subsidiary>	<http://dbpedia.org/resource/Network_18> .
@@ -8290,8 +8290,8 @@
 <http://dbpedia.org/resource/Nexon_Co._Ltd.>	<http://dbpedia.org/property/foundation>	"1994"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Nexon_Co._Ltd.>	<http://dbpedia.org/property/numEmployees>	"3200"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Nexon_Co._Ltd.>	<http://xmlns.com/foaf/0.1/name>	"Nexon Co. Ltd.Trademark"@en .
-<http://dbpedia.org/resource/Nice_Shoes>	<http://dbpedia.org/ontology/formationYear>	"1996-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Nice_Shoes>	<http://dbpedia.org/ontology/foundingYear>	"1996-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Nice_Shoes>	<http://dbpedia.org/ontology/formationYear>	"1996+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Nice_Shoes>	<http://dbpedia.org/ontology/foundingYear>	"1996+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Nice_Shoes>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/f/f7/Ns-logo_10gradient.jpg/200px-Ns-logo_10gradient.jpg> .
 <http://dbpedia.org/resource/Nice_Shoes>	<http://dbpedia.org/property/homepage>	"http://www.niceshoes.com/"@en .
 <http://dbpedia.org/resource/Nice_Shoes>	<http://dbpedia.org/property/industry>	"Post-production, Design, Animation, Visual effects, Color grading"@en .
@@ -8310,8 +8310,8 @@
 <http://dbpedia.org/resource/Nice_Shoes>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Nice_Shoes> .
 <http://dbpedia.org/resource/Nissan_Outboard_Motors>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Nissan_Outboard_Motors> .
 <http://dbpedia.org/resource/Nitroplus>	<http://dbpedia.org/ontology/abstract>	"Nitroplus Co. , Ltd. , stylized as nitro+, is a Japanese visual novel computer software company that has developed a number of visual novels, including eroge. They have also have been collaborating with TYPE-MOON (another developer) to create the light novel series Fate/zero. Their works usually have dark themes such as reanimation of the dead and murder. They also have a branch of the company called Nitro+Chiral, which focuses on Boys' Love visual novels."@en .
-<http://dbpedia.org/resource/Nitroplus>	<http://dbpedia.org/ontology/formationYear>	"2000-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Nitroplus>	<http://dbpedia.org/ontology/foundingYear>	"2000-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Nitroplus>	<http://dbpedia.org/ontology/formationYear>	"2000+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Nitroplus>	<http://dbpedia.org/ontology/foundingYear>	"2000+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Nitroplus>	<http://dbpedia.org/ontology/locationCity>	<http://dbpedia.org/resource/Chiyoda,_Tokyo> .
 <http://dbpedia.org/resource/Nitroplus>	<http://dbpedia.org/ontology/numberOfEmployees>	"35"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Nitroplus>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Nitroplus_logo.png/200px-Nitroplus_logo.png> .
@@ -9425,7 +9425,7 @@
 <http://dbpedia.org/resource/Polystyle_Publications>	<http://dbpedia.org/ontology/abstract>	"Polystyle Publications were a British publisher of children's comics and books. Among the titles they published were: BEEB (1985) Buttons (comic) (1981-1989) Countdown/TV Action (1971-1973) I-Spy Pippin (1966-1986) Playland (comic) (1968-1975) Read To Me (1977) Target (comic) (1978) TV Comic (1951-1984) The company was incorporated on 12 May 1960 and became insolvent in 1997."@en .
 <http://dbpedia.org/resource/Polystyle_Publications>	<http://www.w3.org/2000/01/rdf-schema#comment>	"Polystyle Publications were a British publisher of children's comics and books. Among the titles they published were: BEEB (1985) Buttons (comic) (1981-1989) Countdown/TV Action (1971-1973) I-Spy Pippin (1966-1986) Playland (comic) (1968-1975) Read To Me (1977) Target (comic) (1978) TV Comic (1951-1984) The company was incorporated on 12 May 1960 and became insolvent in 1997."@en .
 <http://dbpedia.org/resource/Polystyle_Publications>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Polystyle_Publications> .
-<http://dbpedia.org/resource/Powell_Peralta>	<http://dbpedia.org/ontology/formationYear>	"1978-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Powell_Peralta>	<http://dbpedia.org/ontology/formationYear>	"1978+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Powell_Peralta>	<http://dbpedia.org/property/industry>	"Skateboarding"@en .
 <http://dbpedia.org/resource/Powell_Peralta>	<http://dbpedia.org/property/name>	"Powell Peralta"@en .
 <http://dbpedia.org/resource/Powell_Peralta>	<http://dbpedia.org/property/products>	"Skateboard decks, wheels, bearing and accessories"@en .
@@ -9488,7 +9488,7 @@
 <http://dbpedia.org/resource/Pride_Fighting_Championships>	<http://xmlns.com/foaf/0.1/name>	"Pride Fighting Championships"@en .
 <http://dbpedia.org/resource/Pride_Fighting_Championships>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Pride_Fighting_Championships> .
 <http://dbpedia.org/resource/Prime,_Inc.>	<http://dbpedia.org/ontology/abstract>	"Prime, Inc. is a trucking company which was founded in 1970 and is currently headquartered in Springfield, Missouri. The company currently operates three divisions; flatbed, refrigerated and tanker. It is the second largest refrigerated carrier operating in the United States. Currently, Prime, Inc. is the twenty eighth largest trucking company in the United States based on revenue."@en .
-<http://dbpedia.org/resource/Prime,_Inc.>	<http://dbpedia.org/ontology/foundingYear>	"1970-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Prime,_Inc.>	<http://dbpedia.org/ontology/foundingYear>	"1970+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Prime,_Inc.>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Transportation> .
 <http://dbpedia.org/resource/Prime,_Inc.>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Robert_E._Low> .
 <http://dbpedia.org/resource/Prime,_Inc.>	<http://dbpedia.org/ontology/locationCity>	<http://dbpedia.org/resource/Springfield,_Missouri> .
@@ -9539,7 +9539,7 @@
 <http://dbpedia.org/resource/Puget_Sound_War>	<http://www.w3.org/2000/01/rdf-schema#comment>	"The Puget Sound War was an armed conflict that took place in the Puget Sound area of the state of Washington in 1855&ndash;56, between the United States Military, local militias and members of the Native American tribes of the Nisqually, Muckleshoot, Puyallup, and Klickitat. Another component of the war, however, were raiders from the Haida and Tlingit who came into conflict with the United States Navy during contemporaneous raids on the native peoples of Puget Sound."@en .
 <http://dbpedia.org/resource/Puget_Sound_War>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Puget_Sound_War> .
 <http://dbpedia.org/resource/Qualtrics>	<http://dbpedia.org/ontology/abstract>	"Qualtrics is a private research software company, based in Provo, UT. The company was founded in 2002 by Scott M. Smith, Ph.D. , Ryan Smith and Stuart Orgill. Qualtrics software enables users to do any kind of online data collection and analysis including market research, customer satisfaction and loyalty, product and concept testing, employee evaluations and website feedback. The Qualtrics Research Suite is a top choice of academic, corporate, non-profit and government organizations. The do-it-yourself tool allows organizations to perform sophisticated, Ph.D. -level research in house, reducing the need to outsource to specialized firms. In 2012, the company received a $70 million investment from Sequoia Capital and Accel Partners, the largest joint investment to date by these two firms. Quantitative statistical analysis performed with Qualtrics is cited in a number of professional and academic journals and books."@en .
-<http://dbpedia.org/resource/Qualtrics>	<http://dbpedia.org/ontology/foundingYear>	"1997-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Qualtrics>	<http://dbpedia.org/ontology/foundingYear>	"1997+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Qualtrics>	<http://dbpedia.org/property/companyName>	"Qualtrics"@en .
 <http://dbpedia.org/resource/Qualtrics>	<http://dbpedia.org/property/companyType>	<http://dbpedia.org/resource/Private_Company> .
 <http://dbpedia.org/resource/Qualtrics>	<http://dbpedia.org/property/foundation>	"1997"^^<http://www.w3.org/2001/XMLSchema#int> .
@@ -9654,7 +9654,7 @@
 <http://dbpedia.org/resource/Raid_on_Cherbourg>	<http://www.w3.org/2000/01/rdf-schema#comment>	"The Raid on Cherbourg took place in August 1758 during the Seven Year's War when a British force was landed on the coast of France by the Royal Navy with the intention of attacking the town of Cherbourg as part of the British government's policy of \"descents\" on the French Coast."@en .
 <http://dbpedia.org/resource/Raid_on_Cherbourg>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Raid_on_Cherbourg> .
 <http://dbpedia.org/resource/Rainbow_Shops>	<http://dbpedia.org/ontology/abstract>	"Rainbow Shops or Rainbow is a moderately-priced American retail apparel company comprising several lifestyle brands primarily targeting teens, young women, plus size women, and children. Rainbow is also very popular among college students since the styles are fashion-conscious and affordable. Established in 1935, the Rainbow corporation is based in Brooklyn, New York. The company operates stores under the brand names of Rainbow, Rainbow Plus, Rainbow Kids, Marianne Stores and 5-7-9, among others. These stores sell juniors, women's and kids separates, accessories, swimwear, lingerie, handbags, jewelry and footwear. Rainbow Stores are an average of 5,000 square ft. Each store\u2019s merchandise mix varies by location, depending upon demographics and the size of the location. Larger stores usually carry juniors, plus, lingerie, shoes and kids departments. There are 740+ stores with a plus size department and 960+ stores with a shoe department. In addition, Rainbow has 66 stand-alone children\u2019s stores and 11 stand-alone plus size stores. As of November 2011, the company operates over 1,000 retail stores in the United States, 150 in Puerto Rico and the U.S. Virgin Island and a new website planned to launch in 2012."@en .
-<http://dbpedia.org/resource/Rainbow_Shops>	<http://dbpedia.org/ontology/foundingYear>	"1935-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Rainbow_Shops>	<http://dbpedia.org/ontology/foundingYear>	"1935+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Rainbow_Shops>	<http://dbpedia.org/property/companyLogo>	<http://dbpedia.org/resource/File:Rainbowlogo.png> .
 <http://dbpedia.org/resource/Rainbow_Shops>	<http://dbpedia.org/property/numEmployees>	"9300"^^<http://www.w3.org/2001/XMLSchema#int> .
 <http://dbpedia.org/resource/Rainbow_Shops>	<http://dbpedia.org/property/wikiPageUsesTemplate>	<http://dbpedia.org/resource/Template:Infobox_Company> .
@@ -9687,10 +9687,10 @@
 <http://dbpedia.org/resource/Ralliart>	<http://xmlns.com/foaf/0.1/depiction>	<http://upload.wikimedia.org/wikipedia/en/6/6c/Ralliart.png> .
 <http://dbpedia.org/resource/Ralliart>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Ralliart> .
 <http://dbpedia.org/resource/Random_House>	<http://dbpedia.org/ontology/abstract>	"Random House, Inc. is one of the largest general-interest trade book publishers in the world. It has been owned since 1998 by the German private media corporation Bertelsmann and has become the umbrella brand for Bertelsmann book publishing. Random House also has an entertainment production arm for film and television, Random House Studio, of which the most recent release was One Day. The company also creates story content for media including video games, social networks on the web, and mobile platforms. Random House is considered one of the \"Big Six\" publishing companies, along with Hachette, Macmillan, Penguin, HarperCollins and Simon &amp; Schuster."@en .
-<http://dbpedia.org/resource/Random_House>	<http://dbpedia.org/ontology/formationYear>	"1925-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Random_House>	<http://dbpedia.org/ontology/formationYear>	"1925+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Random_House>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Bennett_Cerf> .
 <http://dbpedia.org/resource/Random_House>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Donald_Klopfer> .
-<http://dbpedia.org/resource/Random_House>	<http://dbpedia.org/ontology/foundingYear>	"1925-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Random_House>	<http://dbpedia.org/ontology/foundingYear>	"1925+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Random_House>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Books> .
 <http://dbpedia.org/resource/Random_House>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Publishing> .
 <http://dbpedia.org/resource/Random_House>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Chairman> .
@@ -10024,9 +10024,9 @@
 <http://dbpedia.org/resource/RIC-Finance>	<http://xmlns.com/foaf/0.1/name>	"\"RIC-Finance\""@en .
 <http://dbpedia.org/resource/RIC-Finance>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/RIC-Finance> .
 <http://dbpedia.org/resource/Ring_of_Honor>	<http://dbpedia.org/ontology/abstract>	"Ring of Honor (ROH) is an American professional wrestling promotion, founded in 2002 by Rob Feinstein and Gabe Sapolsky. From 2002 to 2011, the promotion was under the ownership of Cary Silkin before being sold to the Sinclair Broadcast Group in May 2011. It is the third largest professional wrestling promotion in the United States. ROH currently runs several wrestling shows each month throughout the midwest and on the east coast of North America. It has also held shows on the west coast, in the United Kingdom, Japan and Canada. Annual shows include the Anniversary Shows, \"Supercard of Honor\", \"Death Before Dishonor\", \"Glory by Honor\", and \"Final Battle\" (the last show of the calendar year). Tournaments on a biyearly basis include Survival of the Fittest and Tag Wars. ROH records the majority of its shows and sells them on DVD through mail order and through its online store, which has developed a fanbase for the promotion in the United States and beyond. In 2009, ROH signed a long-term television deal with HDNet, airing shows every week. ROH matches are also broadcast on The Fight Network in Canada, on Samurai TV in Japan, and previously aired in the United Kingdom and Ireland. Select shows are broadcast as internet pay-per-views through Go Fight Live. ROH was featured in the 2008 film The Wrestler, where it promotes the final bout of the film between Randy \"The Ram\" Robinson and The Ayatollah. Several wrestlers, including Nigel McGuinness, Claudio Castagnoli and Bobby Dempsey appear on film during the ROH scenes."@en .
-<http://dbpedia.org/resource/Ring_of_Honor>	<http://dbpedia.org/ontology/formationYear>	"2002-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Ring_of_Honor>	<http://dbpedia.org/ontology/formationYear>	"2002+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Ring_of_Honor>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Rob_Feinstein> .
-<http://dbpedia.org/resource/Ring_of_Honor>	<http://dbpedia.org/ontology/foundingYear>	"2002-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Ring_of_Honor>	<http://dbpedia.org/ontology/foundingYear>	"2002+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Ring_of_Honor>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Executive_%28management%29> .
 <http://dbpedia.org/resource/Ring_of_Honor>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Ring_of_Honor> .
 <http://dbpedia.org/resource/Ring_of_Honor>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/commons/thumb/2/20/ROHwrestling.png/200px-ROHwrestling.png> .
@@ -10313,7 +10313,7 @@
 <http://dbpedia.org/resource/Schott_AG>	<http://dbpedia.org/ontology/abstract>	"SCHOTT AG is a German manufacturer of high-quality industrial glass products, its main markets are household appliances, pharmaceutical industries, solar energy, electronics, optics as well as automotive. According to the 2008 Annual Report, Schott AG employs 17,363 people in 42 countries. Schott AG is well known by the photographic community for manufacturing the glass components of Zeiss and Schneider Kreuznach lenses. They also publish the Schott Glass Catalog, which is a standard reference for the properties of the many optical glasses produced by them and other companies. In 2009 Schott inaugurated a $100 million state-of-the-art solar manufacturing facility in Albuquerque, New Mexico, USA to build receivers for concentrated solar thermal power plants (CSP) and 64 MW of photovoltaic modules. They were already making 15 MW of photovoltaics annually in Billerica, Massachusetts until the factory was closed in 2009. Schott plans to produce crystalline PV cells and modules with a total of 450 MW annually. In addition, the company will produce thin-film PV wafers with a capacity of 100 MW."@en .
 <http://dbpedia.org/resource/Schott_AG>	<http://www.w3.org/2000/01/rdf-schema#comment>	"SCHOTT AG is a German manufacturer of high-quality industrial glass products, its main markets are household appliances, pharmaceutical industries, solar energy, electronics, optics as well as automotive. According to the 2008 Annual Report, Schott AG employs 17,363 people in 42 countries. Schott AG is well known by the photographic community for manufacturing the glass components of Zeiss and Schneider Kreuznach lenses."@en .
 <http://dbpedia.org/resource/Schott_AG>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Schott_AG> .
-<http://dbpedia.org/resource/Scottish_School_of_Wrestling>	<http://dbpedia.org/ontology/formationYear>	"2002-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Scottish_School_of_Wrestling>	<http://dbpedia.org/ontology/formationYear>	"2002+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Scottish_School_of_Wrestling>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/6/62/Scottish_School_of_Wrestling.jpg/200px-Scottish_School_of_Wrestling.jpg> .
 <http://dbpedia.org/resource/Scottish_School_of_Wrestling>	<http://dbpedia.org/property/cleanup>	"August 2010"@en .
 <http://dbpedia.org/resource/Scottish_School_of_Wrestling>	<http://dbpedia.org/property/notable>	"August 2010"@en .
@@ -10357,9 +10357,9 @@
 <http://dbpedia.org/resource/Scream_Pubs>	<http://xmlns.com/foaf/0.1/depiction>	<http://upload.wikimedia.org/wikipedia/en/f/f4/The_Scream.jpg> .
 <http://dbpedia.org/resource/Scream_Pubs>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Scream_Pubs> .
 <http://dbpedia.org/resource/Seagram>	<http://dbpedia.org/ontology/abstract>	"The Seagram Company Ltd. was a large corporation headquartered in Montreal, Quebec, Canada that was the largest distiller of alcoholic beverages in the world. Toward the end of its independent existence it also controlled various entertainment and other business ventures. The Seagram assets have since been acquired by other companies, notably The Coca-Cola Company, Diageo, Pernod Ricard, and Vivendi. The Seagram Building, the company's American headquarters office tower at 375 Park Avenue in New York City, was designed by architect Ludwig Mies van der Rohe with Philip Johnson. The former Seagram headquarters in Montreal now belongs to McGill University, under the name Martlet House."@en .
-<http://dbpedia.org/resource/Seagram>	<http://dbpedia.org/ontology/extinctionYear>	"2000-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Seagram>	<http://dbpedia.org/ontology/extinctionYear>	"2000+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Seagram>	<http://dbpedia.org/ontology/fate>	"Broken-up, assets sold"@en .
-<http://dbpedia.org/resource/Seagram>	<http://dbpedia.org/ontology/foundingYear>	"1857-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Seagram>	<http://dbpedia.org/ontology/foundingYear>	"1857+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Seagram>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Alcoholic_drinks> .
 <http://dbpedia.org/resource/Seagram>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Bronfman_family> .
 <http://dbpedia.org/resource/Seagram>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Joseph_E._Seagram> .
@@ -10403,8 +10403,8 @@
 <http://dbpedia.org/resource/Seagram>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Seagram> .
 <http://dbpedia.org/resource/SEAT>	<http://dbpedia.org/ontology/abstract>	"SEAT, S.A. is a Spanish automobile manufacturer founded on May 9, 1950 by the Instituto Nacional de Industria (INI), a state-owned industrial holding company. It is currently a wholly owned subsidiary of the German Volkswagen Group, as a member of the now-defunct Audi Brand Group, together with Audi and Lamborghini, and marketed as a car maker with a youthful sporty profile. Within the Volkswagen Group and under the Audi Brand Group, the SEAT brand itself has been developed as a group with subsidiary companies (SEAT Group) and 'SEAT, S.A. ' as the parent company. The headquarters of SEAT, S.A. are located at SEAT's industrial complex in Martorell near Barcelona, Spain. By 2000 annual production peaked at over 500,000 units; in total up to 2006, over 16 million cars have been produced including more than 6 million from the Martorell plant, with three-quarters of the annual production being exported to over seventy countries worldwide. The name SEAT, previously standing for the acronym Sociedad Espa\u00F1ola de Autom\u00F3viles de Turismo (Spanish Touring Car Company, in English), in 1990 was changed to SEAT, S.A.."@en .
 <http://dbpedia.org/resource/SEAT>	<http://dbpedia.org/ontology/formationDate>	"1950-05-09"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/SEAT>	<http://dbpedia.org/ontology/formationYear>	"1950-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/SEAT>	<http://dbpedia.org/ontology/foundingYear>	"1950-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/SEAT>	<http://dbpedia.org/ontology/formationYear>	"1950+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/SEAT>	<http://dbpedia.org/ontology/foundingYear>	"1950+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/SEAT>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/El_Prat_de_Llobregat> .
 <http://dbpedia.org/resource/SEAT>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Spain> .
 <http://dbpedia.org/resource/SEAT>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Zona_Franca_%28Barcelona%29> .
@@ -10687,7 +10687,7 @@
 <http://dbpedia.org/resource/Siege_of_Toul>	<http://xmlns.com/foaf/0.1/name>	"Siege of Toul"@en .
 <http://dbpedia.org/resource/Siege_of_Toul>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Siege_of_Toul> .
 <http://dbpedia.org/resource/Sims_Snowboards>	<http://dbpedia.org/ontology/abstract>	"Sims Snowboards is a manufacturer of snowboards. Founded by Tom Sims in the mid-1970s, the company specializes in a product line aimed at snowboarders with snowboards, bindings, boots, outerwear, and accessories."@en .
-<http://dbpedia.org/resource/Sims_Snowboards>	<http://dbpedia.org/ontology/foundingYear>	"1977-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Sims_Snowboards>	<http://dbpedia.org/ontology/foundingYear>	"1977+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Sims_Snowboards>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Sporting_goods> .
 <http://dbpedia.org/resource/Sims_Snowboards>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Tom_Sims> .
 <http://dbpedia.org/resource/Sims_Snowboards>	<http://dbpedia.org/ontology/location>	<http://dbpedia.org/resource/Breckenridge,_Colorado> .
@@ -10793,7 +10793,7 @@
 <http://dbpedia.org/resource/Sony>	<http://dbpedia.org/ontology/abstract>	", commonly referred to as Sony, is a Japanese multinational conglomerate corporation headquartered in K\u014Dnan Minato, Tokyo, Japan. It ranked 87th on the 2012 list of Fortune Global 500. Sony is one of the leading manufacturers of electronics products for the consumer and professional markets. Sony Corporation is the electronics business unit and the parent company of the Sony Group, which is engaged in business through its four operating segments \u2013 Electronics (including video games, network services and medical business), Motion pictures, Music and Financial Services. These make Sony one of the most comprehensive entertainment companies in the world. Sony's principal business operations include Sony Corporation (Sony Electronics in the U.S. ), Sony Pictures Entertainment, Sony Computer Entertainment, Sony Music Entertainment, Sony Mobile Communications (formerly Sony Ericsson), and Sony Financial. Sony is among the Worldwide Top 20 Semiconductor Sales Leaders and third-largest television manufacturer in the world, after Samsung Electronics and LG Electronics. The Sony Group is a Japan-based corporate group primarily focused on the Electronics (such as AV/IT products and components), Game (such as PlayStation), Entertainment (such as motion pictures and music), and Financial Services (such as insurance and banking) sectors. The group consists of Sony Corporation (holding and electronics), Sony Computer Entertainment (game), Sony Pictures Entertainment (motion pictures), Sony Music Entertainment (music), Sony/ATV Music Publishing (music publishing), Sony Financial Holdings (financial services) and others. Its founders Akio Morita and Masaru Ibuka derived the name from sonus, the Latin word for sound, and also from the English slang word \"sonny\", since they considered themselves to be \"sonny boys\", a loan word into Japanese which in the early 1950s connoted smart and presentable young men."@en .
 <http://dbpedia.org/resource/Sony>	<http://dbpedia.org/ontology/assets>	"1.5594E11"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Sony>	<http://dbpedia.org/ontology/equity>	"3.074E10"^^<http://dbpedia.org/datatype/usDollar> .
-<http://dbpedia.org/resource/Sony>	<http://dbpedia.org/ontology/foundingYear>	"1946-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Sony>	<http://dbpedia.org/ontology/foundingYear>	"1946+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Sony>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Conglomerate_%28company%29> .
 <http://dbpedia.org/resource/Sony>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Chairman> .
 <http://dbpedia.org/resource/Sony>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Howard_Stringer> .
@@ -11391,12 +11391,12 @@
 <http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/equity>	"4.5E9"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/equity>	"4.61E9"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/formationDate>	"1982-03-01"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/formationYear>	"1982-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/formationYear>	"1982+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/foundationPlace>	<http://dbpedia.org/resource/Sunnyvale,_California> .
 <http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Gary_Hendrix> .
 <http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Gordon_Eubanks> .
 <http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/foundingDate>	"1982-03-01"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/foundingYear>	"1982-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/foundingYear>	"1982+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Computer_security> .
 <http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Security_software> .
 <http://dbpedia.org/resource/Symantec>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/CEO> .
@@ -11571,7 +11571,7 @@
 <http://dbpedia.org/resource/Synapse_Films>	<http://dbpedia.org/resource/Template:Infobox_company>	"products"@en .
 <http://dbpedia.org/resource/Synapse_Films>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Synapse_Films> .
 <http://dbpedia.org/resource/Tallinnfilm>	<http://dbpedia.org/ontology/abstract>	"Tallinnfilm is the oldest still functional film studio in Estonia. Originally founded as Estonian Culture Film in 1931, the studio was nationalized in 1940 after Estonia was forced into Soviet Union. During the first year of Soviet Occupation (1940\u20131941) Eesti Kultuurfilm was taken over by the Communist Party and renamed Kinokroonika Eesti Stuudio (the Estonian Newsreel Studio). In 1942 during the German occupation in WWII was renamed Kinokroonika Tallinna Stuudio (The Tallinn Newsreel Studio) and called Tallinna Kinostuudio (The Tallinn Film Studio) in 1947 again by the Soviets. The Tallinn Film Studio was renamed Kunstiliste ja Kroonikafilmide Tallinna Kinostuudio (Tallinn Feature and Newsreel Film Studio) in 1954 and in 1963 was renamed again Tallinnfilm During the Soviet era, the studio was the only major movie production house in Estonia, leading to its being responsible for almost all feature-length movies of the time. (Most of the rest were produced by Eesti Televisioon. ) Most notable feature films produced by Tallinnfilm during the Soviet era were Viimne reliikvia (The Last Relic), released in 1969 by Tallinnfilm. The movie set the absolute box office record for the entire Soviet Union at the time by selling 44,9 million tickets. It was successfully distributed by the Soviet film export internationally in more than 60 countries. The Spring (1969) Estonian: Kevade directed by Arvo Kruusement sold 558,000 tickets in Estonia (Total population 1.34 million) and in 1971 8,100,000 in Soviet Union. After Estonia regained independence in 1991, Tallinnfilm terminated its production activities and concentrated on the restoration of its film stock and film distribution. Since 2004 Tallinnfilm acts as art-house cinema operator. The owner of Tallinnfilm is Estonian Film Foundation."@en .
-<http://dbpedia.org/resource/Tallinnfilm>	<http://dbpedia.org/ontology/formationYear>	"1931-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Tallinnfilm>	<http://dbpedia.org/ontology/formationYear>	"1931+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Tallinnfilm>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/c/c7/Tallinnfilm.png/200px-Tallinnfilm.png> .
 <http://dbpedia.org/resource/Tallinnfilm>	<http://dbpedia.org/property/homepage>	"www.tallinnfilm.ee"@en .
 <http://dbpedia.org/resource/Tallinnfilm>	<http://dbpedia.org/property/industry>	"Film distribution"@en .
@@ -11593,7 +11593,7 @@
 <http://dbpedia.org/resource/Tally_Weijl>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Tally_Weijl> .
 <http://dbpedia.org/resource/Tata_Group>	<http://dbpedia.org/ontology/abstract>	"Tata Group is an Indian multinational conglomerate company headquartered in Mumbai, Maharashtra, India. It encompasses seven business sectors: communications and information technology, engineering, materials, services, energy, consumer products and chemicals. Tata Group has operations in more than 80 countries across six continents and its companies export products and services to 80 nations. It has over 100 operating companies each of them operates independently out of them 31 are publicly listed. The major Tata companies are Tata Steel, Tata Motors, Tata Consultancy Services (TCS), Tata Power, Tata Chemicals, Tata Global Beverages, Tata Teleservices, Titan, Tata Communications and Taj Hotels. The combined market capitalisation of all the 31 listed Tata companies was $76.76 billion as of July 2012. Tata receives more than 58% of its revenue from outside India. The group takes the name of its founder, Jamsetji Tata, a member of whose family has almost invariably been the chairman of the group. The current chairman of the Tata group is Ratan Tata, who took over from J. R. D. Tata in 1991. The company is currently in its fifth generation of family stewardship. Tata Sons is the promoter of all key Tata companies and holds the bulk of shareholding in these companies. The chairman of Tata Sons has traditionally been the chairman of the Tata group. About 66% of the equity capital of Tata Sons is held by philanthropic trusts endowed by members of the Tata family. The 2009, annual survey by the Reputation Institute ranked Tata Group as the 11th most reputable company in the world. The survey included 600 global companies. The Tata Group has helped establish and finance numerous quality research, educational and cultural institutes in India. The group was awarded the Carnegie Medal of Philanthropy in 2007 in recognition of its long history of philanthropic activities."@en .
 <http://dbpedia.org/resource/Tata_Group>	<http://dbpedia.org/ontology/assets>	"6.89E10"^^<http://dbpedia.org/datatype/usDollar> .
-<http://dbpedia.org/resource/Tata_Group>	<http://dbpedia.org/ontology/foundingYear>	"1868-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Tata_Group>	<http://dbpedia.org/ontology/foundingYear>	"1868+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Tata_Group>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Ratan_Tata> .
 <http://dbpedia.org/resource/Tata_Group>	<http://dbpedia.org/ontology/netIncome>	"5.8E9"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Tata_Group>	<http://dbpedia.org/ontology/numberOfEmployees>	"424365"^^<http://www.w3.org/2001/XMLSchema#integer> .
@@ -11770,9 +11770,9 @@
 <http://dbpedia.org/resource/The_Coffee_Bean_&_Tea_Leaf>	<http://xmlns.com/foaf/0.1/homepage>	<http://www.coffeebean.com/> .
 <http://dbpedia.org/resource/The_Coffee_Bean_&_Tea_Leaf>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/The_Coffee_Bean_&_Tea_Leaf> .
 <http://dbpedia.org/resource/The_Collective,_Inc.>	<http://dbpedia.org/ontology/abstract>	"The Collective, Inc. was an American video game development company located in Newport Beach, California. The company has created several games based on movies and television shows since its founding in 1997."@en .
-<http://dbpedia.org/resource/The_Collective,_Inc.>	<http://dbpedia.org/ontology/extinctionYear>	"2007-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/The_Collective,_Inc.>	<http://dbpedia.org/ontology/extinctionYear>	"2007+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/The_Collective,_Inc.>	<http://dbpedia.org/ontology/fate>	"Merger"@en .
-<http://dbpedia.org/resource/The_Collective,_Inc.>	<http://dbpedia.org/ontology/formationYear>	"1997-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/The_Collective,_Inc.>	<http://dbpedia.org/ontology/formationYear>	"1997+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/The_Collective,_Inc.>	<http://dbpedia.org/ontology/foundationPlace>	<http://dbpedia.org/resource/1997_in_video_gaming> .
 <http://dbpedia.org/resource/The_Collective,_Inc.>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Computer_and_video_game_industry> .
 <http://dbpedia.org/resource/The_Collective,_Inc.>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Douglas_Hare> .
@@ -11894,7 +11894,7 @@
 <http://dbpedia.org/resource/Thunderbird_Films>	<http://dbpedia.org/resource/Template:Infobox_Company>	"location_city"@en .
 <http://dbpedia.org/resource/Thunderbird_Films>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Thunderbird_Films> .
 <http://dbpedia.org/resource/Time_Warner>	<http://dbpedia.org/ontology/abstract>	"Time Warner Inc. is an American multinational media corporation headquartered in the Time Warner Center in New York City. As of mid-2010, it was the world's second largest media and entertainment conglomerate in terms of revenue, as well as the world's largest media conglomerate. Two formerly separate companies, Warner Communications, Inc. and Time Inc. (along with the assets of a third company, Turner Broadcasting System, Inc. ), form the current Time Warner, with major operations in film, television and publishing. Among its subsidiaries are New Line Cinema, Time Inc. , HBO, Turner Broadcasting System, The CW Television Network, TheWB. com, Warner Bros. , Kids' WB, Cartoon Network, Boomerang, Adult Swim, CNN, DC Comics, Warner Bros. Animation, Cartoon Network Studios and Castle Rock Entertainment. The company used to also have telecommunications assets through Time Warner Cable and AOL, but in 2009 they were spun off from Time Warner into independent companies."@en .
-<http://dbpedia.org/resource/Time_Warner>	<http://dbpedia.org/ontology/foundingYear>	"1989-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Time_Warner>	<http://dbpedia.org/ontology/foundingYear>	"1989+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Time_Warner>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Jeffrey_Bewkes> .
 <http://dbpedia.org/resource/Time_Warner>	<http://dbpedia.org/ontology/locationCity>	<http://dbpedia.org/resource/Columbus_Circle> .
 <http://dbpedia.org/resource/Time_Warner>	<http://dbpedia.org/ontology/product>	<http://dbpedia.org/resource/Publishing> .
@@ -12299,7 +12299,7 @@
 <http://dbpedia.org/resource/Ultimate_Fighting_Championship>	<http://www.w3.org/2000/01/rdf-schema#comment>	"Ultimate Fighting Championship. Type PrivateIndustry Mixed martial arts promotionFounded November 1993Founder(s) Art Davie, Rorion Gracie, Campbell McLaren, Robert MeyrowitzHeadquarters Las Vegas, Nevada, United StatesKey people Lorenzo Fertitta, Chairman/CEO Dana White, President Marc Ratner, VP Regulatory Affairs Joe Silva, VP Talent Relations/MatchmakerParent Zuffa, LLCWebsite http://www. ufc."@en .
 <http://dbpedia.org/resource/Ultimate_Fighting_Championship>	<http://xmlns.com/foaf/0.1/depiction>	<http://upload.wikimedia.org/wikipedia/commons/7/78/Royce_Gracie_2.jpg> .
 <http://dbpedia.org/resource/Unicomer_Group>	<http://dbpedia.org/ontology/abstract>	"Regal Forest Holding Co. Ltd. , operating as Unicomer Group, is a large international retailing group based in El Salvador that operates several chains of retail brands in the consumer durables sector, specializing in furniture, appliances, and electronics. The Unicomer Group operates over 600 stores in Central America, the Caribbean, South America, and the United States, and employs over 10,000. Mario Siman has been CEO of the group since its inception in the year 2000. The company has its headquarters in the Edificio Unicomer in the Escalon area of San Salvador, El Salvador."@en .
-<http://dbpedia.org/resource/Unicomer_Group>	<http://dbpedia.org/ontology/formationYear>	"2000-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Unicomer_Group>	<http://dbpedia.org/ontology/formationYear>	"2000+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Unicomer_Group>	<http://dbpedia.org/ontology/numberOfEmployees>	"10000"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Unicomer_Group>	<http://dbpedia.org/ontology/numberOfEmployees>	"9000"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://dbpedia.org/resource/Unicomer_Group>	<http://dbpedia.org/ontology/revenue>	"8.0E8"^^<http://dbpedia.org/datatype/usDollar> .
@@ -12879,10 +12879,10 @@
 <http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/division>	<http://dbpedia.org/resource/Universal_Republic_Records> .
 <http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/division>	<http://dbpedia.org/resource/V2_Records> .
 <http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/division>	<http://dbpedia.org/resource/Verve_Records> .
-<http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/formationYear>	"1934-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/formationYear>	"1989-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/formationYear>	"1996-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/formationYear>	"1998-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/formationYear>	"1934+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/formationYear>	"1989+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/formationYear>	"1996+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/formationYear>	"1998+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/operatingIncome>	"1.4E8"^^<http://dbpedia.org/datatype/euro> .
 <http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/operatingIncome>	"1.75E8"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Universal_Music_Group>	<http://dbpedia.org/ontology/revenue>	"4449.0"^^<http://dbpedia.org/datatype/euro> .
@@ -12924,7 +12924,7 @@
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/birthDate>	"1912-03-08"^^<http://www.w3.org/2001/XMLSchema#date> .
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/birthDate>	"1912-06-08"^^<http://www.w3.org/2001/XMLSchema#date> .
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/formationDate>	"1912-04-30"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/formationYear>	"1912-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/formationYear>	"1912+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/foundationPlace>	<http://dbpedia.org/resource/New_York> .
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/foundationPlace>	<http://dbpedia.org/resource/New_York_City> .
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/foundationPlace>	<http://dbpedia.org/resource/New_York_(state)> .
@@ -12932,7 +12932,7 @@
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/foundingDate>	"1912-03-08"^^<http://www.w3.org/2001/XMLSchema#date> .
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/foundingDate>	"1912-03-30"^^<http://www.w3.org/2001/XMLSchema#date> .
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/foundingDate>	"1912-06-08"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/foundingYear>	"1912-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/foundingYear>	"1912+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Carl_Laemmle> .
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Jordan_McOwen> .
 <http://dbpedia.org/resource/Universal_Studios>	<http://dbpedia.org/ontology/owner>	<http://dbpedia.org/resource/Comcast> .
@@ -13112,9 +13112,9 @@
 <http://dbpedia.org/resource/Verizon_Communications>	<http://dbpedia.org/ontology/division>	<http://dbpedia.org/resource/Verizon_North> .
 <http://dbpedia.org/resource/Verizon_Communications>	<http://dbpedia.org/ontology/equity>	"8.6912E10"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Verizon_Communications>	<http://dbpedia.org/ontology/formationDate>	"1983-10-07"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/Verizon_Communications>	<http://dbpedia.org/ontology/formationYear>	"1983-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Verizon_Communications>	<http://dbpedia.org/ontology/formationYear>	"1983+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Verizon_Communications>	<http://dbpedia.org/ontology/foundingDate>	"1983-10-07"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/Verizon_Communications>	<http://dbpedia.org/ontology/foundingYear>	"1983-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Verizon_Communications>	<http://dbpedia.org/ontology/foundingYear>	"1983+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Verizon_Communications>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Chairman> .
 <http://dbpedia.org/resource/Verizon_Communications>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Chief_executive_officer> .
 <http://dbpedia.org/resource/Verizon_Communications>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Lowell_McAdam> .
@@ -13346,11 +13346,11 @@
 <http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/assets>	"5.899E10"^^<http://dbpedia.org/datatype/euro> .
 <http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/equity>	"2.817E10"^^<http://dbpedia.org/datatype/euro> .
 <http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/formationDate>	"1853-12-14"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/formationYear>	"1853-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/formationYear>	"1998-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/formationYear>	"1853+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/formationYear>	"1998+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/foundationPlace>	<http://dbpedia.org/resource/Compagnie_G%C3%A9n%C3%A9rale_des_Eaux> .
-<http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/foundingYear>	"1853-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/foundingYear>	"1998-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/foundingYear>	"1853+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/foundingYear>	"1998+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Media_conglomerate> .
 <http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Chairman> .
 <http://dbpedia.org/resource/Vivendi>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Jean-Bernard_L%C3%A9vy> .
@@ -13514,11 +13514,11 @@
 <http://dbpedia.org/resource/Walter_Mondale>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Walter_Mondale> .
 <http://dbpedia.org/resource/Wardrop_Engineering_Inc.>	<http://dbpedia.org/property/foundation>	"1955"^^<http://www.w3.org/2001/XMLSchema#int> .
 <http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/abstract>	"Warner Bros. Entertainment, Inc. , also known as Warner Bros. Pictures or simply Warner Bros. (though the name was occasionally given in full form as Warner Brothers during the company's early years), is an American producer of film, television, and music entertainment. One of the major film studios, it is a subsidiary of Time Warner, with its headquarters in Burbank, California and New York, New York. Warner Bros. has several subsidiary companies, including Warner Bros. Studios, Warner Bros. Pictures, Warner Bros. Interactive Entertainment, Warner Bros. Television, Warner Bros. Animation, Warner Home Video, New Line Cinema, TheWB. com, and DC Comics. Warner owns half of The CW Television Network. Warner Bros. is a member of the Motion Picture Association of America (MPAA)."@en .
-<http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/formationYear>	"1918-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/formationYear>	"1923-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/foundingYear>	"1918-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/foundingYear>	"1923-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/foundingYear>	"1923-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/formationYear>	"1918+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/formationYear>	"1923+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/foundingYear>	"1918+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/foundingYear>	"1923+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/foundingYear>	"1923+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/operatingIncome>	"1.263E9"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/parentCompany>	<http://dbpedia.org/resource/Independent_business> .
 <http://dbpedia.org/resource/Warner_Bros.>	<http://dbpedia.org/ontology/revenue>	"1.2638E10"^^<http://dbpedia.org/datatype/usDollar> .
@@ -13540,9 +13540,9 @@
 <http://dbpedia.org/resource/Warner_Bros._Records>	<http://dbpedia.org/property/distributor>	"Warner Music International"@en .
 <http://dbpedia.org/resource/Warner_Bros._Records>	<http://www.w3.org/2000/01/rdf-schema#comment>	"Warner Bros. Records Inc. is an American record label. It was the foundation label of the present-day Warner Music Group, and now operates as a wholly owned subsidiary of that corporation. It maintains a close relationship with its former parent, Warner Bros. Pictures, although the two companies are independently owned. Rob Cavallo currently serves as Chairman of the company. Warner Bros."@en .
 <http://dbpedia.org/resource/Warner_Communications>	<http://dbpedia.org/ontology/abstract>	"Warner Communications or Warner Communications, Inc. (Warner) was established in 1972 when Kinney National Company spun off its non-entertainment assets, due to a financial scandal over its parking operations and changed its name. It was the parent company for Warner Bros. Pictures and Warner Music Group from 1972-1990. It also owned DC Comics and Mad. Warner made (and later lost) considerable profits with Atari, Inc. , which it owned from 1976 to 1984. In the 1970s, Warner formed a joint venture with credit card company American Express, named Warner-Amex Satellite Entertainment, which held cable channels like MTV, Nickelodeon and The Movie Channel. Warner bought out American Express's half in 1984, and sold the venture a year later to Viacom, which renamed it MTV Networks. In 1982, Warner purchased Popular Library from CBS Publications. In 1987, it was announced that Warner Communications and Time Inc. were to merge, though it took two years for the merger to take place. Before the merger closed in 1989, Warner purchased Lorimar-Telepictures. In early 1990, the combined companies were named Time Warner. The Warner Communications name was still credited on releases from Elektra Records and its sister labels until 2004. The Warner Music Group continues to use the \"Circle W\" logo, designed by Saul Bass in 1972, even after being spun off by Time Warner."@en .
-<http://dbpedia.org/resource/Warner_Communications>	<http://dbpedia.org/ontology/extinctionYear>	"1990-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Warner_Communications>	<http://dbpedia.org/ontology/foundingYear>	"1971-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Warner_Communications>	<http://dbpedia.org/ontology/foundingYear>	"1972-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Warner_Communications>	<http://dbpedia.org/ontology/extinctionYear>	"1990+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Warner_Communications>	<http://dbpedia.org/ontology/foundingYear>	"1971+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Warner_Communications>	<http://dbpedia.org/ontology/foundingYear>	"1972+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Warner_Communications>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Steve_Ross_%28Time_Warner_CEO%29> .
 <http://dbpedia.org/resource/Warner_Communications>	<http://dbpedia.org/ontology/locationCountry>	<http://dbpedia.org/resource/United_States> .
 <http://dbpedia.org/resource/Warner_Communications>	<http://dbpedia.org/ontology/thumbnail>	<http://upload.wikimedia.org/wikipedia/en/thumb/9/90/Warner_Music_logo_1.jpg/200px-Warner_Music_logo_1.jpg> .
@@ -13580,8 +13580,8 @@
 <http://dbpedia.org/resource/Warner_Communications>	<http://xmlns.com/foaf/0.1/page>	<http://en.wikipedia.org/wiki/Warner_Communications> .
 <http://dbpedia.org/resource/Warner_Music_Group>	<http://dbpedia.org/ontology/abstract>	"Warner Music Group (WMG) is the third largest business group and family of record labels in the recording industry, making it one of the big four record companies. For three decades the conglomerate was known as WEA, which stood for Warner Bros. -Elektra-Atlantic Records; three major record companies that signed and developed musical acts and, in turn, distributed product for subsidiaries and other record labels. The current incarnation of the company as Warner Music Group was formed in 2004 when it was spun off and made completely separate from Time Warner; as a result Time Warner no longer retains any ownership whatsoever in the Warner Music Group, despite its name. WMG also has a music publishing arm called Warner/Chappell Music which is one of the world's largest music-publishing companies. In May 2011, the company announced its sale to Access Industries, Inc. The purchase of the company was completed on July 20, 2011."@en .
 <http://dbpedia.org/resource/Warner_Music_Group>	<http://dbpedia.org/ontology/foundationPlace>	<http://dbpedia.org/resource/Elektra_Records> .
-<http://dbpedia.org/resource/Warner_Music_Group>	<http://dbpedia.org/ontology/foundingYear>	"1971-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/Warner_Music_Group>	<http://dbpedia.org/ontology/foundingYear>	"2004-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Warner_Music_Group>	<http://dbpedia.org/ontology/foundingYear>	"1971+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/Warner_Music_Group>	<http://dbpedia.org/ontology/foundingYear>	"2004+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/Warner_Music_Group>	<http://dbpedia.org/ontology/industry>	<http://dbpedia.org/resource/Music> .
 <http://dbpedia.org/resource/Warner_Music_Group>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Lyor_Cohen> .
 <http://dbpedia.org/resource/Warner_Music_Group>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Stephen_Cooper_%28businessman%29> .
@@ -14101,8 +14101,8 @@
 <http://dbpedia.org/resource/WWE>	<http://dbpedia.org/ontology/equity>	"3.887E8"^^<http://dbpedia.org/datatype/usDollar> .
 <http://dbpedia.org/resource/WWE>	<http://dbpedia.org/ontology/foundedBy>	<http://dbpedia.org/resource/Roderick_McMahon> .
 <http://dbpedia.org/resource/WWE>	<http://dbpedia.org/ontology/foundingDate>	"1980-02-21"^^<http://www.w3.org/2001/XMLSchema#date> .
-<http://dbpedia.org/resource/WWE>	<http://dbpedia.org/ontology/foundingYear>	"1980-01-01T00:00:00+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
-<http://dbpedia.org/resource/WWE>	<http://dbpedia.org/ontology/foundingYear>	"1980-01-01T00:00:00+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/WWE>	<http://dbpedia.org/ontology/foundingYear>	"1980+01:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://dbpedia.org/resource/WWE>	<http://dbpedia.org/ontology/foundingYear>	"1980+02:00"^^<http://www.w3.org/2001/XMLSchema#gYear> .
 <http://dbpedia.org/resource/WWE>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/John_Laurinaitis> .
 <http://dbpedia.org/resource/WWE>	<http://dbpedia.org/ontology/keyPerson>	<http://dbpedia.org/resource/Paul_%22Triple_H%22_Levesque> .
 <http://dbpedia.org/resource/WWE>	<http://dbpedia.org/ontology/locationCity>	<http://dbpedia.org/resource/Connecticut> .
