@@ -582,7 +582,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			byte[] expectedAnswers = outputStream.toByteArray();
 			//debug
 			LOGGER.info("Expected answers for task " + task.getTaskId() + " computed"
-					+ ". Type: " + task.getQuerySubType() 
+					+ ". Type: " + task.getQueryType() + "." + task.getQuerySubType() 
 					+ ", ResultsNum: " + results.size() 
 					+ ", Time: " + (queryEnd - queryStart) + " ms.");			
 
@@ -642,7 +642,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				for (int querySubType = 0; querySubType < Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {	
 					for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
 						queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
-						tasks.add(new Task((queryType + 1), (queryType + 1) + "." + (querySubType + 1), Integer.toString(taskId++), queryString, null));
+						tasks.add(new Task((queryType + 1), (querySubType + 1), Integer.toString(taskId++), queryString, null));
 						try {
 							FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versionigQuery" + (queryType + 1) + "." + (querySubType + 1) + "." + (querySubstParam + 1) + ".sparql"), queryString);
 						} catch (IOException e) {
@@ -655,7 +655,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			}
 			for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
 				queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
-				tasks.add(new Task((queryType + 1), (queryType + 1) + ".1", Integer.toString(taskId++), queryString, null));
+				tasks.add(new Task((queryType + 1), 1, Integer.toString(taskId++), queryString, null));
 				try {
 					FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versionigQuery" + (queryType + 1) + ".1." + (querySubstParam + 1) + ".sparql"), queryString);
 				} catch (IOException e) {
