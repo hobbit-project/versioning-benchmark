@@ -9,6 +9,7 @@ SERIALIZATION_FORMAT=$1
 NUMBER_OF_VERSIONS=$2
 total_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
 rdf_loaders=$(awk "BEGIN {printf \"%d\", $total_cores/2.5}")
+
 echo "total cores: $total_cores"
 prll_rdf_loader_run() {
    $VIRTUOSO_BIN/isql-v 1111 dba dba exec="set isolation='uncommitted';" > /dev/null
