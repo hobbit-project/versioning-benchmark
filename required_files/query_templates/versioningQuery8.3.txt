@@ -8,7 +8,7 @@ PREFIX dbp-cat: <http://dbpedia.org/resource/Category/>
 PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT *
+SELECT DISTINCT ?creativeWork ?v0 ?v1 ?v2
 FROM {{{graphVi}}}
 {{{fromIntermediateVersionsClauses}}}
 FROM {{{graphVj}}}
