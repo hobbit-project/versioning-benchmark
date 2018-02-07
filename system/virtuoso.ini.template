@@ -240,11 +240,7 @@ DefaultHost			= localhost:8890
 ;DefaultGraph      		= http://localhost:8890/dataspace
 ;ImmutableGraphs    		= http://localhost:8890/dataspace
 ResultSetMaxRows           	= 100000000
-<<<<<<< HEAD
 MaxQueryCostEstimationTime 	= 4000	; in seconds
-=======
-MaxQueryCostEstimationTime 	= 400	; in seconds
->>>>>>> master
 MaxQueryExecutionTime      	= 600	; in seconds
 DefaultQuery               	= select distinct ?Concept where {[] a ?Concept} LIMIT 100
 DeferInferenceRulesInit    	= 0  ; controls inference rules loading
