@@ -577,7 +577,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		for (Task task : tasks) {			
 			ResultSetRewindable results = null;
-			
+
 			// execute the query on top of virtuoso to compute the expected answers
 			Query query = QueryFactory.create(task.getQuery());
 			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
@@ -921,7 +921,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		    			// ontologies have to be sent only from one data generator
 		    			// send ontology files to the system
 		    			File ontologiesPathFile = new File(ontologiesPath);
-		    			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
+		    			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "ttl" }, true);
 		    			for (File file : ontologiesFiles) {
 		    				String graphUri = "http://datagen.addset." + version + "." + file.getName();
 		    				byte data[] = FileUtils.readFileToByteArray(file);

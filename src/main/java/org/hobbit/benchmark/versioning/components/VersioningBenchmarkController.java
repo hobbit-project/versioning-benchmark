@@ -31,9 +31,10 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private String[] dataGenEnvVariables = null;
     private String[] evalStorageEnvVariables = null;
     
+    
     private Semaphore versionSentMutex = new Semaphore(0);
     private Semaphore versionLoadedMutex = new Semaphore(0);
-    
+        
     private int numberOfDataGenerators;
     private int numOfVersions;
     private int loadedVersion = 0;
