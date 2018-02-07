@@ -18,10 +18,12 @@ public class Task implements Serializable {
 	private String taskId;
 	private String query;
 	private int queryType;
+	private int querySubType;
 	private byte[] expectedAnswers;
 	
-	public Task(int queryType, String id, String query, byte[] expectedAnswers) {
+	public Task(int queryType, int querySubType, String id, String query, byte[] expectedAnswers) {
 		this.queryType = queryType;
+		this.querySubType = querySubType;
 		this.taskId = id;
 		this.query = query;
 		this.expectedAnswers = expectedAnswers;
@@ -51,11 +53,21 @@ public class Task implements Serializable {
 		return this.queryType;
 	}
 	
+	public void setQuerySubType(int queryType) {
+		this.querySubType = queryType;
+	}
+	
+	public int getQuerySubType() {
+		return this.querySubType;
+	}
+	
 	// the results are preceded by the query type as this information required
 	// by the evaluation module. 
 	public void setExpectedAnswers(byte[] res) {
-		byte[] queryTypeBytes = ByteBuffer.allocate(4).putInt(queryType).array();
-		this.expectedAnswers = RabbitMQUtils.writeByteArrays(queryTypeBytes, new byte[][]{res}, null);
+		ByteBuffer buffer = ByteBuffer.allocate(8);
+		buffer.putInt(queryType);
+		buffer.putInt(querySubType);
+		this.expectedAnswers = RabbitMQUtils.writeByteArrays(buffer.array(), new byte[][]{res}, null);
 	}
 	
 	public byte[] getExpectedAnswers() {

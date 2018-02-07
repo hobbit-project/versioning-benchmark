@@ -8,14 +8,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
 import org.hobbit.core.Commands;
 import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractBenchmarkController;
-import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +21,9 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningBenchmarkController.class);
 
-	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:1.0";
-	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:1.0";
-	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:1.0";
+	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:2.0";
+	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:2.0";
+	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:2.0";
 	
 	private static final String PREFIX = "http://w3id.org/hobbit/versioning-benchmark/vocab#";
 	
@@ -42,6 +40,8 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private int loadedVersion = 0;
     private long prevLoadingStartedTime = 0;
     private long[] loadingTimes;
+    private AtomicIntegerArray triplesToBeAdded;
+    private AtomicIntegerArray triplesToBeDeleted;
     private AtomicIntegerArray triplesToBeLoaded;
     private AtomicInteger numberOfMessages = new AtomicInteger(0);
 
@@ -51,27 +51,27 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         super.init();
         
 		numberOfDataGenerators = (Integer) getProperty(PREFIX + "hasNumberOfGenerators", 1);
-		int datasetSize =  (Integer) getProperty(PREFIX + "datasetSizeInTriples", 1000000);
-		int generatorSeed =  (Integer) getProperty(PREFIX + "generatorSeed", 0);
+		int v0Size =  (Integer) getProperty(PREFIX + "v0SizeInTriples", 1000000);
+		int generatorSeed = (Integer) getProperty(PREFIX + "generatorSeed", 0);
 		numOfVersions =  (Integer) getProperty(PREFIX + "numberOfVersions", 12);
-		int seedYear =  (Integer) getProperty(PREFIX + "seedYear", 2010);
-		int dataGenInYears =  (Integer) getProperty(PREFIX + "generationPeriodInYears", 1);
-		String serializationFormat = (String) getProperty(PREFIX + "generatedDataFormat", "n-triples");
-		int subsParametersAmount = (Integer) getProperty(PREFIX + "querySubstitutionParameters", 10);
+		int insRatio = (Integer) getProperty(PREFIX + "versionInsertionRatio", 5);
+		int delRatio = (Integer) getProperty(PREFIX + "versionDeletionRatio", 3);
+		String dataForm = (String) getProperty(PREFIX + "generatedDataForm", "ic");
 		
 		loadingTimes = new long[numOfVersions];
+		triplesToBeAdded = new AtomicIntegerArray(numOfVersions);
+		triplesToBeDeleted = new AtomicIntegerArray(numOfVersions);
 		triplesToBeLoaded = new AtomicIntegerArray(numOfVersions);
 		
 		// data generators environmental values
 		dataGenEnvVariables = new String[] {
 				VersioningConstants.NUMBER_OF_DATA_GENERATORS + "=" + numberOfDataGenerators,
 				VersioningConstants.DATA_GENERATOR_SEED + "=" + generatorSeed,
-				VersioningConstants.DATASET_SIZE_IN_TRIPLES + "=" + datasetSize,
+				VersioningConstants.V0_SIZE_IN_TRIPLES + "=" + v0Size,
 				VersioningConstants.NUMBER_OF_VERSIONS + "=" + numOfVersions,
-				VersioningConstants.SEED_YEAR + "=" + seedYear,
-				VersioningConstants.GENERATION_PERIOD_IN_YEARS + "=" + dataGenInYears,
-				VersioningConstants.GENERATED_DATA_FORMAT + "=" + serializationFormat,
-				VersioningConstants.SUBSTITUTION_PARAMETERS_AMOUNT  + "=" + subsParametersAmount
+				VersioningConstants.VERSION_INSERTION_RATIO + "=" + insRatio,
+				VersioningConstants.VERSION_DELETION_RATIO + "=" + delRatio,
+				VersioningConstants.SENT_DATA_FORM + "=" + dataForm
 		};
 		
 		// evaluation module environmental values
@@ -104,7 +104,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		LOGGER.info("Task Generators created successfully.");
 
 		// Create evaluation storage
-		createEvaluationStorage(DEFAULT_EVAL_STORAGE_IMAGE, evalStorageEnvVariables);
+		createEvaluationStorage("git.project-hobbit.eu:4567/defaulthobbituser/defaultevaluationstorage:1.0.7-SNAPSHOT", evalStorageEnvVariables);
 		LOGGER.info("Evaluation Storage created successfully.");
 		
 		waitForComponentsToInitialize();
@@ -128,16 +128,16 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		if (iterator.hasNext()) {
 			try {
 				if (defaultValue instanceof String) {
-					if(((String) defaultValue).equals("n-triples")) {
+					if(((String) defaultValue).equals("ic")) {
 						Properties serializationFormats = new Properties();
 						try {
-							serializationFormats.load(ClassLoader.getSystemResource("formats.properties").openStream());
+							serializationFormats.load(ClassLoader.getSystemResource("data_forms.properties").openStream());
 						} catch (IOException e) {
-							LOGGER.error("Exception while parsing serialization format.");
+							LOGGER.error("Exception while parsing available data forms.");
 						}
 						return (T) serializationFormats.getProperty(iterator.next().asResource().getLocalName());
 					} else {
-						return (T) iterator.next().asLiteral().getString();
+						return (T) iterator.next().asLiteral().getString(); 
 					}
 				} else if (defaultValue instanceof Integer) {
 					return (T) ((Integer) iterator.next().asLiteral().getInt());
@@ -164,10 +164,11 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	// computing the gold standard. Only the number of messages and data generator's
         	// id will be sent with DATA_GEN_VERSION_SENT command
         	ByteBuffer buffer = ByteBuffer.wrap(data);
-        	int triplesNum = buffer.getInt();
+        	triplesToBeAdded.addAndGet(loadedVersion, buffer.getInt());
+        	triplesToBeDeleted.addAndGet(loadedVersion, buffer.getInt());
+        	triplesToBeLoaded.addAndGet(loadedVersion, buffer.getInt());
             int dataGeneratorId = buffer.getInt();
             int dataGenNumOfMessages = buffer.getInt();
-        	triplesToBeLoaded.addAndGet(loadedVersion, triplesNum);
         	numberOfMessages.addAndGet(dataGenNumOfMessages);
         	
         	// signal sent from data generator that all its data generated successfully
@@ -175,6 +176,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	versionSentMutex.release();
 	    } else if (command == VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
             // signal sent from system adapter that a version loaded successfully
+	    	LOGGER.info("Recieved signal that all data of version " + loadedVersion + " successfully loaded from system.");
         	long currTimeMillis = System.currentTimeMillis();
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
@@ -240,9 +242,13 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         // pass the loading times and the number of triples that have to be loaded to 
         // the environment variables of the evaluation module, so that it can compute
         // the ingestion and applied changes speeds
-        for(int version=0; version<numOfVersions; version++) {
+        for(int version = 0; version < numOfVersions; version++) {
         	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
-        			String.format(VersioningConstants.TRIPLES_TO_BE_LOADED, version) + "=" + triplesToBeLoaded.get(version));
+        			String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_ADDED, version) + "=" + triplesToBeAdded.get(version));
+        	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
+        			String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_DELETED, version) + "=" + triplesToBeDeleted.get(version));
+        	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
+        			String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_LOADED, version) + "=" + triplesToBeLoaded.get(version));
         	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
         			String.format(VersioningConstants.LOADING_TIMES, version) + "=" + loadingTimes[version]);
         }

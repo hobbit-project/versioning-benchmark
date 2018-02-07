@@ -1,29 +1,16 @@
-#  Query Type: 2, Modern single-version structured query
-#  Query Description : 
-#  Retrieve from the current version, the 10 most recent creative works that are about or mention different topics. 
+PREFIX dbpedia: <http://dbpedia.org/resource/> 
+PREFIX dbp-prop: <http://dbpedia.org/property/> 
+PREFIX dbp-owl: <http://dbpedia.org/ontology/> 
+PREFIX dbp-yago: <http://dbpedia.org/class/yago/> 
+PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
+PREFIX georss: <http://www.georss.org/georss/> 
+PREFIX dbp-cat: <http://dbpedia.org/resource/Category/> 
+PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-#  Query Answering Choke Points : 
-#    - join ordering based on cardinality of functional property cwork:dateCreated
-#      Optimizer should use an efficient cost evaluation method for choosing the optimal join tree
-#    - OPTIONAL clauses (treated by query optimizer as nested sub-queries)
-#      Optimizer should decide to put optional triples on top of the join tree 
-#      (i.e. delay their execution to the last possible moment) because OPTIONALs are treated as a left join
-#    - Reasoning: rdfs:subClassOf, rdf:type
-
-PREFIX cwork:<http://www.bbc.co.uk/ontologies/creativework/> 
-
-SELECT ?creativeWork
+SELECT DISTINCT ?creativeWork ?v1 
 FROM {{{graphVmax}}}
-WHERE {
-      ?creativeWork {{{cwAboutOrMentions}}} {{{cwAboutOrMentionsUri}}} .
-      ?creativeWork a cwork:CreativeWork ;
-                    cwork:dateCreated ?dateCreated ;
-                    cwork:description ?description ; 
-                    cwork:primaryFormat ?primaryFormat ;
-                    cwork:title ?title .
-      OPTIONAL { ?creativeWork cwork:shortTitle ?shortTitle . }
-      OPTIONAL { ?creativeWork cwork:mentions ?mentions . }
-      OPTIONAL { ?creativeWork cwork:altText ?altText . }
+WHERE {	 
+	?creativeWork {{{cwAboutOrMentions}}} {{{cwAboutOrMentionsUri}}} .
+	{{{cwAboutOrMentionsUri}}} rdf:type ?v1 .
 }
-ORDER BY DESC(?dateCreated)
-LIMIT 10

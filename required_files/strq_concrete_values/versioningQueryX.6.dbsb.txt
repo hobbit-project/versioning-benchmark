@@ -1,0 +1,1001 @@
+"13 Flames Empire"@en
+"1846 Grand National"@en
+"1882 Open Championship"@en
+"1905 Tibetan Rebellion"@en
+"1925–26 FA Cup"@en
+"1926 San Sebastián Grand Prix"@en
+"1935–36 FA Cup"@en
+"1935 German Grand Prix"@en
+"1941 All-Ireland Senior Camogie Championship Final"@en
+"1949 Albanian Cup"@en
+"1951 Roller Hockey World Cup"@en
+"1952 All-Ireland Senior Football Championship Final"@en
+"1953 Torneo di Viareggio"@en
+"1955–56 FA Cup Qualifying Rounds"@en
+"1955 Copa del Generalísimo"@en
+"1956 Australian Championships"@en
+"1959 All-Ireland Senior Camogie Championship Final"@en
+"1960 Dutch Grand Prix"@en
+"1961 Natal Grand Prix"@en
+"1962 Women's Western Open"@en
+"1965 All-Africa Games"@en
+"1966–67 Football League Cup"@en
+"1971 Uganda Cup"@en
+"1972 Rothmans International Tennis Tournament"@en
+"1973 FA Charity Shield"@en
+"1973 Intercontinental Cup"@en
+"1973 Italian Grand Prix"@en
+"1976 Pacific Southwest Open"@en
+"1977 Argentine Grand Prix"@en
+"1979 Dutch Grand Prix"@en
+"1979 FINA Synchronized Swimming World Cup"@en
+"1984–85 Irish Cup"@en
+"1985–86 Irish Cup"@en
+"1985 Curaçao Grand Prix"@en
+"1987 FIFA U-16 World Championship"@en
+"1988–89 Football League Cup"@en
+"1988 Brazilian Grand Prix"@en
+"1988 European Indoors"@en
+"1988 Monte Carlo Open"@en
+"1988 Virginia Slims of Arizona"@en
+"1989–90 DFB-Pokal (women)"@en
+"1989 Virginia Slims of Houston"@en
+"1990–91 Irish League Cup"@en
+"1990 All-Ireland Senior Ladies' Football Championship Final"@en
+"1990 British Army Gazelle shootdown"@en
+"1991 Canadian Grand Prix"@en
+"1992 Dutch Supercup"@en
+"1993 Athens International"@en
+"1993 Central American and Caribbean Games"@en
+"1993 International Tennis Championships"@en
+"1994 Ms. Olympia"@en
+"1995 All-Africa Games"@en
+"1996 ATP Tour World Championships"@en
+"1996 Italian Grand Prix"@en
+"1997 Intercontinental Cup"@en
+"1997 Qatar Crown Prince Cup"@en
+"1997 Sybase Open"@en
+"1997 Tashkent Open"@en
+"1997 Volvo Women's Open"@en
+"1998–99 Ukrainian Cup"@en
+"1998 Supercoppa Italiana"@en
+"1998 UEFA Cup Final"@en
+"1999 Copa Interclubes UNCAF"@en
+"1999 FIFA Confederations Cup"@en
+"1999 Heineken Cup Final"@en
+"1999 International Rules Series"@en
+"2001–02 India–Pakistan standoff"@en
+"2001 Baltic Cup"@en
+"2001 Games of the Small States of Europe"@en
+"2002 Euro Beach Soccer Cup"@en
+"2003–04 Football League Trophy"@en
+"2003 Italian Grand Prix"@en
+"2005 DFS Classic"@en
+"2005 Malaysian Grand Prix"@en
+"2005 Svenska Cupen"@en
+"2006–07 Serbian Cup"@en
+"2006 Euro Beach Soccer Cup"@en
+"2006 Qatar Open"@en
+"2006 Sunfeast Open"@en
+"2006 WGC-American Express Championship"@en
+"2007–08 Ukrainian Cup"@en
+"2007 Scottish Cup Final"@en
+"2008 Ordina Open"@en
+"2009 ATP Salzburg Indoors"@en
+"2009 Bancolombia Open"@en
+"2009 Brasil Open"@en
+"2009 CONCACAF Gold Cup"@en
+"2009 Manchester Trophy"@en
+"2009 Thai FA Cup Final"@en
+"2009 US Open (tennis)"@en
+"2010 Beach Soccer Worldwide Tour"@en
+"2010 Challenger Salinas Diario Expreso"@en
+"2010 Grand Prix Hassan II"@en
+"2011–12 Greek Football Cup"@en
+"2011 ATP Challenger Guangzhou"@en
+"2011 Copa Sevilla"@en
+"2011 FIFA Club World Cup Final"@en
+"2011 Open GDF Suez de Biarritz"@en
+"2011 Premier League Asia Trophy"@en
+"2011 Thai FA Cup"@en
+"2011 UEFA Champions League Final"@en
+"2011 UNICEF Open"@en
+"2011 Zucchetti Kos Tennis Cup"@en
+"2012–13 Copa Chile"@en
+"2012 Ascenso MX Apertura Liguilla"@en
+"2012 FIFA U-17 Women's World Cup"@en
+"2012 Geneva Open Challenger"@en
+"2012 Royal Cup NLB Montenegro"@en
+"2012 Trophée des Champions"@en
+"2012 World Football Challenge"@en
+"2013 Daraa offensive"@en
+"2013 Dubai Tennis Championships"@en
+"2013 Korea National League Championship"@en
+"2013 Lebanese Elite Cup"@en
+"2013 Winter Universiade"@en
+"2013 Yeongwol Challenger Tennis"@en
+"2014 South American Women's Football Championship"@en
+"2015 CAF Champions League"@en
+"2015 Pacific Games"@en
+"21st Century Fox"@en
+"2 Dés Sans Faces"@en
+"A. A. Turki Group"@en
+"Abama Open de Canarias"@en
+"ABC Entertainment"@en
+"AB Svenska Ord"@en
+"Academic Press"@en
+"Access Industries"@en
+"ACI Worldwide"@en
+"Actiance"@en
+"ACTION"@en
+"Action of 13 October 1796"@en
+"Acxsys"@en
+"Advanced Mobile Phone Service"@en
+"Advanced Processing & Imaging"@en
+"A. Eicoff & Company"@en
+"Aer Lingus Regional"@en
+"Aero Engineers Australia"@en
+"Aeronica"@en
+"Aerostar Airlines"@en
+"Agricultural Engineers Association"@en
+"Air Burkina"@en
+"Air Centrafrique"@en
+"Air Kyrgyzstan"@en
+"Air Republiq"@en
+"Air Tahoma"@en
+"Akfen Holding"@en
+"Alabama gubernatorial election, 1998"@en
+"Alabama gubernatorial election, 2010"@en
+"Alain Prost"@en
+"Alenia Aermacchi"@en
+"Al Gore"@en
+"AliceSoft"@en
+"Allagash Brewing Company"@en
+"Allemand's escape from Lorient"@en
+"Alliance Healthcare"@en
+"Al Sayegh Airlines"@en
+"Alternative Distribution Alliance"@en
+"Amazon.com controversies"@en
+"American Civil War"@en
+"American Indian Wars"@en
+"American Revolutionary War"@en
+"ANADIGICS"@en
+"Andhra Pradesh Legislative Assembly election, 2004"@en
+"Andhra Pradesh Legislative Assembly election, 2014"@en
+"Anglo Pacific Group"@en
+"Anti-cession movement of Sarawak"@en
+"Aphonia Recordings"@en
+"Applied Predictive Technologies"@en
+"Arabtec"@en
+"Arantxa Sánchez Vicario"@en
+"Archaeological and Anthropological Society of Victoria"@en
+"Ardmore Open (LPGA Tour)"@en
+"Arista Records"@en
+"Arriva"@en
+"Ashworth (clothing)"@en
+"ASSIA (company)"@en
+"Asuragen"@en
+"ATB Financial Classic"@en
+"Athletics at the 1928 Summer Olympics – Men's 200 metres"@en
+"Athletics at the 1936 Summer Olympics – Men's 3000 metres steeplechase"@en
+"Athletics at the 1964 Summer Olympics – Men's 200 metres"@en
+"Athletics at the 1984 Summer Olympics – Men's 100 metres"@en
+"Athletics at the 1992 Summer Olympics – Men's 200 metres"@en
+"Athletics at the 2004 Summer Olympics – Men's 800 metres"@en
+"Athletics at the 2004 Summer Olympics – Men's decathlon"@en
+"Atommash"@en
+"AT&T"@en
+"AT&T Corporation"@en
+"Austin Automobile Company"@en
+"Austin Civitan Open"@en
+"Avco Records"@en
+"Aviatrans Kiev"@en
+"Axcelis Technologies"@en
+"Axley Brynelson, LLP"@en
+"Azizi Bank"@en
+"Badminton at the 2008 Summer Olympics – Men's singles"@en
+"BAE Systems Land & Armaments"@en
+"Baker Publishing Group"@en
+"Bakersfield Open (LPGA Tour)"@en
+"Baleària"@en
+"BaltGaz Group"@en
+"Banbury mutiny"@en
+"BankMuscat"@en
+"Bank of Georgia"@en
+"Barack Obama"@en
+"Barking Pumpkin Records"@en
+"Battle of Antioch (613)"@en
+"Battle of Ashdown"@en
+"Battle of Beverhoutsveld"@en
+"Battle of Biak"@en
+"Battle of Brávellir"@en
+"Battle of Brumath"@en
+"Battle of Cabrita Point"@en
+"Battle of Calcasieu Pass"@en
+"Battle of Cape Spada"@en
+"Battle of Cibecue Creek"@en
+"Battle of Dandridge"@en
+"Battle of Ergeme"@en
+"Battle of Fort Rivière"@en
+"Battle of Fürth"@en
+"Battle of Jwa-won"@en
+"Battle of Komarów (1914)"@en
+"Battle of Košare"@en
+"Battle of Krzykawka"@en
+"Battle of Mactan"@en
+"Battle of Manresa (1810)"@en
+"Battle of Meloria (1284)"@en
+"Battle of Monte Castello"@en
+"Battle of Mouquet Farm"@en
+"Battle of Pensacola (1861)"@en
+"Battle of Podujevo"@en
+"Battle of Rafa"@en
+"Battle of Savage's Station"@en
+"Battle of Seacroft Moor"@en
+"Battle of Seven Pines"@en
+"Battle of Stormberg"@en
+"Battle of Thiepval Ridge"@en
+"Battle of Tora Bora"@en
+"Battle of Torisaka"@en
+"Battle of Tory Island"@en
+"Battle of Tudela"@en
+"Battle of Ulan Butung"@en
+"Battle of Utria"@en
+"Battle of Uttismalm"@en
+"Battle of Wakefield"@en
+"Battle of Wilmington"@en
+"Battle of Zutphen"@en
+"Battle on the Elster"@en
+"Baylor Massacre"@en
+"B.C. Rich"@en
+"BDA China Limited"@en
+"Beach Dash"@en
+"BEC-TERO"@en
+"BE&K"@en
+"Belarusbank"@en
+"Bengal-ITC SRA Classical Music Festival"@en
+"Berkeley Handicap"@en
+"Berkeley Software Design"@en
+"Berkshire Hathaway"@en
+"Bertelsmann"@en
+"Be Un Limited"@en
+"Big Ticket Entertainment"@en
+"Bill Clinton"@en
+"Birely, Hillman & Streaker"@en
+"Black Bean Games"@en
+"BlueBean"@en
+"Blue Ribbon Open"@en
+"Blue Sky Airlines"@en
+"Bodegas Pomar, C.A."@en
+"Boingo Wireless"@en
+"Boreal Transport Bane"@en
+"Boris Becker"@en
+"Bösendorfer"@en
+"Bound for Glory (2010)"@en
+"Breakingviews"@en
+"Brilliance Auto"@en
+"British and Commonwealth Holdings"@en
+"Brixton"@en
+"Broadband 4 Rural North"@en
+"Broadcasting Satellite System Corporation"@en
+"Brookfield Incorporações"@en
+"Brookland Valley Estate"@en
+"Broughton Ales"@en
+"Buckley & Taylor"@en
+"California Cup Juvenile Fillies Stakes"@en
+"California's 12th congressional district election, 1946"@en
+"Calor"@en
+"Campaign of Danture"@en
+"Candydate jobs"@en
+"Cappelen Damm"@en
+"Capture of Columbia"@en
+"Cara Black"@en
+"Cargolux Italia"@en
+"Carnival of Cultures"@en
+"Caseable"@en
+"Caucasian War"@en
+"CBC Music"@en
+"CBE Software"@en
+"Cdigix"@en
+"Cenikor Foundation"@en
+"CenturyLink"@en
+"Chaintech"@en
+"Champion (supermarket)"@en
+"Chaosium"@en
+"Cheetah Records"@en
+"Chinese Civil War"@en
+"Cimpor"@en
+"Cinema Popular"@en
+"Cirrus Logic"@en
+"Cisco Systems"@en
+"ClearCheckbook.com"@en
+"Coast & Country Housing Limited"@en
+"Codecademy"@en
+"Cold War"@en
+"Collabora"@en
+"Collins Crime Club"@en
+"Colmar Pocket"@en
+"Colombian Classic"@en
+"Comcast"@en
+"Command Airways (South Africa)"@en
+"Computing Tabulating Recording Company"@en
+"Comtel Air"@en
+"ConsensusDOCS"@en
+"Convoy ON 127"@en
+"Co-operatives UK"@en
+"Copa Tres Diamantes"@en
+"Corum (watchmakers)"@en
+"Cosworth"@en
+"CouponDispatch"@en
+"Courvoisier"@en
+"Coventry Climax"@en
+"Cravens"@en
+"Crowdspring"@en
+"Crusades"@en
+"Crusio (ice cream parlor)"@en
+"Cube Entertainment"@en
+"CVidya"@en
+"Cycle & Carriage"@en
+"Cycling at the 1908 Summer Olympics – Men's 100 kilometres"@en
+"Dabur"@en
+"Daimler AG"@en
+"Daisy Group"@en
+"Daktronics"@en
+"Daniel Nestor"@en
+"Danish general election, 1960"@en
+"Darius Films"@en
+"Darley Stakes"@en
+"Davenport Lyons"@en
+"DCA Design International Ltd"@en
+"Delaware gubernatorial election, 1992"@en
+"De Lijn"@en
+"Democratic Party presidential primaries, 1964"@en
+"Diagnostic Health Corporation"@en
+"Dick Cheney"@en
+"Digimarc"@en
+"Dignity Health"@en
+"DKW"@en
+"Domtar"@en
+"DoubleClick"@en
+"DP Information Group"@en
+"Drackett"@en
+"Dream (mixed martial arts)"@en
+"Drivers Republic"@en
+"DSP Group"@en
+"DTox"@en
+"Dublin Central by-election, 2009"@en
+"Dysfunctional Family Picnic"@en
+"East African Campaign (World War I)"@en
+"Eastern Front (World War II)"@en
+"Easter Sunday Raid"@en
+"Eastman Chemical Company"@en
+"Eaton's"@en
+"Educa"@en
+"Eichler Network"@en
+"Eighty Years' War"@en
+"Eko India Financial Services"@en
+"El Castillo del Terror (2010)"@en
+"Electricite du Laos"@en
+"Electronic Arts"@en
+"Electronic Entertainment Expo"@en
+"El Palacio de Hierro"@en
+"El Paso Open (PGA Tour)"@en
+"Emergent BioSolutions"@en
+"EMI"@en
+"Entrust Bankcard Company"@en
+"Envoy Air"@en
+"Erento"@en
+"ERNI Electronics"@en
+"ESP-Disk"@en
+"Essar Hypermart"@en
+"Ethnic violence in South Sudan (2011–present)"@en
+"EUC Construction – El Hazek"@en
+"Europe's Strongest Man"@en
+"Eva Danielle"@en
+"Exelon"@en
+"Farmer Jack"@en
+"Fernandes Guitars"@en
+"Festember"@en
+"Festival Trophy Handicap Chase"@en
+"F. Hinds"@en
+"Film Roman"@en
+"First Battle of Mesilla"@en
+"First Battle of Zawiya"@en
+"First Electric Cooperative"@en
+"Flat racing"@en
+"Flight-Plan"@en
+"Florida's 19th congressional district special election, 2014"@en
+"Fly Records"@en
+"Follett Ice"@en
+"Fontana Distribution"@en
+"Football at the 2004 Summer Olympics – Women's tournament"@en
+"Ford Motor Company"@en
+"Forumosa"@en
+"Foundation Coal"@en
+"Fourth Fitna"@en
+"Freehold Stakes"@en
+"French invasion of Honolulu"@en
+"French Revolutionary Wars"@en
+"Freshpet"@en
+"Friskies PetCare Company"@en
+"Fusion Records"@en
+"Gallaher Ulster Open"@en
+"Galvin Green"@en
+"Game (retailer)"@en
+"Gaumont British"@en
+"Gazprom"@en
+"Gelateria Italiana"@en
+"General Electric"@en
+"General Motors"@en
+"George H. W. Bush"@en
+"George W. Bush"@en
+"Georgia gubernatorial election, 1990"@en
+"GeoVector"@en
+"German federal election, 1907"@en
+"Ghirardelli Chocolate Company"@en
+"Gila River Golf Classic"@en
+"Glasgow North East by-election, 2009"@en
+"Glasspar"@en
+"Global Sweeteners"@en
+"Godiva Fire Pumps"@en
+"Gold Key Comics"@en
+"Google"@en
+"Gowalla"@en
+"GP CTT Correios de Portugal"@en
+"Gracy Title Company"@en
+"Grand National"@en
+"Great Northern War"@en
+"Green Cargo"@en
+"GreenCells"@en
+"Gretsch Drums"@en
+"Grimbergen (beer)"@en
+"Grupo Industrial Ramirez"@en
+"Grupo Omnilife"@en
+"G. V. Kurdyumov Institute for Metal Physics of the National Academy of Sciences of Ukraine"@en
+"Gyrodyne Company of America"@en
+"Haitian general election, 2010–2011"@en
+"Happy Family (food company)"@en
+"Hardy Amies Ltd"@en
+"Harmony House"@en
+"Hatton's Grace Hurdle"@en
+"Health Integrated"@en
+"Healthscope"@en
+"Helicol"@en
+"Hesperian Foundation"@en
+"Hex'Air"@en
+"HGGC"@en
+"Himax"@en
+"Histology Group of Victoria"@en
+"H&M"@en
+"HMSHost"@en
+"Hogarth Press"@en
+"Holy Records"@en
+"Homex"@en
+"Honoré Savy"@en
+"Hoosier Salon"@en
+"Horseneck Tract"@en
+"HSBC Bank (China)"@en
+"HSU Research"@en
+"Hughes Hubbard & Reed"@en
+"Hundred Years' War"@en
+"Hurdling (horse race)"@en
+"Hydrema"@en
+"Hydro Oil & Gas"@en
+"IBM"@en
+"Icelandic parliamentary election, October 1916"@en
+"IMAM"@en
+"ImClone Systems"@en
+"Independent Air"@en
+"Independent business"@en
+"Independent Online Cinema"@en
+"InDevR"@en
+"Indian general election, 2004 (Kerala)"@en
+"Inkling"@en
+"Innovation Pavilion"@en
+"International Bank of Azerbaijan"@en
+"International Textbook Company"@en
+"Invasion of Poland"@en
+"Investor AB"@en
+"Iraqi insurgency (Iraq War)"@en
+"Iraq War"@en
+"Isotope 244"@en
+"İstanbul Cup"@en
+"Italian general election, 1882"@en
+"Ivan Lendl"@en
+"Jaber Ebne Hayyan Pharmaceutical Company"@en
+"Jackson and Walford"@en
+"Jakob Lines"@en
+"Jana Novotná"@en
+"Janssen-Cilag"@en
+"Japan Atomic Power Company"@en
+"Jawbone (company)"@en
+"J.C.Staff"@en
+"JDub Records"@en
+"Jerry's Subs & Pizza"@en
+"Jhonlin Air Transport"@en
+"Jinro"@en
+"John Hardy (jewelry)"@en
+"John McCain"@en
+"John McEnroe"@en
+"Jonas Björkman"@en
+"K-1"@en
+"Kalyan Silks"@en
+"Kampyle (software)"@en
+"Kansas City Renaissance Festival"@en
+"Kansas Republican caucuses, 2008"@en
+"Kardemir"@en
+"Karl Dönitz"@en
+"Kawasaki Aerospace Company"@en
+"Kazakhstan Open"@en
+"Kemado Records"@en
+"Kendall-Jackson"@en
+"Ken Flach"@en
+"Kingdom Records (UK)"@en
+"Kinney National Company"@en
+"Kistefos"@en
+"Kitty-Yo"@en
+"K&L Gates"@en
+"Komercijalna banka"@en
+"Korean War"@en
+"Kyknos S.A."@en
+"Kyocera Inamori Classic"@en
+"La Conner Trading and Transportation Company"@en
+"L-ACOUSTICS"@en
+"La Fantana"@en
+"Lahore Front"@en
+"Lakeville Motor Express"@en
+"Lamborghini"@en
+"Larsen & Toubro Infotech"@en
+"Layne Christensen Company"@en
+"Leander Paes"@en
+"Ledesma S.A.A.I."@en
+"Lifan Group"@en
+"Lifebooker"@en
+"LightSquared"@en
+"Lindsay Davenport"@en
+"Lion Capital LLP"@en
+"Lisa Raymond"@en
+"LiveU"@en
+"Lojinx"@en
+"London General Omnibus Company"@en
+"Longtail Studios"@en
+"Los Angeles mayoral election, 1929"@en
+"Loveman's (Nashville)"@en
+"Lower Canada Rebellion"@en
+"Luby's"@en
+"LucidEra"@en
+"Lukoil Serbia"@en
+"M3D (company)"@en
+"Madeira Brewery"@en
+"Madras Export Processing Zone"@en
+"Maghe Sankranti"@en
+"Magic Pixel Games"@en
+"Mahindra Navistar"@en
+"Maine gubernatorial election, 1848"@en
+"Maji Maji Rebellion"@en
+"Mark Knowles"@en
+"Mark Woodforde"@en
+"Marlabs"@en
+"Martina Hingis"@en
+"Martina Navratilova"@en
+"MBO Partners"@en
+"Mechtronix Inc."@en
+"Meitetsu"@en
+"Mercedes AMG High Performance Powertrains"@en
+"MetricStream"@en
+"Metronom Eisenbahngesellschaft"@en
+"Mexican–American War"@en
+"MGH group"@en
+"Michael Schumacher"@en
+"Michigan gubernatorial election, 2006"@en
+"Micrel"@en
+"Microsoft"@en
+"Midcounties Co-operative"@en
+"Middle Eastern theatre of World War I"@en
+"Midmark"@en
+"Mighty-O Donuts"@en
+"Mike Lockwood Memorial Show"@en
+"Millennium Transit Services"@en
+"Minsterley Motors"@en
+"Miramax Books"@en
+"Missouri gubernatorial election, 1996"@en
+"Mizuno Classic"@en
+"Modern pentathlon at the 1936 Summer Olympics"@en
+"Modine Manufacturing"@en
+"Modiran Vehicle Manufacturing Company"@en
+"Monaco Telecom"@en
+"Monday Night Brewing"@en
+"Mongolian presidential election, 1997"@en
+"Montenegro Airlines"@en
+"Mr. Handyman"@en
+"Mrs. Fields"@en
+"Mynews.com"@en
+"Napoleonic Wars"@en
+"Narec"@en
+"Nass Corporation B.S.C."@en
+"Natasha Zvereva"@en
+"National Amusements"@en
+"Nationale-Nederlanden"@en
+"National Schism"@en
+"Naval warfare of World War I"@en
+"NBCUniversal"@en
+"Neoplan USA"@en
+"Neptune Technologies & Bioressources"@en
+"Nettrolley"@en
+"New England Federal Credit Union"@en
+"New York International Independent Film and Video Festival"@en
+"New York Renaissance Faire"@en
+"New Zealand general election, 1853"@en
+"Nexen"@en
+"Nexon Co. Ltd."@en
+"Nice Shoes"@en
+"Nissan Outboard Motors"@en
+"Nitroplus"@en
+"NLight"@en
+"NOGO NoTow"@en
+"Nordic combined at the 1968 Winter Olympics"@en
+"Northern Mariana Islands Republican caucuses, 2012"@en
+"NorthSouth Productions"@en
+"Northwest Territories general election, 1891"@en
+"North-Wright Airways"@en
+"Novadios"@en
+"NuPinch.com"@en
+"Ofotens Bilruter"@en
+"Ogmios group"@en
+"Oil and Natural Gas Corporation"@en
+"Olea Medical"@en
+"Omaha Jaycee Open"@en
+"One Nevada Credit Union"@en
+"Operation Downfall"@en
+"Operation Essential Harvest"@en
+"Operation Golden Pheasant"@en
+"Operation Marne Avalanche"@en
+"Operation Overlord"@en
+"Operation Tannenbaum"@en
+"Orléans Express"@en
+"Ottoman wars in Europe"@en
+"Overdrive PC"@en
+"Pacific Southwest Airlines"@en
+"Pacific Telecom"@en
+"Pacific War"@en
+"Page Springs Cellars"@en
+"Pam Shriver"@en
+"Panasonic"@en
+"Paradigm Partners"@en
+"Parallax, Inc. (company)"@en
+"Park Holidays UK"@en
+"Paulaner Brewery"@en
+"Pavlyuk Uprising"@en
+"PAYBACK India"@en
+"Peace Race"@en
+"Pearson PLC"@en
+"Pearson's Candy Company"@en
+"Peerless-Premier Appliance Company"@en
+"Penguin Point"@en
+"Peninsular War"@en
+"Pennsylvania gubernatorial election, 1986"@en
+"Peoria County Board elections, 2004"@en
+"Permodalan Nasional Berhad"@en
+"Perth Cup"@en
+"Peyret-Mauboussin"@en
+"Philippine House of Representatives elections in Eastern Visayas, 2010"@en
+"Philippine revolts against Spain"@en
+"Phoenix Sprint Stakes"@en
+"Physician Group Management Services"@en
+"Picap"@en
+"Pied Piper Comics"@en
+"Pinewild Women's Championship"@en
+"Playbill Records"@en
+"Plaza Premium Lounge"@en
+"Plon (publisher)"@en
+"Plug Power"@en
+"PointClear"@en
+"Pokka"@en
+"Polet Airlines"@en
+"Polish Center for Holocaust Research"@en
+"Polo Grounds Music"@en
+"Polystyle Publications"@en
+"Powell Peralta"@en
+"Preco"@en
+"Pride 2"@en
+"Pride Fighting Championships"@en
+"Prime, Inc."@en
+"Prince Motor Company"@en
+"Princess Stakes"@en
+"Psyclapse"@en
+"Puducherry Legislative Assembly election, 2011"@en
+"Puget Sound War"@en
+"Purposemaker"@en
+"Quaker Chemical Corporation"@en
+"Qualtrics"@en
+"Queensland state election, 1972"@en
+"Quezette Stakes"@en
+"Quivira Mining Corporation"@en
+"R2C Group"@en
+"Radiant3 Productions"@en
+"Rafael Nadal"@en
+"Raid on Cherbourg"@en
+"Rail-Veyor"@en
+"Rainbow Shops"@en
+"Ralliart"@en
+"Ranch1"@en
+"Random House"@en
+"Razor & Tie"@en
+"Reconquista"@en
+"RED Distribution"@en
+"Relocate Records"@en
+"Rennae Stubbs"@en
+"Republic of China legislative election, 2004"@en
+"Resolute Forest Products"@en
+"Rhinegold Publishing"@en
+"Rhino Video Games"@en
+"RIC-Finance"@en
+"Ring of Honor"@en
+"Riot (developer)"@en
+"Riso Kagaku Corporation"@en
+"RNG Films"@en
+"Rodgers Townsend"@en
+"Rod Laver"@en
+"Roger Federer"@en
+"Rokeby Stables"@en
+"Romeo Records"@en
+"Ronald Reagan"@en
+"Ross Perot"@en
+"Route Adélie"@en
+"Rowing at the 1920 Summer Olympics – Men's coxed pair"@en
+"Royal Rumble (2001)"@en
+"Rutube"@en
+"RWDI"@en
+"Sahara International Film Festival"@en
+"Sailing at the 1912 Summer Olympics – 10 Metre"@en
+"Sailing at the 1972 Summer Olympics – Tempest"@en
+"Sainsbury's Bank"@en
+"Salten Kraftsamband"@en
+"Samgatha"@en
+"San Juan Expedition (1780)"@en
+"Saskatchewan general election, 1971"@en
+"Savannah Records"@en
+"SBB Cargo International"@en
+"Scala, Inc"@en
+"Schifffahrtsgesellschaft des Vierwaldstättersees"@en
+"Schleich"@en
+"Schott AG"@en
+"Scottish School of Wrestling"@en
+"Scout Productions"@en
+"Scream Pubs"@en
+"Seagram"@en
+"SEAT"@en
+"Second Battle of Gao"@en
+"Second Macedonian War"@en
+"Second Sino-Japanese War"@en
+"Secret Identity Studios"@en
+"Secret Lab"@en
+"SELEX Galileo (Saudi Arabia)"@en
+"Sending Orbs"@en
+"Sengoku period"@en
+"Serbian general election, 1990"@en
+"Serena Williams"@en
+"Serum Institute of India"@en
+"Seven Years' War"@en
+"SexyMandarin"@en
+"Shaba I"@en
+"Shooting at the 1900 Summer Olympics – Men's 300 metre free rifle, three positions"@en
+"Shooting at the 1908 Summer Olympics – Men's double-shot running deer"@en
+"Shooting at the 1996 Summer Olympics – Men's 25 metre rapid fire pistol"@en
+"ShopKeep POS"@en
+"Shreveport Kiwanis Invitational"@en
+"Siege of Aintab"@en
+"Siege of Hama (2011)"@en
+"Siege of Mitsuji"@en
+"Siege of Schenkenschans"@en
+"Siege of Stralsund (1678)"@en
+"Siege of Toul"@en
+"Siege of Viterbo"@en
+"Sims Snowboards"@en
+"Sing Tao Chinese Radio"@en
+"SinoLatin Capital"@en
+"Skeleton at the 2006 Winter Olympics"@en
+"Skilled Group"@en
+"Skylink (TV platform)"@en
+"Snowboarding at the 2010 Winter Olympics – Men's parallel giant slalom"@en
+"Solar eclipse of August 20, 1971"@en
+"Solar eclipse of June 13, 2132"@en
+"Solar eclipse of June 21, 1982"@en
+"Solar eclipse of September 2, 2035"@en
+"Solar Energy World"@en
+"SolarFest"@en
+"Solvang (company)"@en
+"Somali Rebellion"@en
+"Sonae Distribuição"@en
+"Sono Art-World Wide Pictures"@en
+"Sony"@en
+"Sony Corporation of America"@en
+"Sony Music Entertainment"@en
+"Spanish Civil War"@en
+"Sparebanken Sør"@en
+"Speed skating at the 2010 Winter Olympics – Women's 5000 metres"@en
+"SPICA Group"@en
+"Spirit of Alaska Federal Credit Union"@en
+"Spreadshirt"@en
+"SRI International"@en
+"Sri Lankan Civil War"@en
+"Sri Lankan parliamentary election, 2004"@en
+"Stage Accompany"@en
+"Stage Door Betty Handicap"@en
+"Standard Chartered Zimbabwe"@en
+"Starwood Capital Group"@en
+"State Historical Society of Missouri"@en
+"St. Cloud Metropolitan Transit Commission"@en
+"Steffi Graf"@en
+"Steinberg"@en
+"Strides Arcolab"@en
+"Strikeforce: At The Mansion II"@en
+"Strikeforce (mixed martial arts)"@en
+"Strikeforce: Shamrock vs. Baroni"@en
+"Sub Pop"@en
+"Suburban Base"@en
+"Sugamax"@en
+"SummerSlam"@en
+"Sun Hung Kai Properties"@en
+"Sunshine Millions Dash"@en
+"Superior (bus manufacturer)"@en
+"Supreme (clothing)"@en
+"Surgical Outcomes Analysis and Research"@en
+"Swagbucks"@en
+"Swedish general election, 1928"@en
+"Swim ~"@en
+"Swimming at the 1976 Summer Olympics – Women's 800 metre freestyle"@en
+"Swimming at the 2000 Summer Olympics – Men's 100 metre breaststroke"@en
+"Swimming at the 2004 Summer Olympics – Women's 100 metre freestyle"@en
+"Swimming at the 2008 Summer Paralympics – Men's 100 metre freestyle S5"@en
+"Swimming at the 2012 Summer Olympics"@en
+"Swiss European Air Lines"@en
+"Swiss Life"@en
+"Symantec"@en
+"Symrise"@en
+"Synapse Films"@en
+"Syrian Civil War"@en
+"Tallinnfilm"@en
+"Tally Weijl"@en
+"Tandy (Australia)"@en
+"Tata Group"@en
+"Tauron Group"@en
+"Tawakalna ala Allah Operations"@en
+"Tea Forté"@en
+"Tectoy"@en
+"TeleComputing"@en
+"Telme Clothing"@en
+"template"@en
+"Tempted Stakes"@en
+"Tennessee Airways"@en
+"Tennis at the 1924 Summer Olympics – Men's doubles"@en
+"Thai Smile"@en
+"The Blackstone Group"@en
+"The Coffee Bean & Tea Leaf"@en
+"The Collective, Inc."@en
+"The Energy Group"@en
+"The Mutual Fund Show"@en
+"The Planet Internet Services"@en
+"The Taylor Companies"@en
+"The Ultimate Fighter: Team Rampage vs. Team Forrest Finale"@en
+"The Walt Disney Company"@en
+"The Wand Company"@en
+"Third Battle of Nanking"@en
+"Thirty Years' War"@en
+"Thunderbird Films"@en
+"Time Warner"@en
+"TLC: Tables, Ladders & Chairs (2013)"@en
+"Todd Woodbridge"@en
+"Tom Sawyer Software"@en
+"Tone Center Records"@en
+"Toremar"@en
+"Total Nonstop Action Wrestling"@en
+"Trilogy International Partners"@en
+"Triumph Brewing"@en
+"Trovit"@en
+"TUR European Airways"@en
+"TVWorks"@en
+"Ubisoft"@en
+"UEFA Euro 1972 Final"@en
+"UFC 111"@en
+"UFC 132"@en
+"UFC 77"@en
+"Ulm Campaign"@en
+"Ultimate Fighting Championship"@en
+"Unicomer Group"@en
+"United Energy Systems of Ukraine"@en
+"United Kingdom general election, 1895"@en
+"United Kingdom local elections, 2013"@en
+"United States gubernatorial elections, 1996"@en
+"United States House of Representatives elections in Maryland, 2014"@en
+"United States presidential election in Alaska, 1968"@en
+"United States presidential election in Kentucky, 1988"@en
+"United States presidential election in Kentucky, 2008"@en
+"United States presidential election in Massachusetts, 1828"@en
+"United States presidential election in Massachusetts, 1952"@en
+"United States presidential election in Massachusetts, 1984"@en
+"United States presidential election in Montana, 1892"@en
+"United States presidential election in New Mexico, 2008"@en
+"United States presidential election in New York, 1828"@en
+"United States presidential election in North Carolina, 1972"@en
+"United States presidential election in Pennsylvania, 2012"@en
+"United States Senate election in Arizona, 2010"@en
+"United States Senate election in California, 1994"@en
+"United States Senate election in Indiana, 1994"@en
+"United States Senate election in Nebraska, 2008"@en
+"United States Senate election in New Hampshire, 1992"@en
+"United States Senate election in North Dakota, 1974"@en
+"United States Senate elections, 1886"@en
+"Univa"@en
+"Universal Music Group"@en
+"Universal Studios"@en
+"University of Oklahoma Press"@en
+"University of Texas Inter-Cooperative Council"@en
+"University Press of Kentucky"@en
+"Urwego Opportunity Bank"@en
+"U.S. Repeating Arms Company"@en
+"Vale (mining company)"@en
+"Vattenfall"@en
+"VEBA"@en
+"Veolia Transport"@en
+"Verenigde Nederlandse Uitgeverijen"@en
+"Verizon Communications"@en
+"Viacom"@en
+"Vibo Telecom"@en
+"Victoria (motorcycle)"@en
+"Vietnam War"@en
+"Vigier Guitars"@en
+"Virgin Group"@en
+"Visco Corporation"@en
+"Vivendi"@en
+"Vodafone"@en
+"Vodien Internet Solutions"@en
+"Waco Aircraft Company"@en
+"W.A.K.O. European Championships 2012 (Bucharest)"@en
+"Walter Mondale"@en
+"Wardrop Engineering Inc."@en
+"War in Afghanistan (2001–present)"@en
+"Warner Bros."@en
+"Warner Bros. Records"@en
+"Warner Communications"@en
+"Warner Music Group"@en
+"War of 1812"@en
+"War of the Spanish Succession"@en
+"Wars of the indigenous peoples of North America"@en
+"Wavetek"@en
+"Wayne's Coffee"@en
+"WEC 50"@en
+"WEGA"@en
+"Weightlifting at the 1928 Summer Olympics – Men's 82.5 kg"@en
+"Weight Watchers"@en
+"Westar Energy"@en
+"Western Front"@en
+"Western Front (World War I)"@en
+"West Indies anti-piracy operations of the United States"@en
+"West Nippon Expressway Company"@en
+"Westwood, Baillie"@en
+"Wind River Systems"@en
+"Winter Bumper"@en
+"Wirthlin Worldwide"@en
+"Wisconsin gubernatorial election, 2002"@en
+"WisdomTree Investments"@en
+"Women's Tennis Association"@en
+"World Championship Wrestling"@en
+"World Extreme Cagefighting"@en
+"World War I"@en
+"World War II"@en
+"WOW HD"@en
+"Württembergische Metallwarenfabrik"@en
+"WWE"@en
+"WWE Insurrextion"@en
+"XOX"@en
+"Yellowfin Business Intelligence"@en
+"Yerevan Brandy Company"@en
+"Yukon Liquor Corporation"@en
+"Zamboanga City local elections, 2013"@en
+"Zawya"@en
+"Zebra (pen manufacturer)"@en
+"Zebrzydowski Rebellion"@en
+"Zidell Companies"@en
+"Zions Bancorporation"@en
+"Zurich Insurance Services"

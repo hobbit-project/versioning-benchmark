@@ -55,15 +55,15 @@ DisableTcpSocket		= 0
 ;X509ClientVerify		= 0
 ;X509ClientVerifyDepth		= 0
 ;X509ClientVerifyCAFile		= ca.pem
-MaxClientConnections		= 25
-CheckpointInterval		= 60
+MaxClientConnections		= 100
+CheckpointInterval		= 0
 O_DIRECT			= 0
 CaseMode			= 2
 MaxStaticCursorRows		= 5000
 CheckpointAuditTrail		= 0
 AllowOSCalls			= 0
 SchedulerInterval		= 10
-DirsAllowed			= ., /usr/local/virtuoso-opensource/share/virtuoso/vad
+DirsAllowed			= /
 ThreadCleanupInterval		= 0
 ThreadThreshold			= 10
 ResourcesCleanupInterval	= 0
@@ -116,6 +116,9 @@ MaxDirtyBuffers          = 130000
 ;NumberOfBuffers          = 10000
 ;MaxDirtyBuffers          = 6000
 
+;NumberOfBuffers          = 14900000
+;MaxDirtyBuffers          = 11000000
+
 
 [HTTPServer]
 ServerPort			= 8890
@@ -126,7 +129,7 @@ EnabledDavVSP			= 0
 HTTPProxyEnabled		= 0
 TempASPXDir			= 0
 DefaultMailServer		= localhost:25
-ServerThreads			= 20
+ServerThreads			= 50
 MaxKeepAlives			= 10
 KeepAliveTimeout		= 10
 MaxCachedProxyConnections	= 10
@@ -237,7 +240,11 @@ DefaultHost			= localhost:8890
 ;DefaultGraph      		= http://localhost:8890/dataspace
 ;ImmutableGraphs    		= http://localhost:8890/dataspace
 ResultSetMaxRows           	= 100000000
+<<<<<<< HEAD
+MaxQueryCostEstimationTime 	= 4000	; in seconds
+=======
 MaxQueryCostEstimationTime 	= 400	; in seconds
+>>>>>>> master
 MaxQueryExecutionTime      	= 600	; in seconds
 DefaultQuery               	= select distinct ?Concept where {[] a ?Concept} LIMIT 100
 DeferInferenceRulesInit    	= 0  ; controls inference rules loading

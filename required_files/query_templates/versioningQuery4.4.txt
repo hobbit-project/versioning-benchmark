@@ -1,36 +1,20 @@
-#  Query Type: 4, Historical single-version structured query
-#  Query Description : 
-#  Retrieve all creative works from a specific past version, which contain a a certain word 
-#  in their title or description. The size of the resultset is limited by a random number 
-#  between 1 and 1000.
-#  A Full-text search query.
+PREFIX dbpedia: <http://dbpedia.org/resource/> 
+PREFIX dbp-prop: <http://dbpedia.org/property/> 
+PREFIX dbp-owl: <http://dbpedia.org/ontology/> 
+PREFIX dbp-yago: <http://dbpedia.org/class/yago/> 
+PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
+PREFIX georss: <http://www.georss.org/georss/> 
+PREFIX dbp-cat: <http://dbpedia.org/resource/Category/> 
+PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-#  Query Answering Choke Points : 
-#    - OPTIONAL clauses (treated by query optimizer as nested sub-queries)
-#      Optimizer should decide to put optional triples on top of the join tree 
-#      (i.e. delay their execution to the last possible moment) because OPTIONALs are treated as a left join
-#    - Optimizer should be able to split the FILTER conditions into conjunction of conditions and
-#      start their execution as soon as possible thus eliminating intermediate results
-#    - A possibility for optimizing the full-text search by using appropriate index
-
-PREFIX bbc:<http://www.bbc.co.uk/ontologies/bbc/> 
-PREFIX cwork:<http://www.bbc.co.uk/ontologies/creativework/> 
-PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> 
-
-SELECT DISTINCT ?creativeWork 
-FROM {{{graphVxMinusGraphVmax}}} 
-WHERE { 
-  ?type rdfs:subClassOf cwork:CreativeWork . 
-  ?creativeWork a ?type ;
-    cwork:title ?title ;
-    cwork:description ?description .
-  OPTIONAL { ?creativeWork cwork:dateCreated ?dateCreated . }
-  OPTIONAL { ?creativeWork cwork:category ?category . }  
-  OPTIONAL { 
-    ?creativeWork bbc:primaryContentOf ?pco . 
-    ?pco bbc:webDocumentType ?webDocType . 
-  } 
-  FILTER (CONTAINS(?title, {{{word}}}) || CONTAINS(?description, {{{word}}})) .
+SELECT DISTINCT ?creativeWork ?v7 ?v4 ?v6 ?v5 
+FROM {{{graphVxMinusGraphVmax}}}
+WHERE {
+	 ?creativeWork {{{cwAboutOrMentions}}} {{{cwAboutOrMentionsUri}}} .
+	 {{{cwAboutOrMentionsUri}}} ?v4 ?v5 .
+	 OPTIONAL { ?v5 rdfs:label ?v6 } .
+	 FILTER (langMatches(lang(?v6) ,'EN') || (!langMatches(lang(?v6) ,'*'))) .
+	 FILTER (langMatches(lang(?v5) ,'EN') || (!langMatches(lang(?v5) ,'*'))) .
+	 OPTIONAL {?v4 rdfs:label ?v7 }
 }
-ORDER BY DESC(?dateCreated)
-LIMIT {{{randomLimit}}}

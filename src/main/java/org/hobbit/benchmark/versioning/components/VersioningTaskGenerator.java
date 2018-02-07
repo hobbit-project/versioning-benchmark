@@ -15,6 +15,7 @@ public class VersioningTaskGenerator extends AbstractSequencingTaskGenerator {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningTaskGenerator.class);
    		
+	private int maxResultsSize = 0;
 	@Override
     public void init() throws Exception {
         LOGGER.info("Initializing Task Generator...");
@@ -45,6 +46,10 @@ public class VersioningTaskGenerator extends AbstractSequencingTaskGenerator {
 			LOGGER.info("Task " + taskId + " sent to System Adapter.");
 	
 			// Send the expected answers to the evaluation storage
+			if(taskId.equals("0")) {
+				maxResultsSize = task.getExpectedAnswers().length > maxResultsSize ? task.getExpectedAnswers().length : maxResultsSize;
+			}
+			LOGGER.info("MAX SIZE UNTIL NOW: " + maxResultsSize);
 	        sendTaskToEvalStorage(taskId, timestamp, task.getExpectedAnswers());
 
 			LOGGER.info("Expected answers of task " + taskId + " sent to Evaluation Storage.");

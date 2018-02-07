@@ -1,38 +1,30 @@
 #!/bin/sh
 
-VIRTUOSO_BIN=/usr/local/virtuoso-opensource/bin
-GRAPH_NAME=http://graph.version.
-DATASETS_PATH=/versioning/data/
-SERIALIZATION_FORMAT=$1
-VERSION_NUMBER=$2
-
 # set the recommended number of rdf loaders (total number of cores / 2.5)
-total_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
-rdf_loaders=$(awk "BEGIN {printf \"%d\", $total_cores/2.5}")
+TOTAL_CORES=$(cat /proc/cpuinfo | grep processor | wc -l)
+NUMBER_OF_LOADERS=$(awk "BEGIN {printf \"%d\", $TOTAL_CORES/2.5}")
+
+#!/bin/bash
+ADDRESS=$1
+PORT=1111
+FOLDER=$2
+GRAPHURI=$3
+VIRTUOSO_BIN=/usr/local/virtuoso-opensource/bin
 
 start_load=$(($(date +%s%N)/1000000))
-$VIRTUOSO_BIN/isql-v 1111 dba dba exec="delete from load_list;" > /dev/null
-$VIRTUOSO_BIN/isql-v 1111 dba dba exec="sparql clear GRAPH <$GRAPH_NAME$VERSION_NUMBER>;" > /dev/null
-
-# load ontologies and triples of version 0
-$VIRTUOSO_BIN/isql-v 1111 dba dba exec="ld_dir('$DATASETS_PATH"v0"', '*', '$GRAPH_NAME$VERSION_NUMBER');" > /dev/null
-
-for ((i=1; i<=$VERSION_NUMBER; i++)) do
-   # load triples of change sets
-   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="ld_dir('$DATASETS_PATH"c"$i', '*.$SERIALIZATION_FORMAT', '$GRAPH_NAME$VERSION_NUMBER');" > /dev/null
-done
-
-$VIRTUOSO_BIN/isql-v 1111 dba dba exec="set isolation='uncommitted';" > /dev/null
-
-for ((z=0; z<$rdf_loaders; z++)) do  
-   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="rdf_loader_run();" > /dev/null &
+$VIRTUOSO_BIN/isql-v $ADDRESS:$PORT exec="delete from load_list;" > /dev/null
+$VIRTUOSO_BIN/isql-v $ADDRESS:$PORT exec="DB.DBA.RDF_OBJ_FT_RULE_DEL (null, null, 'ALL');" > /dev/null
+$VIRTUOSO_BIN/isql-v $ADDRESS:$PORT exec="ld_dir('"$FOLDER"', '*', '"$GRAPHURI"');" > /dev/null
+for i in `seq 1 $NUMBER_OF_LOADERS`;
+do
+    $VIRTUOSO_BIN/isql-v $ADDRESS:$PORT exec="rdf_loader_run()" & > /dev/null
 done
 wait
 
-$VIRTUOSO_BIN/isql-v 1111 dba dba exec="checkpoint;" > /dev/null
+$VIRTUOSO_BIN/isql-v $ADDRESS:$PORT exec="checkpoint;" > /dev/null
 end_load=$(($(date +%s%N)/1000000))
 loadingtime=$(($end_load - $start_load))
 
 # logging
-echo "All triples of version "$VERSION_NUMBER" loaded to graph <"$GRAPH_NAME$VERSION_NUMBER">, using "$rdf_loaders" rdf loaders. Time : "$loadingtime" ms"
+echo "All data loaded to graph <"$GRAPHURI">, using "$NUMBER_OF_LOADERS" rdf loaders. Time : "$loadingtime" ms"
 

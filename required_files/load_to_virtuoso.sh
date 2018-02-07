@@ -1,57 +1,101 @@
-#!/bin/sh
+#!/bin/bash
 
-VIRTUOSO_BIN=/opt/virtuoso-opensource/bin
+VIRTUOSO_BIN=/usr/local/virtuoso-opensource/bin
 GRAPH_NAME=http://graph.version.
-DATASETS_PATH=/versioning/data/
-ONTOLOGIES_PATH=/versioning/ontologies/
+DATASETS_PATH=/versioning/data
+DATASETS_PATH_FINAL=/versioning/data/final
+ONTOLOGIES_PATH=/versioning/ontologies
 SERIALIZATION_FORMAT=$1
 NUMBER_OF_VERSIONS=$2
+total_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
+rdf_loaders=$(awk "BEGIN {printf \"%d\", $total_cores/2.5}")
 
-# check adjusted virtuoso memory usage
-#NumberOfBuffers=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','NumberOfBuffers');" | sed -n 9p)
-#MaxDirtyBuffers=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','MaxDirtyBuffers');" | sed -n 9p)
-#AsyncQueueMaxThreads=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','AsyncQueueMaxThreads');" | sed -n 9p)
-#ThreadsPerQuery=$($VIRTUOSO_BIN/isql 1112 dba dba exec="select cfg_item_value(virtuoso_ini_path(), 'Parameters','ThreadsPerQuery');" | sed -n 9p)
-#echo "Virtuoso adjusted memory usage:" 
-#echo "NumberOfBuffers="$NumberOfBuffers
-#echo "MaxDirtyBuffers="$MaxDirtyBuffers
-#echo "AsyncQueueMaxThreads="$AsyncQueueMaxThreads
-#echo "ThreadsPerQuery="$ThreadsPerQuery
-
-for ((i=0; i<$NUMBER_OF_VERSIONS; i++)) do
-   start_load=$(($(date +%s%N)/1000000))
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="delete from load_list;" > /dev/null
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="sparql clear GRAPH <$GRAPH_NAME$i>;" > /dev/null
-
-   # load ontologies and triples of v0
-$VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$ONTOLOGIES_PATH', '*.ttl', '$GRAPH_NAME$i');" > /dev/null
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$DATASETS_PATH"v0"', '*.$SERIALIZATION_FORMAT', '$GRAPH_NAME$i');" > /dev/null
-
-   # load triples of remaining change sets
-   for ((j=1; j<=i; j++)) do  
-      $VIRTUOSO_BIN/isql 1112 dba dba exec="ld_dir('$DATASETS_PATH"c"$j', '*.$SERIALIZATION_FORMAT', '$GRAPH_NAME$i');" > /dev/null
-   done
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="set isolation='uncommitted';" > /dev/null
-
-   # set the recommended number of rdf loaders (total number of cores / 2.5)
-   total_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
-   rdf_loaders=$(awk "BEGIN {printf \"%d\", $total_cores/2.5}")
-   for ((z=0; z<rdf_loaders; z++)) do  
-      $VIRTUOSO_BIN/isql 1112 dba dba exec="rdf_loader_run();" > /dev/null &
+echo "total cores: $total_cores"
+prll_rdf_loader_run() {
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="set isolation='uncommitted';" > /dev/null
+   for ((j=0; j<$1; j++)); do  
+      $VIRTUOSO_BIN/isql-v 1111 dba dba exec="rdf_loader_run();" > /dev/null &
    done
    wait
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="checkpoint;" > /dev/null
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="delete from load_list;" > /dev/null
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="set isolation='committed';" > /dev/null
+}
 
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="checkpoint;" > /dev/null
-   end_load=$(($(date +%s%N)/1000000))
-
-   # get the total size of loaded triples
-   start_size=$(($(date +%s%N)/1000000))
-   result=$($VIRTUOSO_BIN/isql 1112 dba dba exec="sparql select count(*) from <$GRAPH_NAME$i> where { ?s ?p ?o };" | sed -n 9p)
-   $VIRTUOSO_BIN/isql 1112 dba dba exec="checkpoint;" > /dev/null
-   end_size=$(($(date +%s%N)/1000000))
-
-   loadingtime=$(($end_size - $start_load))
-   sizetime=$(($end_size - $start_size))
-
-   echo $(echo $result | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') "triples loaded to graph <"$GRAPH_NAME$i">, using" $rdf_loaders "rdf loaders, for version v"$i". Time :" $loadingtime "ms"
+# prepare cw data files for loading
+# sort files
+start_sort=$(($(date +%s%N)/1000000))
+for f in $(find $DATASETS_PATH -name 'generatedCreativeWorks-*.nt'); do 
+   sort "$f" -o "$f"
 done
+end_sort=$(($(date +%s%N)/1000000))
+sorttime=$(($end_sort - $start_sort))
+echo "Sorted generated Creative Works in $sorttime ms."
+
+# copy and compute the addsets 
+start_prepare=$(($(date +%s%N)/1000000))
+mkdir $DATASETS_PATH_FINAL
+for ((i=0; i<$NUMBER_OF_VERSIONS; i++)); do
+   echo "Constructing v$i..."
+   if [ "$i" = "0" ]; then
+      cp -r $DATASETS_PATH/v0 $DATASETS_PATH_FINAL
+      cp $ONTOLOGIES_PATH/* $DATASETS_PATH_FINAL/v0
+   else
+      mkdir $DATASETS_PATH_FINAL/v$i
+      cp $ONTOLOGIES_PATH/* $DATASETS_PATH_FINAL/v$i
+      prev=$((i-1))
+
+      # dbpedia
+      # if current version contains dbpedia copy the dbpedia version, else copy the previous version
+      if ls $DATASETS_PATH/c$i/dbpedia_final/dbpedia_*_1000_entities.nt 1> /dev/null 2>&1; then
+        # copy the current version
+        cp $DATASETS_PATH/c$i/dbpedia_final/dbpedia_*_1000_entities.nt $DATASETS_PATH_FINAL/v$i
+      else
+	 cp $DATASETS_PATH_FINAL/v$prev/dbpedia_*.nt $DATASETS_PATH_FINAL/v$i
+      fi
+      
+      # creative works
+      if ls $DATASETS_PATH/c$i/generatedCreativeWorks-*.deleted.nt 1> /dev/null 2>&1; then
+         # compute the old creative works that still exist
+         for f in $DATASETS_PATH_FINAL/v$prev/generatedCreativeWorks*.added.nt; do
+            comm_command="comm -23 $f "
+            for ff in $DATASETS_PATH/c$i/generatedCreativeWorks*.deleted.nt; do
+               comm_command+="$ff | comm -23 - "
+            done
+            filename=$(basename "$f")
+            comm_command=${comm_command::-14}
+            eval $comm_command > $DATASETS_PATH_FINAL/v$i/$filename &
+         done
+         wait
+      else
+         # copy the previous added
+         cp $DATASETS_PATH_FINAL/v$prev/generatedCreativeWorks*.added.nt $DATASETS_PATH_FINAL/v$i
+      fi
+      # copy the current added
+      cp $DATASETS_PATH/c$i/generatedCreativeWorks*.added.nt $DATASETS_PATH_FINAL/v$i
+   fi
+   end_compute=$(($(date +%s%N)/1000000))
+
+   # prepare bulk load
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="ld_dir('$DATASETS_PATH_FINAL/v$i', '*', '$GRAPH_NAME$i');" > /dev/null
+done
+end_prepare=$(($(date +%s%N)/1000000))
+
+# bulk load
+echo "Loading data files into virtuoso using $rdf_loaders rdf loaders..."
+prll_rdf_loader_run $rdf_loaders
+end_load=$(($(date +%s%N)/1000000))
+
+for ((j=0; j<$NUMBER_OF_VERSIONS; j++)); do
+   result=$($VIRTUOSO_BIN/isql-v 1111 dba dba exec="sparql select count(*) from <$GRAPH_NAME$j> where { ?s ?p ?o };" | sed -n 9p) > /dev/null
+   echo $(echo $result | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') "triples loaded to graph <"$GRAPH_NAME$j">"
+done
+end_size=$(($(date +%s%N)/1000000))
+
+preptime=$(($end_prepare - $start_prepare))
+loadingtime=$(($end_load - $end_prepare))
+sizetime=$(($end_size - $end_load))
+overalltime=$(($end_size - $start_sort))
+
+echo "Loading of all generated data to Virtuoso triple store completed successfully. Time: $overalltime ms (preparation: $preptime, loading: $loadingtime, size: $sizetime)"
+

@@ -74,9 +74,11 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         numberOfVersions = Integer.parseInt(env.get(VersioningConstants.TOTAL_VERSIONS));
         for(int version=0; version<numberOfVersions; version++) {
         	long loadingTime = Long.parseLong(env.get(String.format(VersioningConstants.LOADING_TIMES, version)));
-        	int triplesToBeLoaded = Integer.parseInt(env.get(String.format(VersioningConstants.TRIPLES_TO_BE_LOADED, version)));
-    		LOGGER.info("version " + version + " loaded in " + loadingTime + " ms (" + triplesToBeLoaded + " triples had to be loaded).");
-        	is.reportSuccess(version, triplesToBeLoaded, loadingTime);
+        	int triplesToBeAdded = Integer.parseInt(env.get(String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_ADDED, version)));
+        	int triplesToBeDeleted = Integer.parseInt(env.get(String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_DELETED, version)));
+        	int triplesToBeLoaded = Integer.parseInt(env.get(String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_LOADED, version)));
+        	LOGGER.info("version " + version + " loaded in " + loadingTime + " ms (" + triplesToBeLoaded + " triples had to be loaded).");
+        	is.reportSuccess(version, triplesToBeAdded, triplesToBeDeleted, triplesToBeLoaded, loadingTime);
         }
         
         INITIAL_VERSION_INGESTION_SPEED = initFinalModelFromEnv(env, VersioningConstants.INITIAL_VERSION_INGESTION_SPEED);
@@ -118,12 +120,12 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 	protected void evaluateResponse(byte[] expectedData, byte[] receivedData, long taskSentTimestamp,
 			long responseReceivedTimestamp) throws Exception {
 		
-		LOGGER.info("Evaluating response of query performance task...");		
 		ByteBuffer expectedBuffer = ByteBuffer.wrap(expectedData);
 		
 		// get the query type
 		int queryType = expectedBuffer.getInt();
-		LOGGER.info("queryType: "+queryType);
+		int querySubType = expectedBuffer.getInt();
+
 		
 		// get the expected results
 		byte expectedDataBytes[] = RabbitMQUtils.readByteArray(expectedBuffer);
@@ -134,70 +136,77 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		InputStream inReceived = new ByteArrayInputStream(receivedData);
 		ResultSetRewindable received = ResultSetFactory.makeRewindable(ResultSetFactory.fromJSON(inReceived));
 
-		// for query types 1, 3 and 5 where we have materialization results (so large results)
-		// we only compare result sizes to check completeness 
+		// if the result size is larger than 50K triples only compare result sizes.
+		// if not compare the results themselves
+		boolean resultSetsEqual = (expected.size() == received.size() && expected.size() > 50000) ? expected.size() == received.size() : ResultSetCompare.equalsByValue(expected, received);
+		
 		switch (queryType) {
 			case 1:
-				if(expected.size() == received.size()) {
+				if(resultSetsEqual) {
 					qts1.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else {
-					qts1.reportFailure(); 
+					qts1.reportFailure();
 				}
 				break;
 			case 2:	
-				if(ResultSetCompare.equalsByValue(expected, received)) {  
+				if(resultSetsEqual) { 
+
 					qts2.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts2.reportFailure();
 				}
 				break;
 			case 3:	
-				if(expected.size() == received.size()) {  
+				if(resultSetsEqual) {
+
 					qts3.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
-					qts3.reportFailure(); 
+					qts3.reportFailure();
 				}
 				break;
 			case 4:	
-				if(ResultSetCompare.equalsByValue(expected, received)) {  
+				if(resultSetsEqual) { 
+
 					qts4.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
-					qts4.reportFailure(); 
+					qts4.reportFailure();
 				}
 				break;
 			case 5:	
-				if(expected.size() == received.size()) {  
+				if(resultSetsEqual) {  
+
 					qts5.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
-					qts5.reportFailure(); 
+					qts5.reportFailure();
 				}
 				break;
 			case 6:				
-				if(ResultSetCompare.equalsByValue(expected, received)) {  
+				if(resultSetsEqual) {  
+
 					qts6.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
-					qts6.reportFailure(); 
+					qts6.reportFailure();
 				}
 				break;
 			case 7:	
-				if(ResultSetCompare.equalsByValue(expected, received)) {  
+				if(resultSetsEqual) {  
+
 					qts7.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts7.reportFailure(); 
 				}
 				break;
 			case 8:	
-				if(ResultSetCompare.equalsByValue(expected, received)) {  
+				if(resultSetsEqual) {  
+
 					qts8.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts8.reportFailure(); 
 				}
 				break;
 		}
-		
-		expected.reset();
-		received.reset();
-		LOGGER.info("Query task of type: " + queryType + " executed in " + (responseReceivedTimestamp - taskSentTimestamp) + " ms and returned " + received.size() + "/" + expected.size() + " results.");
+		LOGGER.info((resultSetsEqual ? "[SUCCESS]" : "[FAIL]") + " - Task type: " + queryType + "." + querySubType + " executed in " + (responseReceivedTimestamp - taskSentTimestamp) + " ms and returned " + received.size() + "/" + expected.size() + " results.");
+
 	}
 	
 	private void computeTotalFailures() {
