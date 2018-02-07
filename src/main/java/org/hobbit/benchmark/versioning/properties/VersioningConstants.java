@@ -70,5 +70,29 @@ public final class VersioningConstants {
 	public static final String VERSION_TRIPLES_TO_BE_DELETED = "version_%d_triples_to_be_deleted";
 
 	public static final String TOTAL_VERSIONS = "versions_number";
+	
+	// =============== DBpedia data stats ===============
+
+	public static final int DBPEDIA_VERSIONS = 5;
+	
+	public static final int DBPEDIA_ADDED_TRIPLES_V0 = 40362;
+
+	public static final int DBPEDIA_DELETED_TRIPLES_V0 = 0;
+
+	public static final int DBPEDIA_ADDED_TRIPLES_V1 = 9315;
+
+	public static final int DBPEDIA_DELETED_TRIPLES_V1 = 14260;
+
+	public static final int DBPEDIA_ADDED_TRIPLES_V2 = 45991;
+
+	public static final int DBPEDIA_DELETED_TRIPLES_V2 = 16888;
+
+	public static final int DBPEDIA_ADDED_TRIPLES_V3 = 16053;
+
+	public static final int DBPEDIA_DELETED_TRIPLES_V3 = 20479;
+
+	public static final int DBPEDIA_ADDED_TRIPLES_V4 = 32884;
+
+	public static final int DBPEDIA_DELETED_TRIPLES_V4 = 21957;
 
 }

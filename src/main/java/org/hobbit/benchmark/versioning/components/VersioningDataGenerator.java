@@ -11,6 +11,10 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -347,11 +351,20 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}
 
 		dbPediaVersionsDistribution = new int[numberOfVersions];
-		double dbpediaVersions = 5;
 		int versionsDistributed = 0;
-		int[] triplesToBeAdded = { 40362, 9315, 45991, 16053, 32884 }; 
-		int[] triplesToBeDeleted = { 0, 14260, 16888, 20479, 21957};
-		double step = (numberOfVersions / dbpediaVersions) < 1 ? Math.floor(numberOfVersions / dbpediaVersions) : Math.ceil(numberOfVersions / dbpediaVersions);
+		int[] triplesToBeAdded = { 
+				VersioningConstants.DBPEDIA_ADDED_TRIPLES_V0, 
+				VersioningConstants.DBPEDIA_ADDED_TRIPLES_V1, 
+				VersioningConstants.DBPEDIA_ADDED_TRIPLES_V2, 
+				VersioningConstants.DBPEDIA_ADDED_TRIPLES_V3, 
+				VersioningConstants.DBPEDIA_ADDED_TRIPLES_V4 }; 
+		int[] triplesToBeDeleted = { 
+				VersioningConstants.DBPEDIA_DELETED_TRIPLES_V0, 
+				VersioningConstants.DBPEDIA_DELETED_TRIPLES_V1, 
+				VersioningConstants.DBPEDIA_DELETED_TRIPLES_V2, 
+				VersioningConstants.DBPEDIA_DELETED_TRIPLES_V3, 
+				VersioningConstants.DBPEDIA_DELETED_TRIPLES_V4 };
+		double step = (numberOfVersions / VersioningConstants.DBPEDIA_VERSIONS) < 1 ? Math.floor(numberOfVersions / VersioningConstants.DBPEDIA_VERSIONS) : Math.ceil(numberOfVersions / VersioningConstants.DBPEDIA_VERSIONS);
 		Arrays.fill(dbPediaVersionsDistribution, step == 0 ? 1 : 0);
 		
 		// list the 5 dbpedia files
@@ -370,7 +383,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		// if the number of versions that have to be produced is larger than the total 5 of dbpedia
 		// determine in which versions the dbpedia ones will be assigned
-		while(versionsDistributed < dbpediaVersions && step > 0) {
+		while(versionsDistributed < VersioningConstants.DBPEDIA_VERSIONS && step > 0) {
 			for (int i = 0; i < dbPediaVersionsDistribution.length;) {
 				if(versionsDistributed == 5) {
 					break;
