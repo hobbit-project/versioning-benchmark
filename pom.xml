@@ -84,6 +84,13 @@
     	<systemPath>${project.basedir}/src/main/resources/virtjdbc-4.2.jar</systemPath>
     </dependency>
     <dependency>
+		<groupId>org.virtuoso</groupId>
+		<artifactId>virt_jena</artifactId>
+		<version>2.6.2</version>
+		<scope>system</scope>
+    	<systemPath>${project.basedir}/src/main/resources/virt_jena.jar</systemPath>
+    </dependency>
+    <dependency>
 		<groupId>org.aksw.jena-sparql-api</groupId>
 		<artifactId>jena-sparql-api-core</artifactId>
 		<version>3.1.0-2-SNAPSHOT</version>
