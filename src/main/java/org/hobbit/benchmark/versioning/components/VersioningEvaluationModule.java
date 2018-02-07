@@ -150,7 +150,6 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				break;
 			case 2:	
 				if(resultSetsEqual) { 
-
 					qts2.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts2.reportFailure();
@@ -158,7 +157,6 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				break;
 			case 3:	
 				if(resultSetsEqual) {
-
 					qts3.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts3.reportFailure();
@@ -166,7 +164,6 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				break;
 			case 4:	
 				if(resultSetsEqual) { 
-
 					qts4.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts4.reportFailure();
@@ -174,7 +171,6 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				break;
 			case 5:	
 				if(resultSetsEqual) {  
-
 					qts5.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts5.reportFailure();
@@ -182,7 +178,6 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				break;
 			case 6:				
 				if(resultSetsEqual) {  
-
 					qts6.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts6.reportFailure();
@@ -190,7 +185,6 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				break;
 			case 7:	
 				if(resultSetsEqual) {  
-
 					qts7.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts7.reportFailure(); 
@@ -198,7 +192,6 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				break;
 			case 8:	
 				if(resultSetsEqual) {  
-
 					qts8.reportSuccess(responseReceivedTimestamp - taskSentTimestamp); 
 				} else { 
 					qts8.reportFailure(); 
@@ -206,7 +199,6 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				break;
 		}
 		LOGGER.info((resultSetsEqual ? "[SUCCESS]" : "[FAIL]") + " - Task type: " + queryType + "." + querySubType + " executed in " + (responseReceivedTimestamp - taskSentTimestamp) + " ms and returned " + received.size() + "/" + expected.size() + " results.");
-
 	}
 	
 	private void computeTotalFailures() {
