@@ -55,8 +55,8 @@ DisableTcpSocket		= 0
 ;X509ClientVerify		= 0
 ;X509ClientVerifyDepth		= 0
 ;X509ClientVerifyCAFile		= ca.pem
-MaxClientConnections		= 10
-CheckpointInterval		= 60
+MaxClientConnections		= 100
+CheckpointInterval		= 0
 O_DIRECT			= 0
 CaseMode			= 2
 MaxStaticCursorRows		= 5000
@@ -116,6 +116,9 @@ MaxDirtyBuffers          = 130000
 ;NumberOfBuffers          = 10000
 ;MaxDirtyBuffers          = 6000
 
+;NumberOfBuffers          = 14900000
+;MaxDirtyBuffers          = 11000000
+
 
 [HTTPServer]
 ServerPort			= 8890
@@ -126,7 +129,7 @@ EnabledDavVSP			= 0
 HTTPProxyEnabled		= 0
 TempASPXDir			= 0
 DefaultMailServer		= localhost:25
-ServerThreads			= 10
+ServerThreads			= 50
 MaxKeepAlives			= 10
 KeepAliveTimeout		= 10
 MaxCachedProxyConnections	= 10
@@ -134,7 +137,7 @@ ProxyConnectionCacheTimeout	= 15
 HTTPThreadSize			= 280000
 HttpPrintWarningsInOutput	= 0
 Charset				= UTF-8
-;HTTPLogFile		        = logs/http.log
+;;HTTPLogFile		        = http.log
 MaintenancePage             	= atomic.html
 EnabledGzipContent          	= 1
 
@@ -160,7 +163,7 @@ VDBDisconnectTimeout		= 1000
 KeepConnectionOnFixedThread	= 0
 
 [Replication]
-ServerName			= db-INSPIRO
+ServerName			= db-D602566B774E
 ServerEnable			= 1
 QueueMax			= 50000
 
@@ -212,7 +215,7 @@ Segment2			= 100M, db-seg2-1.db
 
 
 [Zero Config]
-ServerName			= virtuoso (INSPIRO)
+ServerName			= virtuoso (D602566B774E)
 ;ServerDSN			= ZDSN
 ;SSLServerName			= 
 ;SSLServerDSN			= 
@@ -237,8 +240,8 @@ DefaultHost			= localhost:8890
 ;DefaultGraph      		= http://localhost:8890/dataspace
 ;ImmutableGraphs    		= http://localhost:8890/dataspace
 ResultSetMaxRows           	= 100000000
-MaxQueryCostEstimationTime 	= 400	; in seconds
-MaxQueryExecutionTime      	= 60	; in seconds
+MaxQueryCostEstimationTime 	= 4000	; in seconds
+MaxQueryExecutionTime      	= 600	; in seconds
 DefaultQuery               	= select distinct ?Concept where {[] a ?Concept} LIMIT 100
 DeferInferenceRulesInit    	= 0  ; controls inference rules loading
 ;PingService       		= http://rpc.pingthesemanticweb.com/
