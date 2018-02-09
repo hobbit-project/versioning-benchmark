@@ -59,6 +59,9 @@ import eu.ldbc.semanticpublishing.templates.VersioningMustacheTemplatesHolder;
 import eu.ldbc.semanticpublishing.templates.versioning.*;
 import eu.ldbc.semanticpublishing.util.AllocationsUtil;
 import eu.ldbc.semanticpublishing.util.RandomUtil;
+import virtuoso.jena.driver.VirtGraph;
+import virtuoso.jena.driver.VirtuosoQueryExecution;
+import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
 /**
  * Data Generator class for Versioning Benchmark.
@@ -571,12 +574,14 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			triplesExpectedToBeLoaded[version] = getVersionSize(version);
 		}
 		
+		VirtGraph set = new VirtGraph ("jdbc:virtuoso://localhost:1111", "dba", "dba");
+		
 		for (Task task : tasks) {			
 			ResultSetRewindable results = null;
 
 			// execute the query on top of virtuoso to compute the expected answers
 			Query query = QueryFactory.create(task.getQuery());
-			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
+			VirtuosoQueryExecution qexec = VirtuosoQueryExecutionFactory.create(query, set);
 			long queryStart = System.currentTimeMillis();
 			try {
 				results = ResultSetFactory.makeRewindable(qexec.execSelect());
