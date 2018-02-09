@@ -880,7 +880,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		    			// ontologies have to be sent only from one data generator
 		    			// send ontology files to the system
 		    			File ontologiesPathFile = new File(ontologiesPath);
-		    			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "ttl" }, true);
+		    			List<File> ontologiesFiles = (List<File>) FileUtils.listFiles(ontologiesPathFile, new String[] { "nt" }, true);
 		    			for (File file : ontologiesFiles) {
 		    				String graphUri = "http://datagen.addset." + version + "." + file.getName();
 		    				byte data[] = FileUtils.readFileToByteArray(file);
