@@ -38,6 +38,7 @@ import org.apache.jena.query.ResultSetRewindable;
 import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
+import org.hobbit.benchmark.versioning.util.FTPUtils;
 import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
 import org.hobbit.core.components.AbstractDataGenerator;
 import org.hobbit.core.rabbit.RabbitMQUtils;
@@ -601,44 +602,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}	
 	}
 	
-	public void writeResults() {
-		String resultsPath = System.getProperty("user.dir") + File.separator + "results";
-		File resultsDir = new File(resultsPath);
-		resultsDir.mkdirs();
-		// skip current version materialization query
-		int taskId = 1;
-		
-		// mind the non zero-based numbering of query types 
-		for (int queryType = 0; queryType < Statistics.VERSIONING_QUERIES_COUNT; queryType++) {
-			if (Arrays.asList(1,3,7).contains(queryType)) {
-				for (int querySubType = 0; querySubType < Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {	
-					for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
-						ByteBuffer expectedResultsBuffer = ByteBuffer.wrap(tasks.get(taskId++).getExpectedAnswers());
-						RabbitMQUtils.readString(expectedResultsBuffer);
-						byte[] expectedResults = RabbitMQUtils.readString(expectedResultsBuffer).getBytes(StandardCharsets.UTF_8);
-						try {
-							FileUtils.writeByteArrayToFile(new File(resultsDir + File.separator + "versionigQuery" + (queryType + 1) + "." + (querySubType + 1) + "." + (querySubstParam + 1) + "_results.json"), expectedResults);
-						} catch (IOException e) {
-							LOGGER.error("Exception caught during saving of expected results: ", e);
-						}
-					}
-				}
-				continue;
-			}
-			for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
-				ByteBuffer expectedResultsBuffer = ByteBuffer.wrap(tasks.get(taskId++).getExpectedAnswers());
-				RabbitMQUtils.readString(expectedResultsBuffer);
-				byte[] expectedResults = RabbitMQUtils.readString(expectedResultsBuffer).getBytes(StandardCharsets.UTF_8);
-				try {
-					FileUtils.writeByteArrayToFile(new File(resultsDir + File.separator + "versionigQuery" + (queryType + 1) + ".1." + (querySubstParam + 1) + "_results.json"), expectedResults);
-				} catch (IOException e) {
-					LOGGER.error("Exception caught during saving of expected results : ", e);
-				}
-				if (queryType == 0) break;
-			}
-		}
-	}
-	
 	public void buildSPRQLTasks() {
 		int taskId = 0;
 		String queryString;
@@ -1071,6 +1034,64 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
         }
         super.receiveCommand(command, data);
     }
+	
+	public void writeResults() {
+		String resultsPath = System.getProperty("user.dir") + File.separator + "results";
+		File resultsDir = new File(resultsPath);
+		resultsDir.mkdirs();
+		// skip current version materialization query
+		int taskId = 0;
+		
+		// mind the non zero-based numbering of query types 
+		for (int queryType = 0; queryType < Statistics.VERSIONING_QUERIES_COUNT; queryType++) {
+			if (Arrays.asList(1,3,7).contains(queryType)) {
+				for (int querySubType = 0; querySubType < Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {	
+					for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
+						ByteBuffer expectedResultsBuffer = ByteBuffer.wrap(tasks.get(taskId++).getExpectedAnswers());
+						expectedResultsBuffer.getInt();
+						expectedResultsBuffer.getInt();
+						byte expectedDataBytes[] = RabbitMQUtils.readByteArray(expectedResultsBuffer);
+						try {
+							FileUtils.writeByteArrayToFile(new File(resultsDir + File.separator + "versionigQuery" + (queryType + 1) + "." + (querySubType + 1) + "." + (querySubstParam + 1) + "_results.json"), expectedDataBytes);
+						} catch (IOException e) {
+							LOGGER.error("Exception caught during saving of expected results: ", e);
+						}
+					}
+				}
+				continue;
+			}
+			for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
+				ByteBuffer expectedResultsBuffer = ByteBuffer.wrap(tasks.get(taskId++).getExpectedAnswers());
+				expectedResultsBuffer.getInt();
+				expectedResultsBuffer.getInt();
+				byte expectedDataBytes[] = RabbitMQUtils.readByteArray(expectedResultsBuffer);
+				try {
+					FileUtils.writeByteArrayToFile(new File(resultsDir + File.separator + "versionigQuery" + (queryType + 1) + ".1." + (querySubstParam + 1) + "_results.json"), expectedDataBytes);
+				} catch (IOException e) {
+					LOGGER.error("Exception caught during saving of expected results : ", e);
+				}
+				if (queryType == 0) break;
+			}
+		}
+	}
+
+	public void sendAllToFTP() {
+		writeResults();
+		FTPUtils.sendToFtp("/versioning/data/v0/", "public/MOCHA_ESWC2018/Task3/data/changesets/c0", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c1/", "public/MOCHA_ESWC2018/Task3/data/changesets/c1", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c2/", "public/MOCHA_ESWC2018/Task3/data/changesets/c2", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c3/", "public/MOCHA_ESWC2018/Task3/data/changesets/c3", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c4/", "public/MOCHA_ESWC2018/Task3/data/changesets/c4", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v0/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v0", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v1/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v1", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v2/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v2", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v3/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v3", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v4/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v4", "nt");
+		FTPUtils.sendToFtp("/versioning/queries/", "public/MOCHA_ESWC2018/Task3/queries", "sparql");
+		FTPUtils.sendToFtp("/versioning/query_templates/", "public/MOCHA_ESWC2018/Task3/query_templates", "txt");
+		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/MOCHA_ESWC2018/Task3/substitution_parameters", "txt");
+		FTPUtils.sendToFtp("/versioning/results/", "public/MOCHA_ESWC2018/Task3/expected_results", "json");
+	}
 	
 	@Override
 	public void close() throws IOException {
