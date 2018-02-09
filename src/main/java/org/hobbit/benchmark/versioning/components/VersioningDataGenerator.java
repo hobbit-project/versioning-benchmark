@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,7 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.net.ftp.FTPClient;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -40,6 +38,7 @@ import org.apache.jena.query.ResultSetRewindable;
 import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
+import org.hobbit.benchmark.versioning.util.FTPUtils;
 import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
 import org.hobbit.core.components.AbstractDataGenerator;
 import org.hobbit.core.rabbit.RabbitMQUtils;
@@ -279,8 +278,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Computing expected answers for generated SPARQL tasks...");
 		computeExpectedAnswers();
 		LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");	
-		
-		sendAllToFtp();
 	}
 	
 	public void parallelyExtract(int currVersion, String destinationPath) {
@@ -1038,110 +1035,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
         super.receiveCommand(command, data);
     }
 	
-	public static void sendToFtp(String dirTree, List<File> dataFiles) {
-		FTPClient client = new FTPClient();
-		FileInputStream fis = null;
-		
-        try {
-        	client.connect("hobbitdata.informatik.uni-leipzig.de");
-        	LOGGER.info("connected: " + client.sendNoOp());
-        	client.enterLocalPassiveMode();
-        	String username = "****";
-            String pwd = "****";
-            LOGGER.info("login: "+client.login(username, pwd));
-            
-            LOGGER.info(client.printWorkingDirectory());
-            boolean dirExists = true;
-            String[] directories = dirTree.split("/");
-            for (String dir : directories ) {
-            	if (!dir.isEmpty() ) {
-            		if (dirExists) {
-            			dirExists = client.changeWorkingDirectory(dir);
-            		}
-	            	if (!dirExists) {
-	                    if (!client.makeDirectory(dir)) {
-	                    	throw new IOException("Unable to create remote directory '" + dir + "'.  error='" + client.getReplyString()+"'");
-	                    }
-	                    if (!client.changeWorkingDirectory(dir)) {
-	                    	throw new IOException("Unable to change into newly created remote directory '" + dir + "'.  error='" + client.getReplyString()+"'");
-	                    }
-	            	}
-            	}
-            }
-
-            LOGGER.info(client.printWorkingDirectory());
-            
-            for (File file : dataFiles) {
-            	fis = new FileInputStream(file);
-            	client.deleteFile(file.getAbsolutePath());
-            	client.storeFile(file.getName(), fis);
-            }
-            
-            client.logout();
-        } catch (IOException e) {
-			e.printStackTrace();
-        } finally {
-        	try {
-                if (fis != null) {
-                    fis.close();
-                }
-                client.disconnect();
-            } catch (IOException e) {
-    			e.printStackTrace();
-            }
-        }
-	}
-	
-	public void sendAllToFtp() {
-		writeResults();
-		
-		File dataV0PathFile = new File("/versioning/data/v0/");
-		File dataC1PathFile = new File("/versioning/data/c1/");
-		File dataC2PathFile = new File("/versioning/data/c2/");
-		File dataC3PathFile = new File("/versioning/data/c3/");
-		File dataC4PathFile = new File("/versioning/data/c4/");
-		File dataFinalV0PathFile = new File("/versioning/data/final/v0/");
-		File dataFinalV1PathFile = new File("/versioning/data/final/v1/");
-		File dataFinalV2PathFile = new File("/versioning/data/final/v2/");
-		File dataFinalV3PathFile = new File("/versioning/data/final/v3/");
-		File dataFinalV4PathFile = new File("/versioning/data/final/v4/");
-		File queriesPathFile = new File("/versioning/queries/");
-		File queryTemplatesPathFile = new File("/versioning/query_templates/");
-		File subsParamPathFile = new File("/versioning/substitution_parameters/");
-		File resultsPathFile = new File("/versioning/results/");
-		
-		List<File> queryFiles = (List<File>) FileUtils.listFiles(queriesPathFile, new String[] { "sparql" }, true);
-		List<File> queryTemplateFiles = (List<File>) FileUtils.listFiles(queryTemplatesPathFile, new String[] { "txt" }, true);
-		List<File> subsParamFiles = (List<File>) FileUtils.listFiles(subsParamPathFile, new String[] { "txt" }, true);
-		List<File> resultsFiles = (List<File>) FileUtils.listFiles(resultsPathFile, new String[] { "json" }, true);
-		
-		List<File> dataV0Files = (List<File>) FileUtils.listFiles(dataV0PathFile, new String[] { "nt" }, true);
-		List<File> dataC1Files = (List<File>) FileUtils.listFiles(dataC1PathFile, new String[] { "nt" }, true);
-		List<File> dataC2Files = (List<File>) FileUtils.listFiles(dataC2PathFile, new String[] { "nt" }, true);
-		List<File> dataC3Files = (List<File>) FileUtils.listFiles(dataC3PathFile, new String[] { "nt" }, true);
-		List<File> dataC4Files = (List<File>) FileUtils.listFiles(dataC4PathFile, new String[] { "nt" }, true);
-		List<File> dataFinalV0Files = (List<File>) FileUtils.listFiles(dataFinalV0PathFile, new String[] { "nt" }, true);
-		List<File> dataFinalV1Files = (List<File>) FileUtils.listFiles(dataFinalV1PathFile, new String[] { "nt" }, true);
-		List<File> dataFinalV2Files = (List<File>) FileUtils.listFiles(dataFinalV2PathFile, new String[] { "nt" }, true);
-		List<File> dataFinalV3Files = (List<File>) FileUtils.listFiles(dataFinalV3PathFile, new String[] { "nt" }, true);
-		List<File> dataFinalV4Files = (List<File>) FileUtils.listFiles(dataFinalV4PathFile, new String[] { "nt" }, true);
-
-		sendToFtp("public/MOCHA_ESWC2018/Task3/data/changesets/c0", dataV0Files);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/data/changesets/c1", dataC1Files);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/data/changesets/c2", dataC2Files);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/data/changesets/c3", dataC3Files);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/data/changesets/c4", dataC4Files);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/data/independentcopies/v0", dataFinalV0Files);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/data/independentcopies/v1", dataFinalV1Files);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/data/independentcopies/v2", dataFinalV2Files);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/data/independentcopies/v3", dataFinalV3Files);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/data/independentcopies/v4", dataFinalV4Files);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/queries", queryFiles);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/query_templates", queryTemplateFiles);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/substitution_parameters", subsParamFiles);
-		sendToFtp("public/MOCHA_ESWC2018/Task3/expected_results", resultsFiles);
-	}
-	
 	public void writeResults() {
 		String resultsPath = System.getProperty("user.dir") + File.separator + "results";
 		File resultsDir = new File(resultsPath);
@@ -1182,6 +1075,23 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}
 	}
 
+	public void sendAllToFTP() {
+		writeResults();
+		FTPUtils.sendToFtp("/versioning/data/v0/", "public/MOCHA_ESWC2018/Task3/data/changesets/c0", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c1/", "public/MOCHA_ESWC2018/Task3/data/changesets/c1", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c2/", "public/MOCHA_ESWC2018/Task3/data/changesets/c2", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c3/", "public/MOCHA_ESWC2018/Task3/data/changesets/c3", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c4/", "public/MOCHA_ESWC2018/Task3/data/changesets/c4", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v0/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v0", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v1/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v1", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v2/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v2", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v3/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v3", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v4/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v4", "nt");
+		FTPUtils.sendToFtp("/versioning/queries/", "public/MOCHA_ESWC2018/Task3/queries", "sparql");
+		FTPUtils.sendToFtp("/versioning/query_templates/", "public/MOCHA_ESWC2018/Task3/query_templates", "txt");
+		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/MOCHA_ESWC2018/Task3/substitution_parameters", "txt");
+		FTPUtils.sendToFtp("/versioning/results/", "public/MOCHA_ESWC2018/Task3/expected_results", "json");
+	}
 	
 	@Override
 	public void close() throws IOException {
