@@ -874,7 +874,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	    	for(int version = 0; version < numberOfVersions; version++) {
 	    		numberOfmessages.set(0);
 	    		// if the benchmark is configured by the system to send change sets
-	    		if(sentDataForm.equals("cs")) {
+	    		if(sentDataForm.equals("cs") || sentDataForm.equals("both")) {
 	    			if(version == 0) {
 		    			// TODO if multiple data generators will be supported 
 		    			// ontologies have to be sent only from one data generator
@@ -909,7 +909,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	    				sendDataToSystemAdapter(dataForSending);
 	    				numberOfmessages.incrementAndGet();
 	    			}
-	    		} else {
+	    		} else if(sentDataForm.equals("ic") || sentDataForm.equals("both")) {
 		    		// if the benchmark is configured by the system to send independent copy of each version.
 	    			// send the final data that previously computed when computed expected answers.
 	    			File dataPath = new File(generatedDatasetPath + File.separator + "final" + File.separator + "v" + version);
