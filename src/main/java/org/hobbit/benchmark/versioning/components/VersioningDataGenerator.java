@@ -60,9 +60,6 @@ import eu.ldbc.semanticpublishing.templates.VersioningMustacheTemplatesHolder;
 import eu.ldbc.semanticpublishing.templates.versioning.*;
 import eu.ldbc.semanticpublishing.util.AllocationsUtil;
 import eu.ldbc.semanticpublishing.util.RandomUtil;
-import virtuoso.jena.driver.VirtGraph;
-import virtuoso.jena.driver.VirtuosoQueryExecution;
-import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
 /**
  * Data Generator class for Versioning Benchmark.
