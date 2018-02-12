@@ -574,15 +574,13 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		for (int version = 0; version < numberOfVersions; version++) {
 			triplesExpectedToBeLoaded[version] = getVersionSize(version);
 		}
-		
-		VirtGraph set = new VirtGraph ("jdbc:virtuoso://localhost:1111", "dba", "dba");
-		
+				
 		for (Task task : tasks) {			
 			ResultSetRewindable results = null;
 
 			// execute the query on top of virtuoso to compute the expected answers
 			Query query = QueryFactory.create(task.getQuery());
-			VirtuosoQueryExecution qexec = VirtuosoQueryExecutionFactory.create(query, set);
+			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
 			long queryStart = System.currentTimeMillis();
 			try {
 				results = ResultSetFactory.makeRewindable(qexec.execSelect());
