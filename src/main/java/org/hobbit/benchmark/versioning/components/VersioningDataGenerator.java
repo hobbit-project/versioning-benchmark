@@ -571,7 +571,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		for (int version = 0; version < numberOfVersions; version++) {
 			triplesExpectedToBeLoaded[version] = getVersionSize(version);
 		}
-		
+				
 		for (Task task : tasks) {			
 			ResultSetRewindable results = null;
 
