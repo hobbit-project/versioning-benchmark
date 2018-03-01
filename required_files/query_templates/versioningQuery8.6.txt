@@ -9,9 +9,9 @@ PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT DISTINCT ?creativeWork ?v1
-FROM {{{graphVi}}}
+FROM {{{graphVstart}}}
 {{{fromIntermediateVersionsClauses}}}
-FROM {{{graphVj}}}
+FROM {{{graphVmax}}}
 WHERE {
 	 { 
 		?creativeWork {{{cwAboutOrMentions}}} ?v1 .
