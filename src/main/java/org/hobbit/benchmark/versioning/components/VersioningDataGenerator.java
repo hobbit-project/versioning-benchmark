@@ -58,6 +58,7 @@ import eu.ldbc.semanticpublishing.substitutionparameters.SubstitutionQueryParame
 import eu.ldbc.semanticpublishing.templates.MustacheTemplate;
 import eu.ldbc.semanticpublishing.templates.VersioningMustacheTemplatesHolder;
 import eu.ldbc.semanticpublishing.templates.versioning.*;
+import eu.ldbc.semanticpublishing.templates.versioning.auxiliary.*;
 import eu.ldbc.semanticpublishing.util.AllocationsUtil;
 import eu.ldbc.semanticpublishing.util.RandomUtil;
 
@@ -87,6 +88,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private String initialVersionDataPath = generatedDatasetPath + File.separator + "v0";
 	private String ontologiesPath = "/versioning/ontologies";
 	private String dbpediaPath = "/versioning/dbpedia";
+	private String concValPath = "/versioning/strq_concrete_values";
+
 	private int[] triplesExpectedToBeAdded;
 	private int[] triplesExpectedToBeDeleted;
 	private int[] triplesExpectedToBeLoaded;
@@ -99,8 +102,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private RandomUtil randomGenerator = null;
 	
 	private VersioningMustacheTemplatesHolder versioningMustacheTemplatesHolder = new VersioningMustacheTemplatesHolder();
-	private SubstitutionQueryParametersManager substitutionQueryParamtersManager = new SubstitutionQueryParametersManager();
-	
+	private SubstitutionQueryParametersManager substitutionQueryParametersManager = new SubstitutionQueryParametersManager();
+
+	private VersioningMustacheTemplatesHolder auxVersioningMustacheTemplatesHolder = new VersioningMustacheTemplatesHolder();
+	private SubstitutionQueryParametersManager auxSubstitutionQueryParametersManager = new SubstitutionQueryParametersManager();
+
 	private ArrayList<Task> tasks = new ArrayList<Task>();
 	
 	private int[] majorEvents;
@@ -121,14 +127,13 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		String dictionaryFile = System.getProperty("user.dir") + File.separator + "WordsDictionary.txt";
 		
 		// initialize the possible concrete values for DBSB query templates
-		String concValPath = System.getProperty("user.dir") + File.separator + "strq_concrete_values" + File.separator;
-		DataManager.strq1.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.1.cwAboutOrMentionsUri.txt"), StandardCharsets.UTF_8));
-		DataManager.strq2.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.2.cwAboutUri.txt"), StandardCharsets.UTF_8));
-		DataManager.strq3.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.3.cwAboutOrMentionsUri.txt"), StandardCharsets.UTF_8));
-		DataManager.strq4.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.4.cwAboutOrMentionsUri.txt"), StandardCharsets.UTF_8));
-		DataManager.strq5.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.5.cwAboutOrMentionsUri.txt"), StandardCharsets.UTF_8));
-		DataManager.strq6.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.6.dbsb.txt"), StandardCharsets.UTF_8));
-		DataManager.strq7.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.7.dbsb.txt"), StandardCharsets.UTF_8));
+//		DataManager.strq1.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.1.cwAboutOrMentionsUri.txt"), StandardCharsets.UTF_8));
+//		DataManager.strq2.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.2.cwAboutUri.txt"), StandardCharsets.UTF_8));
+//		DataManager.strq3.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.3.cwAboutOrMentionsUri.txt"), StandardCharsets.UTF_8));
+//		DataManager.strq4.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.4.cwAboutOrMentionsUri.txt"), StandardCharsets.UTF_8));
+//		DataManager.strq5.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.5.cwAboutOrMentionsUri.txt"), StandardCharsets.UTF_8));
+//		DataManager.strq6.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.6.dbsb.txt"), StandardCharsets.UTF_8));
+//		DataManager.strq7.addAll(FileUtils.readLines(new File(concValPath + "versioningQueryX.7.dbsb.txt"), StandardCharsets.UTF_8));
 		
 		configuration.loadFromFile(configurationFile); 
 		definitions.loadFromFile(definitionsFile, configuration.getBoolean(Configuration.VERBOSE)); 
@@ -254,21 +259,37 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		LOGGER.info("Generating tasks...");
 		// 3) Generate SPARQL query tasks
-		// generate substitution parameters
+		
+		// generate auxiliary queries substitution parameters
+		String auxQueriesPath = System.getProperty("user.dir") + File.separator + "query_templates_auxiliary";
+		auxVersioningMustacheTemplatesHolder.loadFrom(auxQueriesPath);
+		generateAuxQuerySubstitutionParameters();
+		// initialize substitution parameters
+		String auxSubstitutionParametersPath = System.getProperty("user.dir") + File.separator + "aux_substitution_parameters";
+		LOGGER.info("Initializing parameters for auxiliary queries...");
+		auxSubstitutionQueryParametersManager.initAuxVersioningSubstitutionParameters(auxSubstitutionParametersPath, false, false);
+		LOGGER.info("Auxiliary query parameters initialized successfully.");
+		auxSubstitutionQueryParametersManager.viewAuxVersioningSubstitutionParameters();
+		// build mustache templates to create auxiliary queries
+		LOGGER.info("Building auxiliary SPRQL queries...");
+		buildAuxSPRQLQueries();
+		LOGGER.info("All Auxiliary SPRQL queries built successfully.");
+		
+		// generate benchmark tasks substitution parameters
 		String queriesPath = System.getProperty("user.dir") + File.separator + "query_templates";
 		versioningMustacheTemplatesHolder.loadFrom(queriesPath);		
 		generateQuerySubstitutionParameters();
-		
 		// initialize substitution parameters
 		String substitutionParametersPath = System.getProperty("user.dir") + File.separator + "substitution_parameters";
 		LOGGER.info("Initializing parameters for SPARQL query tasks...");
-		substitutionQueryParamtersManager.intiVersioningSubstitutionParameters(substitutionParametersPath, false, false);
+		substitutionQueryParametersManager.initVersioningSubstitutionParameters(substitutionParametersPath, false, false);
 		LOGGER.info("Query parameters initialized successfully.");
-
 		// build mustache templates to create queries
 		LOGGER.info("Building SPRQL tasks...");
-		buildSPRQLTasks();
+		buildSPRQLQueries();
 		LOGGER.info("All SPRQL tasks built successfully.");
+
+		Thread.sleep(1000 * 60 * 60);
 
 		LOGGER.info("Loading generating data, in order to compute gold standard...");
 		// load generated creative works to virtuoso, in order to compute the gold standard
@@ -432,7 +453,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	
 	// get the query strings after compiling the mustache templates
 	public String compileMustacheTemplate(int queryType, int queryIndex, int subsParameterIndex) {
-		String[] querySubstParameters = substitutionQueryParamtersManager.getSubstitutionParametersFor(SubstitutionQueryParametersManager.QueryType.VERSIONING, queryIndex).get(subsParameterIndex);
+		String[] querySubstParameters = substitutionQueryParametersManager.getSubstitutionParametersFor(SubstitutionQueryParametersManager.QueryType.VERSIONING, queryIndex).get(subsParameterIndex);
 		String compiledQuery = null;
 		switch (queryType) {
 			case 0 :
@@ -441,31 +462,31 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				break;
 			case 1 :
 				if(queryIndex == 1) {
-					MustacheTemplate versioningQuery2_1 = new VersioningQuery2_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery2_1 = new VersioningQuery2_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery2_1.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 2) {
-					MustacheTemplate versioningQuery2_2 = new VersioningQuery2_2Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery2_2 = new VersioningQuery2_2Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery2_2.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 3) {
-					MustacheTemplate versioningQuery2_3 = new VersioningQuery2_3Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery2_3 = new VersioningQuery2_3Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery2_3.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 4) {
-					MustacheTemplate versioningQuery2_4 = new VersioningQuery2_4Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery2_4 = new VersioningQuery2_4Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery2_4.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 5) {
-					MustacheTemplate versioningQuery2_5 = new VersioningQuery2_5Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery2_5 = new VersioningQuery2_5Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery2_5.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 6) {
-					MustacheTemplate versioningQuery2_6 = new VersioningQuery2_6Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery2_6 = new VersioningQuery2_6Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery2_6.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 7) {
-					MustacheTemplate versioningQuery2_7 = new VersioningQuery2_7Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery2_7 = new VersioningQuery2_7Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery2_7.compileMustacheTemplate();
 					break;
 				}
@@ -475,31 +496,31 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				break;
 			case 3 :
 				if(queryIndex == 9) {
-					MustacheTemplate versioningQuery4_1 = new VersioningQuery4_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery4_1 = new VersioningQuery4_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery4_1.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 10) {
-					MustacheTemplate versioningQuery4_2 = new VersioningQuery4_2Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery4_2 = new VersioningQuery4_2Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery4_2.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 11) {
-					MustacheTemplate versioningQuery4_3 = new VersioningQuery4_3Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery4_3 = new VersioningQuery4_3Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery4_3.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 12) {
-					MustacheTemplate versioningQuery4_4 = new VersioningQuery4_4Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery4_4 = new VersioningQuery4_4Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery4_4.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 13) {
-					MustacheTemplate versioningQuery4_5 = new VersioningQuery4_5Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery4_5 = new VersioningQuery4_5Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery4_5.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 14) {
-					MustacheTemplate versioningQuery4_6 = new VersioningQuery4_6Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery4_6 = new VersioningQuery4_6Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery4_6.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 15) {
-					MustacheTemplate versioningQuery4_7 = new VersioningQuery4_7Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery4_7 = new VersioningQuery4_7Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery4_7.compileMustacheTemplate();
 					break;
 				}
@@ -517,34 +538,56 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				break;			
 			case 7 :
 				if(queryIndex == 19) {
-					MustacheTemplate versioningQuery8_1 = new VersioningQuery8_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery8_1 = new VersioningQuery8_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery8_1.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 20) {
-					MustacheTemplate versioningQuery8_2 = new VersioningQuery8_2Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery8_2 = new VersioningQuery8_2Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery8_2.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 21) {
-					MustacheTemplate versioningQuery8_3 = new VersioningQuery8_3Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery8_3 = new VersioningQuery8_3Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery8_3.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 22) {
-					MustacheTemplate versioningQuery8_4 = new VersioningQuery8_4Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery8_4 = new VersioningQuery8_4Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery8_4.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 23) {
-					MustacheTemplate versioningQuery8_5 = new VersioningQuery8_5Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery8_5 = new VersioningQuery8_5Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery8_5.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 24) {
-					MustacheTemplate versioningQuery8_6 = new VersioningQuery8_6Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery8_6 = new VersioningQuery8_6Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery8_6.compileMustacheTemplate();
 					break;
 				} else if (queryIndex == 25) {
-					MustacheTemplate versioningQuery8_7 = new VersioningQuery8_7Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+					MustacheTemplate versioningQuery8_7 = new VersioningQuery8_7Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery8_7.compileMustacheTemplate();
 					break;
 				}
+		}
+		return compiledQuery;
+	}
+	
+	// get the query strings after compiling the mustache templates
+	public String compileAuxMustacheTemplate(int queryType, int querySubType, int queryIndex, int subsParameterIndex) {
+		String[] querySubstParameters = auxSubstitutionQueryParametersManager.getSubstitutionParametersFor(SubstitutionQueryParametersManager.QueryType.AUX_VERSIONING, queryIndex).get(subsParameterIndex);
+		LOGGER.info("query type: "+queryType+", query subtype: "+querySubType+" query index: "+queryIndex+" subsparamindex: "+subsParameterIndex+" array: "+Arrays.toString(querySubstParameters));
+		String compiledQuery = null;
+		switch (queryType) {
+			case 2 :
+				MustacheTemplate versioningQuery2 = new VersioningAuxQuery2Template("versioningQuery2." + querySubType + ".txt", randomGenerator, auxVersioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+				compiledQuery = versioningQuery2.compileMustacheTemplate();
+				break;
+			case 4 :
+				MustacheTemplate versioningQuery4 = new VersioningAuxQuery4Template("versioningQuery4." + querySubType + ".txt", randomGenerator, auxVersioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+				compiledQuery = versioningQuery4.compileMustacheTemplate();
+				break;
+			case 8 :
+				MustacheTemplate versioningQuery8 = new VersioningAuxQuery8Template("versioningQuery8." + querySubType + ".txt", randomGenerator, auxVersioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
+				compiledQuery = versioningQuery8.compileMustacheTemplate();
+				break;
 		}
 		return compiledQuery;
 	}
@@ -571,7 +614,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		for (int version = 0; version < numberOfVersions; version++) {
 			triplesExpectedToBeLoaded[version] = getVersionSize(version);
 		}
-				
+		
 		for (Task task : tasks) {			
 			ResultSetRewindable results = null;
 
@@ -602,7 +645,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}	
 	}
 	
-	public void buildSPRQLTasks() {
+	public void buildSPRQLQueries() {
 		int taskId = 0;
 		String queryString;
 		String queriesPath = System.getProperty("user.dir") + File.separator + "queries";
@@ -616,7 +659,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 						queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
 						tasks.add(new Task((queryType + 1), (querySubType + 1), Integer.toString(taskId++), queryString, null));
 						try {
-							FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versionigQuery" + (queryType + 1) + "." + (querySubType + 1) + "." + (querySubstParam + 1) + ".sparql"), queryString);
+							FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versioningQuery" + (queryType + 1) + "." + (querySubType + 1) + "." + (querySubstParam + 1) + ".sparql"), queryString);
 						} catch (IOException e) {
 							LOGGER.error("Exception caught during saving of generated task : ", e);
 						}
@@ -629,7 +672,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
 				tasks.add(new Task((queryType + 1), 1, Integer.toString(taskId++), queryString, null));
 				try {
-					FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versionigQuery" + (queryType + 1) + ".1." + (querySubstParam + 1) + ".sparql"), queryString);
+					FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versioningQuery" + (queryType + 1) + ".1." + (querySubstParam + 1) + ".sparql"), queryString);
 				} catch (IOException e) {
 					LOGGER.error("Exception caught during saving of generated task : ", e);
 				}
@@ -637,6 +680,51 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			}
 			queryIndex++;
 		}		
+	}
+	
+	public void buildAuxSPRQLQueries() {
+		String queryString;
+		String queriesPath = System.getProperty("user.dir") + File.separator + "auxiliary_queries";
+		File queriesDir = new File(queriesPath);
+		queriesDir.mkdirs();
+		
+		int queryIndex = 0;
+		// QT2
+		for (int j = 1, queryType = 2; j <= Statistics.VERSIONING_SUB_QUERIES_COUNT; j++) {
+			queryString = compileAuxMustacheTemplate(queryType, j, queryIndex, 0);
+			try {
+				FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versioningAuxQuery" + queryType + "." + j + ".sparql"), queryString);
+			} catch (IOException e) {
+				LOGGER.error("Exception caught during saving of generated task : ", e);
+			}
+			queryIndex++;
+		}
+		
+		// QT4: 3 querySubstParam for initial, mid and max version
+		for (int j = 1, queryType = 4; j <= Statistics.VERSIONING_SUB_QUERIES_COUNT; j++) {
+			for (int querySubstParam = 0; querySubstParam < 3; querySubstParam++) {
+				queryString = compileAuxMustacheTemplate(queryType, j, queryIndex, querySubstParam);
+				try {
+					FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versioningAuxQuery" + queryType + "." + j + "." + (querySubstParam + 1) + ".sparql"), queryString);
+				} catch (IOException e) {
+					LOGGER.error("Exception caught during saving of generated task : ", e);
+				}
+			}
+			queryIndex++;
+		}
+		
+		// QT8: 6 querySubstParam for (2,3,4) x (nearest,longest)
+		for (int j = 1, queryType = 8; j <= Statistics.VERSIONING_SUB_QUERIES_COUNT; j++) {
+			for (int querySubstParam = 0; querySubstParam < 6; querySubstParam++) {
+				queryString = compileAuxMustacheTemplate(queryType, j, queryIndex, querySubstParam);
+				try {
+					FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versioningAuxQuery" + queryType + "." + j + "." + (querySubstParam + 1) + ".sparql"), queryString);
+				} catch (IOException e) {
+					LOGGER.error("Exception caught during saving of generated task : ", e);
+				}
+			}
+			queryIndex++;
+		}
 	}
 	
 	public void generateQuerySubstitutionParameters() {
@@ -656,15 +744,16 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					for (int j = 1; j <= Statistics.VERSIONING_SUB_QUERIES_COUNT; j++) {
 						bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(substitutionParametersPath + File.separator + String.format("versioningQuery%01d.%01dSubstParameters", i, j) + ".txt"), "UTF-8"));					
 						c = (Class<SubstitutionParametersGenerator>) Class.forName(String.format("eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery%d_%dTemplate", i, j));
-						cc = c.getConstructor(RandomUtil.class, HashMap.class, Definitions.class, String[].class);
-						queryTemplate = (SubstitutionParametersGenerator) cc.newInstance(randomGenerator.randomUtilFactory(configuration.getLong(Configuration.GENERATOR_RANDOM_SEED)), versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, null);					
+						cc = c.getConstructor(RandomUtil.class, HashMap.class, Definitions.class, String[].class, String.class);
+						//TODO: to null na allakse sto arxeio me ta concrete values					
+						queryTemplate = (SubstitutionParametersGenerator) cc.newInstance(randomGenerator.randomUtilFactory(configuration.getLong(Configuration.GENERATOR_RANDOM_SEED)), versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, null, null); 
 						queryTemplate.generateSubstitutionParameters(bw, configuration.getInt(Configuration.QUERY_SUBSTITUTION_PARAMETERS));
 						bw.close();
 					}
 					continue;
 				}
 				bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(substitutionParametersPath + File.separator + String.format("versioningQuery%01d.%01dSubstParameters", i, 1) + ".txt"), "UTF-8"));								
-				c = (Class<SubstitutionParametersGenerator>) Class.forName(String.format("eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery%d_%dTemplate", i, 1));
+				c = (Class<SubstitutionParametersGenerator>) Class.forName(String.format("eu.ldbc.semanticpublishing.templates.versioning.VersioningQuery%d_Template", i));
 				cc = c.getConstructor(RandomUtil.class, HashMap.class, Definitions.class, String[].class);
 				queryTemplate = (SubstitutionParametersGenerator) cc.newInstance(randomGenerator.randomUtilFactory(configuration.getLong(Configuration.GENERATOR_RANDOM_SEED)), versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, null);					
 				queryTemplate.generateSubstitutionParameters(bw, configuration.getInt(Configuration.QUERY_SUBSTITUTION_PARAMETERS));				
@@ -673,6 +762,38 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			LOGGER.info("Query parameters generated successfully...");
 		} catch (Exception e) {
 			LOGGER.error("\n\tException caught during generation of query substitution parameters : ", e);
+		} finally {
+			try { 
+				bw.close(); 
+			} catch(Exception e) { };
+		}
+	}
+	
+	public void generateAuxQuerySubstitutionParameters() {
+		LOGGER.info("Generating auxiliary query parameters...");
+		String substitutionParametersPath = System.getProperty("user.dir") + File.separator + "aux_substitution_parameters";
+		File substitutionParametersDir = new File(substitutionParametersPath);
+		substitutionParametersDir.mkdirs();
+	
+		BufferedWriter bw = null;
+		Class<SubstitutionParametersGenerator> c = null;
+		Constructor<?> cc = null;
+		SubstitutionParametersGenerator queryTemplate = null;
+		try {				
+			//Versioning aux query parameters
+			for (int i : new int[] { 2, 4, 8 }) {
+				for (int j = 1; j <= Statistics.VERSIONING_SUB_QUERIES_COUNT; j++) {
+					bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(substitutionParametersPath + File.separator + String.format("versioningAuxQuery%01d.%01dSubstParameters", i, j) + ".txt"), "UTF-8"));					
+					c = (Class<SubstitutionParametersGenerator>) Class.forName(String.format("eu.ldbc.semanticpublishing.templates.versioning.auxiliary.VersioningAuxQuery%dTemplate", i));
+					cc = c.getConstructor(String.class, RandomUtil.class, HashMap.class, Definitions.class, String[].class);
+					queryTemplate = (SubstitutionParametersGenerator) cc.newInstance("versioningQuery" + i + "." + j + ".txt", randomGenerator.randomUtilFactory(configuration.getLong(Configuration.GENERATOR_RANDOM_SEED)), auxVersioningMustacheTemplatesHolder.getQueryTemplates(), definitions, null);					
+					queryTemplate.generateSubstitutionParameters(bw, configuration.getInt(Configuration.QUERY_SUBSTITUTION_PARAMETERS));
+					bw.close();
+				}
+			}
+			LOGGER.info("Auxiliary Query parameters generated successfully...");
+		} catch (Exception e) {
+			LOGGER.error("\n\tException caught during generation of auxiliary query substitution parameters : ", e);
 		} finally {
 			try { 
 				bw.close(); 
