@@ -13,6 +13,6 @@ FROM {{{graphVstart}}}
 {{{fromIntermediateVersionsClauses}}}
 FROM {{{graphVmax}}}
 WHERE {	 
-	?creativeWork {{{cwAboutOrMentions}}} {{{cwAboutOrMentionsUri}}} .
-	{{{cwAboutOrMentionsUri}}} rdf:type ?v1 .
+	?creativeWork cwork:about {{{cwAboutUri}}} .
+	{{{cwAboutUri}}} rdf:type ?v1 .
 }

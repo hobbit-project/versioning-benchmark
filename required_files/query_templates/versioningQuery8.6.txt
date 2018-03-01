@@ -14,10 +14,10 @@ FROM {{{graphVstart}}}
 FROM {{{graphVmax}}}
 WHERE {
 	 { 
-		?creativeWork {{{cwAboutOrMentions}}} ?v1 .
+		?creativeWork cwork:about ?v1 .
 		?v1 rdfs:label {{{dbsb}}} } 
 	 UNION { 
-		?creativeWork {{{cwAboutOrMentions}}} ?v1 .
+		?creativeWork cwork:about ?v1 .
 		?v1 rdfs:label {{{dbsb}}} } .
 	 FILTER (regex(str(?v1), 'http://dbpedia.org/resource/') || 
 	 REGEX(str(?v1), 'http://dbpedia.org/ontology/') || 

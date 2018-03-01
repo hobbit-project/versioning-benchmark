@@ -5,11 +5,11 @@
 PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT DISTINCT ?cwAboutOrMentions ?cwAboutOrMentionsUri
+SELECT DISTINCT ?cwAboutUri
 FROM {{{graphVmax}}}
 WHERE {	 
-	?creativeWork ?cwAboutOrMentions ?cwAboutOrMentionsUri .
-	?cwAboutOrMentionsUri rdf:type ?v1 .
+	?creativeWork cwork:about ?cwAboutUri .
+	?cwAboutUri rdf:type ?v1 .
 }
 ORDER BY RAND()
 LIMIT 1000

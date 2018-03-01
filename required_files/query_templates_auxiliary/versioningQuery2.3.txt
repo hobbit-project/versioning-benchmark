@@ -2,16 +2,16 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT DISTINCT ?cwAboutOrMentions ?cwAboutOrMentionsUri
+SELECT DISTINCT ?cwAboutUri
 FROM {{{graphVmax}}}
 WHERE { 
 	{ 
-		?creativeWork ?cwAboutOrMentions ?cwAboutOrMentionsUri .
-		?cwAboutOrMentionsUri rdfs:COMMENT ?v0 . 
+		?creativeWork cwork:about ?cwAboutUri .
+		?cwAboutUri rdfs:comment ?v0 . 
 		FILTER (lang (?v0) = 'en') 
 	}
-	UNION { ?cwAboutOrMentionsUri foaf:depiction ?v1 }
-	UNION { ?cwAboutOrMentionsUri foaf:homepage ?v2 } 
+	UNION { ?cwAboutUri foaf:depiction ?v1 }
+	UNION { ?cwAboutUri foaf:homepage ?v2 } 
 }
 ORDER BY RAND()
 LIMIT 1000

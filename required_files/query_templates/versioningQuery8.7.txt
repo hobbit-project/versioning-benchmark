@@ -13,7 +13,7 @@ FROM {{{graphVstart}}}
 {{{fromIntermediateVersionsClauses}}}
 FROM {{{graphVmax}}}
 WHERE {
-	 ?creativeWork {{{cwAboutOrMentions}}} ?v3 .
+	 ?creativeWork cwork:about ?v3 .
 	 ?v3 foaf:homepage ?v2 .
 	 ?v3 rdf:type {{{dbsb}}}
 }

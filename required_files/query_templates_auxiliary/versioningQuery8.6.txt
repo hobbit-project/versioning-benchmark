@@ -3,16 +3,16 @@
 PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT DISTINCT ?cwAboutOrMentions ?dbsb
+SELECT DISTINCT ?dbsb
 FROM {{{graphVstart}}}
 {{{fromIntermediateVersionsClauses}}}
 FROM {{{graphVmax}}}
 WHERE {
 	 { 
-		?creativeWork ?cwAboutOrMentions ?v1 .
+		?creativeWork cwork:about ?v1 .
 		?v1 rdfs:label ?dbsb } 
 	 UNION { 
-		?creativeWork ?cwAboutOrMentions ?v1 .
+		?creativeWork cwork:about ?v1 .
 		?v1 rdfs:label ?dbsb } .
 	 FILTER (regex(str(?v1), 'http://dbpedia.org/resource/') || 
 	 REGEX(str(?v1), 'http://dbpedia.org/ontology/') || 
