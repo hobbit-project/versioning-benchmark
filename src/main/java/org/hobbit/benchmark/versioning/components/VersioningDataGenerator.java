@@ -264,12 +264,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		String auxQueriesPath = System.getProperty("user.dir") + File.separator + "query_templates_auxiliary";
 		auxVersioningMustacheTemplatesHolder.loadFrom(auxQueriesPath);
 		generateAuxQuerySubstitutionParameters();
-		// initialize substitution parameters
+		// initialize substitution parameters for the auxiliary queries
 		String auxSubstitutionParametersPath = System.getProperty("user.dir") + File.separator + "aux_substitution_parameters";
 		LOGGER.info("Initializing parameters for auxiliary queries...");
 		auxSubstitutionQueryParametersManager.initAuxVersioningSubstitutionParameters(auxSubstitutionParametersPath, false, false);
 		LOGGER.info("Auxiliary query parameters initialized successfully.");
-		auxSubstitutionQueryParametersManager.viewAuxVersioningSubstitutionParameters();
 		// build mustache templates to create auxiliary queries
 		LOGGER.info("Building auxiliary SPRQL queries...");
 		buildAuxSPRQLQueries();
@@ -452,15 +451,16 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 	
 	// get the query strings after compiling the mustache templates
+	// TODO: IN 
 	public String compileMustacheTemplate(int queryType, int queryIndex, int subsParameterIndex) {
 		String[] querySubstParameters = substitutionQueryParametersManager.getSubstitutionParametersFor(SubstitutionQueryParametersManager.QueryType.VERSIONING, queryIndex).get(subsParameterIndex);
 		String compiledQuery = null;
 		switch (queryType) {
-			case 0 :
+			case 1 :
 				MustacheTemplate versioningQuery1_1 = new VersioningQuery1_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
 				compiledQuery = versioningQuery1_1.compileMustacheTemplate();
 				break;
-			case 1 :
+			case 2 :
 				if(queryIndex == 1) {
 					MustacheTemplate versioningQuery2_1 = new VersioningQuery2_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery2_1.compileMustacheTemplate();
@@ -490,11 +490,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					compiledQuery = versioningQuery2_7.compileMustacheTemplate();
 					break;
 				}
-			case 2 : 
+			case 3 : 
 				MustacheTemplate versioningQuery3_1 = new VersioningQuery3_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
 				compiledQuery = versioningQuery3_1.compileMustacheTemplate();
 				break;
-			case 3 :
+			case 4 :
 				if(queryIndex == 9) {
 					MustacheTemplate versioningQuery4_1 = new VersioningQuery4_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery4_1.compileMustacheTemplate();
@@ -524,19 +524,19 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					compiledQuery = versioningQuery4_7.compileMustacheTemplate();
 					break;
 				}
-			case 4 :
+			case 5 :
 				MustacheTemplate versioningQuery5_1 = new VersioningQuery5_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
 				compiledQuery = versioningQuery5_1.compileMustacheTemplate();
 				break;
-			case 5 : 
+			case 6 : 
 				MustacheTemplate versioningQuery6_1 = new VersioningQuery6_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
 				compiledQuery = versioningQuery6_1.compileMustacheTemplate();
 				break;
-			case 6 :
+			case 7 :
 				MustacheTemplate versioningQuery7_1 = new VersioningQuery7_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters);
 				compiledQuery = versioningQuery7_1.compileMustacheTemplate();
 				break;			
-			case 7 :
+			case 8 :
 				if(queryIndex == 19) {
 					MustacheTemplate versioningQuery8_1 = new VersioningQuery8_1Template(randomGenerator, versioningMustacheTemplatesHolder.getQueryTemplates(), definitions, querySubstParameters, null);
 					compiledQuery = versioningQuery8_1.compileMustacheTemplate();
@@ -573,7 +573,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	// get the query strings after compiling the mustache templates
 	public String compileAuxMustacheTemplate(int queryType, int querySubType, int queryIndex, int subsParameterIndex) {
 		String[] querySubstParameters = auxSubstitutionQueryParametersManager.getSubstitutionParametersFor(SubstitutionQueryParametersManager.QueryType.AUX_VERSIONING, queryIndex).get(subsParameterIndex);
-		LOGGER.info("query type: "+queryType+", query subtype: "+querySubType+" query index: "+queryIndex+" subsparamindex: "+subsParameterIndex+" array: "+Arrays.toString(querySubstParameters));
 		String compiledQuery = null;
 		switch (queryType) {
 			case 2 :
@@ -652,14 +651,14 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		File queriesDir = new File(queriesPath);
 		queriesDir.mkdirs();
 		
-		for (int queryType = 0, queryIndex = 0; queryType < Statistics.VERSIONING_QUERIES_COUNT; queryType++) {
-			if (Arrays.asList(1,3,7).contains(queryType)) {
-				for (int querySubType = 0; querySubType < Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {	
+		for (int queryType = 1, queryIndex = 0; queryType <= Statistics.VERSIONING_QUERIES_COUNT; queryType++) {
+			if (Arrays.asList(2,4,8).contains(queryType)) {
+				for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {	
 					for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
 						queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
-						tasks.add(new Task((queryType + 1), (querySubType + 1), Integer.toString(taskId++), queryString, null));
+						tasks.add(new Task(queryType, querySubType, Integer.toString(taskId++), queryString, null));
 						try {
-							FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versioningQuery" + (queryType + 1) + "." + (querySubType + 1) + "." + (querySubstParam + 1) + ".sparql"), queryString);
+							FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versioningQuery" + queryType + "." + querySubType + "." + (querySubstParam + 1) + ".sparql"), queryString);
 						} catch (IOException e) {
 							LOGGER.error("Exception caught during saving of generated task : ", e);
 						}
@@ -670,13 +669,13 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			}
 			for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
 				queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
-				tasks.add(new Task((queryType + 1), 1, Integer.toString(taskId++), queryString, null));
+				tasks.add(new Task(queryType, 1, Integer.toString(taskId++), queryString, null));
 				try {
-					FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versioningQuery" + (queryType + 1) + ".1." + (querySubstParam + 1) + ".sparql"), queryString);
+					FileUtils.writeStringToFile(new File(queriesDir + File.separator + "versioningQuery" + queryType + ".1." + (querySubstParam + 1) + ".sparql"), queryString);
 				} catch (IOException e) {
 					LOGGER.error("Exception caught during saving of generated task : ", e);
 				}
-				if (queryType == 0) break;
+				if (queryType == 1) break;
 			}
 			queryIndex++;
 		}		
