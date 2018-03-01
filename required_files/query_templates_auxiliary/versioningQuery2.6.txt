@@ -1,0 +1,22 @@
+#  Query Type: 2, Modern single-version structured query
+
+PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?cwAboutOrMentions ?dbsb
+FROM {{{graphVmax}}}
+WHERE {
+	 { 
+		?creativeWork ?cwAboutOrMentions ?v1 .
+		?v1 rdfs:label ?dbsb } 
+	 UNION { 
+		?creativeWork ?cwAboutOrMentions ?v1 .
+		?v1 rdfs:label ?dbsb } .
+	 FILTER (regex(str(?v1), 'http://dbpedia.org/resource/') || 
+	 REGEX(str(?v1), 'http://dbpedia.org/ontology/') || 
+	 REGEX(str(?v1), 'http://www.w3.org/2002/07/owl') || 
+	 REGEX(str(?v1), 'http://www.w3.org/2001/XMLSchema') || 
+	 REGEX(str(?v1), 'http://www.w3.org/2000/01/rdf-schema') || 
+	 REGEX(str(?v1), 'http://www.w3.org/1999/02/22-rdf-syntax-ns')) 
+}
+LIMIT 1000

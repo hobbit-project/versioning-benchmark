@@ -1,0 +1,18 @@
+#  Query Type: 8, Cross-version structured query
+
+PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?cwAboutOrMentions ?cwAboutOrMentionsUri
+FROM {{{graphVstart}}}
+{{{fromIntermediateVersionsClauses}}}
+FROM {{{graphVmax}}}
+WHERE {
+	 ?creativeWork ?cwAboutOrMentions ?cwAboutOrMentionsUri .
+	 ?cwAboutOrMentionsUri ?v4 ?v5 .
+	 OPTIONAL { ?v5 rdfs:label ?v6 } .
+	 FILTER (langMatches(lang(?v6) ,'EN') || (!langMatches(lang(?v6) ,'*'))) .
+	 FILTER (langMatches(lang(?v5) ,'EN') || (!langMatches(lang(?v5) ,'*'))) .
+	 OPTIONAL {?v4 rdfs:label ?v7 }
+}
+LIMIT 1000

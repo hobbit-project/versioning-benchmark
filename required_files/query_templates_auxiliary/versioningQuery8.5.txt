@@ -1,0 +1,25 @@
+#  Query Type: 8, Cross-version structured query
+
+PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
+
+SELECT DISTINCT ?cwAboutOrMentions ?cwAboutOrMentionsUri
+FROM {{{graphVstart}}}
+{{{fromIntermediateVersionsClauses}}}
+FROM {{{graphVmax}}}
+WHERE {
+	 { 
+	    ?creativeWork ?cwAboutOrMentions ?cwAboutOrMentionsUri .
+	    ?cwAboutOrMentionsUri ?v3 ?v4 .
+	    FILTER ((STR(?v3) = 'http://www.w3.org/2000/01/rdf-schema#label' && lang(?v4) = 'en') || 
+		(STR(?v3) = 'http://dbpedia.org/ontology/abstract' && lang (?v4) = 'en') || 
+		(STR(?v3) = 'http://www.w3.org/2000/01/rdf-schema#comment' && lang (?v4) = 'en') || 
+		(STR(?v3) != 'http://dbpedia.org/ontology/abstract' && STR(?v3) != 'http://www.w3.org/2000/01/rdf-schema#comment' && STR(?v3) != 'http://www.w3.org/2000/01/rdf-schema#label') ) 
+	 } 
+	 UNION { 
+	    ?creativeWork ?cwAboutOrMentions ?cwAboutOrMentionsUri .
+	    ?v5 ?v3 ?cwAboutOrMentionsUri 
+	    FILTER (STR(?v3) = 'http://dbpedia.org/ontology/owner' || 
+		STR(?v3) = 'http://dbpedia.org/property/redirect' ) 
+	 }
+ }
+LIMIT 1000

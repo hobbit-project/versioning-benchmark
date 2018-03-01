@@ -1,0 +1,12 @@
+#  Query Type: 4, Historical single-version structured query
+
+PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT DISTINCT ?cwAboutOrMentions ?cwAboutOrMentionsUri
+FROM {{{graphVhistorical}}}
+WHERE {	 
+	?creativeWork ?cwAboutOrMentions ?cwAboutOrMentionsUri .
+	?cwAboutOrMentionsUri rdf:type ?v1 .
+}
+LIMIT 1000

@@ -1,0 +1,16 @@
+#  Query Type: 8, Cross-version structured query
+
+PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
+PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT DISTINCT ?cwAboutOrMentions ?dbsb
+FROM {{{graphVstart}}}
+{{{fromIntermediateVersionsClauses}}}
+FROM {{{graphVmax}}}
+WHERE {
+	 ?creativeWork ?cwAboutOrMentions ?v3 .
+	 ?v3 foaf:homepage ?v2 .
+	 ?v3 rdf:type ?dbsb
+}
+LIMIT 1000

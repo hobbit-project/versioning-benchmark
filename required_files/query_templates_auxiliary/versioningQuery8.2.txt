@@ -1,0 +1,32 @@
+#  Query Type: 8, Cross-version structured query
+
+PREFIX dbp-prop: <http://dbpedia.org/property/> 
+PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
+PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
+
+SELECT DISTINCT ?cwAboutUri
+FROM {{{graphVstart}}}
+{{{fromIntermediateVersionsClauses}}}
+FROM {{{graphVmax}}}
+WHERE { 
+	{
+		?creativeWork cwork:about ?cwAboutUri .
+		?cwAboutUri dbp-prop:subsid ?v3 
+		OPTIONAL { ?v2 ?cwAboutUri dbp-prop:parent } 
+		OPTIONAL { ?cwAboutUri dbp-prop:divisions ?v4 } 
+	}
+	UNION { 
+		?creativeWork cwork:about ?cwAboutUri .
+		?v2 ?cwAboutUri dbp-prop:parent 
+		OPTIONAL { ?cwAboutUri dbp-prop:subsid ?v3 } 
+		OPTIONAL { ?cwAboutUri dbp-prop:divisions ?v4 } 
+	}
+	UNION { 
+		?creativeWork cwork:about ?cwAboutUri .
+		?cwAboutUri dbp-prop:divisions ?v4 
+		OPTIONAL { ?cwAboutUri dbp-prop:subsid ?v3 } 
+		OPTIONAL { ?v2 ?cwAboutUri dbp-prop:parent } 
+	} 
+}
+
+LIMIT 1000
