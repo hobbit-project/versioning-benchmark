@@ -13,4 +13,5 @@ WHERE {
 	 FILTER (langMatches(lang(?v5) ,'EN') || (!langMatches(lang(?v5) ,'*'))) .
 	 OPTIONAL {?v4 rdfs:label ?v7 }
 }
+ORDER BY RAND()
 LIMIT 1000

@@ -21,4 +21,5 @@ WHERE {
 	 REGEX(str(?v1), 'http://www.w3.org/2000/01/rdf-schema') || 
 	 REGEX(str(?v1), 'http://www.w3.org/1999/02/22-rdf-syntax-ns')) 
 }
+ORDER BY RAND()
 LIMIT 1000

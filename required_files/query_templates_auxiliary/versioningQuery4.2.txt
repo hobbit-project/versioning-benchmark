@@ -25,4 +25,5 @@ WHERE {
 		OPTIONAL { ?v2 ?cwAboutUri dbp-prop:parent } 
 	} 
 }
+ORDER BY RAND()
 LIMIT 1000

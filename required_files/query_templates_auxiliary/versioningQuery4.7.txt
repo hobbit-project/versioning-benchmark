@@ -11,4 +11,5 @@ WHERE {
 	 ?v3 foaf:homepage ?v2 .
 	 ?v3 rdf:type ?dbsb
 }
+ORDER BY RAND()
 LIMIT 1000

@@ -18,4 +18,5 @@ WHERE {
 		STR(?v3) = 'http://dbpedia.org/property/redirect' ) 
 	 }
  }
+ORDER BY RAND()
 LIMIT 1000
