@@ -348,15 +348,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	 *  each versions underline path to already been generated and before computation of expected 
 	 *  answers.
 	 */
-	private void distributeDBpediaVersions() {
-		if(numberOfVersions > 5) {
-			LOGGER.info("Distributing the 5 DBpedia versions to the total " + numberOfVersions + " produced...");
-		} else {
-			LOGGER.info("Assigning the first " + numberOfVersions + " DBpedia versions to the total " + numberOfVersions + " produced...");
-		}
-
-		dbPediaVersionsDistribution = new int[numberOfVersions];
-		int versionsDistributed = 0;
+	private void distributeDBpediaVersions() {		
 		int[] triplesToBeAdded = { 
 				VersioningConstants.DBPEDIA_ADDED_TRIPLES_V0, 
 				VersioningConstants.DBPEDIA_ADDED_TRIPLES_V1, 
@@ -369,8 +361,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				VersioningConstants.DBPEDIA_DELETED_TRIPLES_V2, 
 				VersioningConstants.DBPEDIA_DELETED_TRIPLES_V3, 
 				VersioningConstants.DBPEDIA_DELETED_TRIPLES_V4 };
-		double step = (numberOfVersions / VersioningConstants.DBPEDIA_VERSIONS) < 1 ? Math.floor(numberOfVersions / VersioningConstants.DBPEDIA_VERSIONS) : Math.ceil(numberOfVersions / VersioningConstants.DBPEDIA_VERSIONS);
-		Arrays.fill(dbPediaVersionsDistribution, step == 0 ? 1 : 0);
 		
 		// list the 5 dbpedia files
 		String dbpediaFinalPath = dbpediaPath + File.separator + "final";
@@ -388,21 +378,24 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		// if the number of versions that have to be produced is larger than the total 5 of dbpedia
 		// determine in which versions the dbpedia ones will be assigned
-		while(versionsDistributed < VersioningConstants.DBPEDIA_VERSIONS && step > 0) {
-			for (int i = 0; i < dbPediaVersionsDistribution.length;) {
-				if(versionsDistributed == 5) {
-					break;
-				} else if(dbPediaVersionsDistribution[i] == 1) {
-					i += step/2;
-				} else {
-					dbPediaVersionsDistribution[i] = 1;
-					triplesExpectedToBeAdded[i] += triplesToBeAdded[versionsDistributed];
-					triplesExpectedToBeDeleted[i] += triplesToBeDeleted[versionsDistributed];
-					i += step;
-					versionsDistributed++;
-				}
+		dbPediaVersionsDistribution = new int[numberOfVersions];
+		if(numberOfVersions > 5) {
+			LOGGER.info("Distributing the 5 DBpedia versions to the total " + numberOfVersions + " produced...");
+			Arrays.fill(dbPediaVersionsDistribution, 0);
+			for(int dbpediaVersion = 0; dbpediaVersion < VersioningConstants.DBPEDIA_VERSIONS; dbpediaVersion++) {
+				int versionIndex = Math.round((float) ((numberOfVersions - 1) * ((float) dbpediaVersion / 4)));
+				dbPediaVersionsDistribution[versionIndex] = 1;
+				triplesExpectedToBeAdded[versionIndex] += triplesToBeAdded[dbpediaVersion];
+				triplesExpectedToBeDeleted[versionIndex] += triplesToBeDeleted[dbpediaVersion];
 			}
-		}
+		} else {
+			LOGGER.info("Assigning the first " + numberOfVersions + " DBpedia versions to the total " + numberOfVersions + " produced...");
+			Arrays.fill(dbPediaVersionsDistribution, 1);
+			for(int dbpediaVersion = 0; dbpediaVersion < numberOfVersions; dbpediaVersion++) {
+				triplesExpectedToBeAdded[dbpediaVersion] += triplesToBeAdded[dbpediaVersion];
+				triplesExpectedToBeDeleted[dbpediaVersion] += triplesToBeDeleted[dbpediaVersion];
+			}
+		}	
 		
 		LOGGER.info("Distribution: " + Arrays.toString(dbPediaVersionsDistribution));
 		
