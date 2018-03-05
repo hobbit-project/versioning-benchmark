@@ -8,10 +8,10 @@ FROM {{{graphVhistorical}}}
 WHERE {
 	 { 
 		?creativeWork cwork:about ?v1 .
-		?v1 rdfs:label {{{dbsb}}} } 
+		?v1 rdfs:label {{{dbpsb}}} } 
 	 UNION { 
 		?creativeWork cwork:about ?v1 .
-		?v1 rdfs:label {{{dbsb}}} } .
+		?v1 rdfs:label {{{dbpsb}}} } .
 	 FILTER (regex(str(?v1), 'http://dbpedia.org/resource/') || 
 	 REGEX(str(?v1), 'http://dbpedia.org/ontology/') || 
 	 REGEX(str(?v1), 'http://www.w3.org/2002/07/owl') || 
