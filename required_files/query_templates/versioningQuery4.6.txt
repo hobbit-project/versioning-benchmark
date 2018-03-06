@@ -1,21 +1,13 @@
 #  Query Type: 4, Historical single-version structured query
 
+PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
 PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/> 
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?creativeWork ?v1
+SELECT ?creativeWork ?v2 
 FROM {{{graphVhistorical}}}
 WHERE {
-	 { 
-		?creativeWork cwork:about ?v1 .
-		?v1 rdfs:label {{{dbpsb}}} } 
-	 UNION { 
-		?creativeWork cwork:about ?v1 .
-		?v1 rdfs:label {{{dbpsb}}} } .
-	 FILTER (regex(str(?v1), 'http://dbpedia.org/resource/') || 
-	 REGEX(str(?v1), 'http://dbpedia.org/ontology/') || 
-	 REGEX(str(?v1), 'http://www.w3.org/2002/07/owl') || 
-	 REGEX(str(?v1), 'http://www.w3.org/2001/XMLSchema') || 
-	 REGEX(str(?v1), 'http://www.w3.org/2000/01/rdf-schema') || 
-	 REGEX(str(?v1), 'http://www.w3.org/1999/02/22-rdf-syntax-ns')) 
+	 ?creativeWork cwork:about ?v3 .
+	 ?v3 foaf:homepage ?v2 .
+	 ?v3 rdf:type {{{dbpsb}}}
 }
