@@ -102,9 +102,9 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		// Create task generators
 		createTaskGenerators(TASK_GENERATOR_CONTAINER_IMAGE, 1, new String[] {} );
 		LOGGER.info("Task Generators created successfully.");
-
+		
 		// Create evaluation storage
-		createEvaluationStorage("git.project-hobbit.eu:4567/defaulthobbituser/defaultevaluationstorage:1.0.7-SNAPSHOT", evalStorageEnvVariables);
+		createEvaluationStorage(DEFAULT_EVAL_STORAGE_IMAGE, evalStorageEnvVariables);
 		LOGGER.info("Evaluation Storage created successfully.");
 		
 		waitForComponentsToInitialize();
