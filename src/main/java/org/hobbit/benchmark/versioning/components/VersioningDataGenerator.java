@@ -277,6 +277,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Computing expected answers for generated SPARQL tasks...");
 		computeExpectedAnswers();
 		LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");	
+        LOGGER.info("Data Generator initialized successfully.");
 	}
 	
 	public void parallelyExtract(int currVersion, String destinationPath) {
@@ -583,41 +584,136 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	public void buildSPRQLQueries() {
 		int taskId = 0;
 		int queryIndex = 0;
+		int querySubstParamCount = 0;
+		String queriesPath = System.getProperty("user.dir") + File.separator + "queries" + File.separator;
+		String queryString;
 		
 		// QT1
-		buildSPRQLQuery(taskId, 1, 1, queryIndex++, 1);
+		queryString = compileMustacheTemplate(1, queryIndex++, 0);
+		tasks.add(new Task(1, 1, Integer.toString(taskId++), queryString, null));
+		try {
+			FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery1.1.1.sparql"), queryString);
+		} catch (IOException e) {
+			LOGGER.error("Exception caught during saving of generated task : ", e);
+		}
+		
 		// QT2
+		querySubstParamCount = 5;
 		for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
-			buildSPRQLQuery(taskId, 2, querySubType, queryIndex++, 5);
+			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
+				queryString = compileMustacheTemplate(2, queryIndex, querySubstParam);
+				tasks.add(new Task(2, querySubType, Integer.toString(taskId++), queryString, null));
+				try {
+					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery2." + querySubType + "." + querySubstParam + ".sparql"), queryString);
+				} catch (IOException e) {
+					LOGGER.error("Exception caught during saving of generated task : ", e);
+				}
+			}
+			queryIndex++;
 		}
+		
+		// if there is only one version return
+		if(numberOfVersions == 1) 
+			return;
+
 		// QT3
-		buildSPRQLQuery(taskId, 3, 1, queryIndex++, 3);
-		// QT4
-		for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
-			buildSPRQLQuery(taskId, 4, querySubType, queryIndex++, 3);
-		}
-		// QT5
-		buildSPRQLQuery(taskId, 5, 1, queryIndex++, 4);
-		// QT6
-		buildSPRQLQuery(taskId, 6, 1, queryIndex++, 4);
-		// QT7
-		buildSPRQLQuery(taskId, 7, 1, queryIndex++, 3);
-		// QT8
-		for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
-			buildSPRQLQuery(taskId, 8, querySubType, queryIndex++, 6);
-		}
-	}
-	
-	public void buildSPRQLQuery(int taskId, int queryType, int querySubType, int queryIndex, int querySubstParams) {
-		String queriesPath = System.getProperty("user.dir") + File.separator + "queries" + File.separator;
-		for(int querySubstParam = 0; querySubstParam < querySubstParams; querySubstParam++) {
-			String queryString = compileMustacheTemplate(queryType, queryIndex, querySubstParam);
-			tasks.add(new Task(queryType, querySubType, Integer.toString(taskId++), queryString, null));
+		// if the total number of versions is lower than 1 there are no historical versions
+		querySubstParamCount = 3;
+		for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions ; querySubstParam++) {
+			queryString = compileMustacheTemplate(3, queryIndex, querySubstParam);
+			tasks.add(new Task(3, 1, Integer.toString(taskId++), queryString, null));
 			try {
-				FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery" + queryType + "." + querySubType + "." + (querySubstParam + 1) + ".sparql"), queryString);
+				FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery3.1." + querySubstParam + ".sparql"), queryString);
 			} catch (IOException e) {
 				LOGGER.error("Exception caught during saving of generated task : ", e);
 			}
+		}
+		queryIndex++;
+		
+		// QT4
+		// if the total number of versions is lower than 1 there are no historical versions
+		querySubstParamCount = 3;
+		for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
+			// if there are less than four versions take all the historical ones
+			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions; querySubstParam++) {
+				queryString = compileMustacheTemplate(4, queryIndex, querySubstParam);
+				tasks.add(new Task(4, querySubType, Integer.toString(taskId++), queryString, null));
+				try {
+					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery4." + querySubType + "." + querySubstParam + ".sparql"), queryString);
+				} catch (IOException e) {
+					LOGGER.error("Exception caught during saving of generated task : ", e);
+				}
+			}
+			queryIndex++;
+		}
+		
+		// if the total number of versions is lower than 5 read deltas for all the historical ones
+		// QT5 and QT6
+		if(numberOfVersions < 5) {
+			querySubstParamCount = numberOfVersions - 1;
+		} else {
+			querySubstParamCount = 4;
+		}
+		// QT5
+		for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
+			queryString = compileMustacheTemplate(5, queryIndex, querySubstParam);
+			tasks.add(new Task(5, 1, Integer.toString(taskId++), queryString, null));
+			try {
+				FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery5.1." + querySubstParam + ".sparql"), queryString);
+			} catch (IOException e) {
+				LOGGER.error("Exception caught during saving of generated task : ", e);
+			}
+		}
+		queryIndex++;
+		
+		// QT6
+		// same querySubstParamCount as QT5
+		for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
+			queryString = compileMustacheTemplate(6, queryIndex, querySubstParam);
+			tasks.add(new Task(6, 1, Integer.toString(taskId++), queryString, null));
+			try {
+				FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery6.1." + querySubstParam + ".sparql"), queryString);
+			} catch (IOException e) {
+				LOGGER.error("Exception caught during saving of generated task : ", e);
+			}
+		}
+		queryIndex++;
+		
+		// QT7
+		// can not be supported when we have 2 or less total versions, as there cannot exist cross-deltas
+		querySubstParamCount = 3;
+		for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions - 2 ; querySubstParam++) {
+			queryString = compileMustacheTemplate(7, queryIndex, querySubstParam);
+			tasks.add(new Task(7, 1, Integer.toString(taskId++), queryString, null));
+			try {
+				FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery7.1." + querySubstParam + ".sparql"), queryString);
+			} catch (IOException e) {
+				LOGGER.error("Exception caught during saving of generated task : ", e);
+			}
+		}
+		queryIndex++;
+		
+		// QT8
+		if (numberOfVersions == 2) {
+			querySubstParamCount = 1;
+		} else if(numberOfVersions == 3) {
+			querySubstParamCount = 3;
+		} else if(numberOfVersions == 4) {
+			querySubstParamCount = 5;
+		} else {
+			querySubstParamCount = 6;
+		}
+		for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
+			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
+				queryString = compileMustacheTemplate(8, queryIndex, querySubstParam);
+				tasks.add(new Task(8, querySubType, Integer.toString(taskId++), queryString, null));
+				try {
+					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery8." + querySubType + "." + querySubstParam + ".sparql"), queryString);
+				} catch (IOException e) {
+					LOGGER.error("Exception caught during saving of generated task : ", e);
+				}
+			}
+			queryIndex++;
 		}
 	}
 	
