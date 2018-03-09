@@ -682,7 +682,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// QT7
 		// can not be supported when we have 2 or less total versions, as there cannot exist cross-deltas
 		querySubstParamCount = 3;
-		for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions - 2 ; querySubstParam++) {
+		for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions - 1; querySubstParam++) {
 			queryString = compileMustacheTemplate(7, queryIndex, querySubstParam);
 			tasks.add(new Task(7, 1, Integer.toString(taskId++), queryString, null));
 			try {
