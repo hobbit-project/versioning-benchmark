@@ -38,8 +38,10 @@ mkdir $DATASETS_PATH_FINAL
 for ((i=0; i<$NUMBER_OF_VERSIONS; i++)); do
    echo "Constructing v$i..."
    if [ "$i" = "0" ]; then
-      cp -r $DATASETS_PATH/v0 $DATASETS_PATH_FINAL
-      cp $ONTOLOGIES_PATH/* $DATASETS_PATH_FINAL/v0
+      mkdir $DATASETS_PATH_FINAL/v$i
+      cp $DATASETS_PATH/v$i/generatedCreativeWorks*.nt $DATASETS_PATH_FINAL/v$i
+      cp $DATASETS_PATH/v$i/dbpedia_final/*.nt $DATASETS_PATH_FINAL/v$i
+      cp $ONTOLOGIES_PATH/*.nt $DATASETS_PATH_FINAL/v$i
    else
       mkdir $DATASETS_PATH_FINAL/v$i
       cp $ONTOLOGIES_PATH/* $DATASETS_PATH_FINAL/v$i
