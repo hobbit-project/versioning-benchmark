@@ -1,11 +1,15 @@
-FROM java
+FROM maven:3.5-jdk-8
 
-EXPOSE 9998
+RUN git clone -b develop https://github.com/plt-tud/r43ples.git /r43ples
+
+WORKDIR /r43ples
+
+RUN mvn package -DskipTests
+
+RUN mkdir -p /r43ples/database/dataset
 
 ADD target/versioning-0.0.1-SNAPSHOT.jar /versioning.jar
-ADD r43ples/r43ples-0.8.8-jar-with-dependencies.jar /r43ples.jar
-ADD r43ples/r43ples-console-client-jar-with-dependencies.jar /r43ples-console-client.jar
 
-COPY r43ples/required_files/ /
+COPY r43ples_system /r43ples
 
-CMD ["/run.sh"]
+CMD ["/r43ples/run.sh"]
