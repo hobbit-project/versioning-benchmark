@@ -13,6 +13,8 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetFormatter;
-import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
+import org.hobbit.benchmark.versioning.util.SystemAdapterConstants;
 import org.hobbit.core.components.AbstractSystemAdapter;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
@@ -34,17 +36,23 @@ import org.slf4j.LoggerFactory;
 public class R43plesSystemAdapter extends AbstractSystemAdapter {
 		
 	private static final Logger LOGGER = LoggerFactory.getLogger(R43plesSystemAdapter.class);
-	private boolean dataGenFinished = false;
-	private boolean dataLoadingFinished = false;
-	private int totalversions = 0;
 	
-	// must match the "Generated data format" parameter given when starting the experiment
-	long initialDatasetsSize = 0;
+	private AtomicInteger totalReceived = new AtomicInteger(0);
+	private AtomicInteger totalSent = new AtomicInteger(0);
+	private Semaphore allVersionDataReceivedMutex = new Semaphore(0);
+	
+	// used to check if bulk loading phase has finished in  order to proceed with the querying phase
+	private boolean dataLoadingFinished = false;
+	private int loadingNumber = 0;
+	private String datasetFolderName;
 
 	@Override
     public void init() throws Exception {
 		LOGGER.info("Initializing R43ples test system...");
         super.init();        
+        datasetFolderName = "/r43ples/spvb_data/";
+        File theDir = new File(datasetFolderName);
+		theDir.mkdir();
 		LOGGER.info("R43ples initialized successfully .");
     }
 
@@ -103,49 +111,49 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 		// 3 for SPARQL query task
 		switch (Integer.parseInt(taskType)) {
 			case 1:
-				if(dataGenFinished) {
-					// get the version that will be loaded.
-					int version = Integer.parseInt(queryText.substring(8, queryText.indexOf(",")));
-					totalversions++;
-					
-					// TODO: measuring of loading time have to be changed
-					long start = System.currentTimeMillis();
-					loadVersion(version);
-					long end = System.currentTimeMillis();					
-					long loadingTime = end - start;
-					LOGGER.info("Version " + version + " loaded successfully in "+ loadingTime + " ms.");
-					
-					int count = 0;
-					LOGGER.info("Getting number of triples that successfully loaded in version " + version + ".");
-					String triplesLoadedQuery = "select (count(*) as ?loaded_triples) "
-							+ "from <http://test.com/r43ples> REVISION \"" + (version + 2) + "\" "
-							+ "where { ?s ?p ?o }";
-					
-					ResultSet results = executeQuery("for getting loaded triples", triplesLoadedQuery);
-					if(results.hasNext()) {
-					    count = results.next().getLiteral("loaded_triples").getInt();
-					}
-					LOGGER.info(count + " triples loaded for version " + version + ".");
-					
-					// r43ples does not let me execute a query (through curl) and then add more data
-					// (through console-client.jar -a), as tdb stays locked from query (pid of server)
-					// So, i restart the server for getting a different pid and overcome this problem
-					serverRestart();
-					try {
-						Thread.sleep(1000 * 10);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					// TODO 
-					// in v2.0 of the benchmark the number of changes should be reported instead of 
-					// loaded triples, as we will also have deletions except of additions of triples
-					resultsArray = new byte[3][];
-					resultsArray[0] = RabbitMQUtils.writeString(taskType);
-					resultsArray[1] = RabbitMQUtils.writeString(Integer.toString(count));
-					resultsArray[2] = RabbitMQUtils.writeString(Long.toString(loadingTime));
-				}
+//				if(dataGenFinished) {
+//					// get the version that will be loaded.
+//					int version = Integer.parseInt(queryText.substring(8, queryText.indexOf(",")));
+//					totalversions++;
+//					
+//					// TODO: measuring of loading time have to be changed
+//					long start = System.currentTimeMillis();
+//					loadVersion(version);
+//					long end = System.currentTimeMillis();					
+//					long loadingTime = end - start;
+//					LOGGER.info("Version " + version + " loaded successfully in "+ loadingTime + " ms.");
+//					
+//					int count = 0;
+//					LOGGER.info("Getting number of triples that successfully loaded in version " + version + ".");
+//					String triplesLoadedQuery = "select (count(*) as ?loaded_triples) "
+//							+ "from <http://test.com/r43ples> REVISION \"" + (version + 2) + "\" "
+//							+ "where { ?s ?p ?o }";
+//					
+//					ResultSet results = executeQuery("for getting loaded triples", triplesLoadedQuery);
+//					if(results.hasNext()) {
+//					    count = results.next().getLiteral("loaded_triples").getInt();
+//					}
+//					LOGGER.info(count + " triples loaded for version " + version + ".");
+//					
+//					// r43ples does not let me execute a query (through curl) and then add more data
+//					// (through console-client.jar -a), as tdb stays locked from query (pid of server)
+//					// So, i restart the server for getting a different pid and overcome this problem
+//					serverRestart();
+//					try {
+//						Thread.sleep(1000 * 10);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//					
+//					// TODO 
+//					// in v2.0 of the benchmark the number of changes should be reported instead of 
+//					// loaded triples, as we will also have deletions except of additions of triples
+//					resultsArray = new byte[3][];
+//					resultsArray[0] = RabbitMQUtils.writeString(taskType);
+//					resultsArray[1] = RabbitMQUtils.writeString(Integer.toString(count));
+//					resultsArray[2] = RabbitMQUtils.writeString(Long.toString(loadingTime));
+//				}
 				break;
 			case 2:
 				// get the storage space required for all versions to be stored in virtuoso
@@ -210,12 +218,11 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 		return rewrittenQuery;
 	}
 	
-	private String loadVersion(int versionNum) {
-		LOGGER.info("Loading version " + versionNum + "...");
-		String answer = null;
+	private void loadVersion(String graphURI) {
+		LOGGER.info("Loading data on " + graphURI + "...");
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load.sh";
-			String[] command = {"/bin/bash", scriptFilePath, Integer.toString(versionNum) };
+			String[] command = {"/bin/bash", scriptFilePath, datasetFolderName, graphURI};
 			Process p = new ProcessBuilder(command).redirectErrorStream(true).start();
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
@@ -223,14 +230,13 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 				LOGGER.info(line);		
 			}
 			p.waitFor();
-			LOGGER.info("Version " + versionNum + " loaded successfully.");
+			LOGGER.info(graphURI + " loaded successfully.");
 			in.close();
 		} catch (IOException e) {
             LOGGER.error("Exception while executing script for loading data.", e);
 		} catch (InterruptedException e) {
             LOGGER.error("Exception while executing script for loading data.", e);
-		}	
-		return answer;
+		}
 	}
 	
 	private void serverRestart() {
@@ -274,16 +280,45 @@ public class R43plesSystemAdapter extends AbstractSystemAdapter {
 	
 	@Override
     public void receiveCommand(byte command, byte[] data) {
-    	if (VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED == command) {
-			LOGGER.info("Received signal from Data Generator that data generation finished.");
-    		dataGenFinished = true;
-    	} else if(VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED == command) {
-			LOGGER.info("Received signal that all generated data loaded successfully.");
-    		dataLoadingFinished = true;
+    	if (command == SystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED) {
+    		ByteBuffer buffer = ByteBuffer.wrap(data);
+            int numberOfMessages = buffer.getInt();
+            boolean lastLoadingPhase = buffer.get() != 0;
+   			LOGGER.info("Received signal that all data of version " + loadingNumber + " successfully sent from all data generators (#" + numberOfMessages + ")");
+
+			// if all data have been received before BULK_LOAD_DATA_GEN_FINISHED command received
+   			// release before acquire, so it can immediately proceed to bulk loading
+   			if(totalReceived.get() == totalSent.addAndGet(numberOfMessages)) {
+				allVersionDataReceivedMutex.release();
+			}
+			
+			LOGGER.info("Wait for receiving all data of version " + loadingNumber + ".");
+			try {
+				allVersionDataReceivedMutex.acquire();
+			} catch (InterruptedException e) {
+				LOGGER.error("Exception while waitting for all data of version " + loadingNumber + " to be recieved.", e);
+			}
+			
+			LOGGER.info("All data of version " + loadingNumber + " received. Proceed to the loading of such version.");
+			loadVersion("http://graph.version." + loadingNumber);
+			
+			LOGGER.info("Send signal to Benchmark Controller that all data of version " + loadingNumber + " successfully loaded.");
+			try {
+				sendToCmdQueue(SystemAdapterConstants.BULK_LOADING_DATA_FINISHED);
+			} catch (IOException e) {
+				LOGGER.error("Exception while sending signal that all data of version " + loadingNumber + " successfully loaded.", e);
+			}
+			File theDir = new File(datasetFolderName);
+			for (File f : theDir.listFiles()) {
+				f.delete();
+			}
+			loadingNumber++;
+			dataLoadingFinished = lastLoadingPhase;
     	}
     	super.receiveCommand(command, data);
     }
 
+	
 	@Override
     public void close() throws IOException {
 		LOGGER.info("Closing System Adapter...");

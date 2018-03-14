@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.hobbit.benchmark.versioning.Task;
-import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
-import org.hobbit.core.Commands;
 import org.hobbit.core.components.AbstractSequencingTaskGenerator;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;

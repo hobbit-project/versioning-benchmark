@@ -7,7 +7,7 @@ package org.hobbit.benchmark.versioning.util;
  * @author papv
  *
  */
-public final class VirtuosoSystemAdapterConstants {
+public final class SystemAdapterConstants {
 	
 	/**
      * The signal sent by the benchmarked system to indicate that it

@@ -21,7 +21,7 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
-import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
+import org.hobbit.benchmark.versioning.util.SystemAdapterConstants;
 import org.hobbit.core.components.AbstractSystemAdapter;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
@@ -146,7 +146,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	
 	@Override
     public void receiveCommand(byte command, byte[] data) {
-    	if (command == VirtuosoSystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED) {
+    	if (command == SystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED) {
     		ByteBuffer buffer = ByteBuffer.wrap(data);
             int numberOfMessages = buffer.getInt();
             boolean lastLoadingPhase = buffer.get() != 0;
@@ -170,7 +170,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			
 			LOGGER.info("Send signal to Benchmark Controller that all data of version " + loadingNumber + " successfully loaded.");
 			try {
-				sendToCmdQueue(VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED);
+				sendToCmdQueue(SystemAdapterConstants.BULK_LOADING_DATA_FINISHED);
 			} catch (IOException e) {
 				LOGGER.error("Exception while sending signal that all data of version " + loadingNumber + " successfully loaded.", e);
 			}

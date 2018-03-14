@@ -39,7 +39,7 @@ import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.benchmark.versioning.util.FTPUtils;
-import org.hobbit.benchmark.versioning.util.VirtuosoSystemAdapterConstants;
+import org.hobbit.benchmark.versioning.util.SystemAdapterConstants;
 import org.hobbit.core.components.AbstractDataGenerator;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
@@ -267,12 +267,12 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// build mustache templates to create queries
 		LOGGER.info("Building SPRQL tasks...");
 		buildSPRQLQueries();
-		LOGGER.info("All SPRQL tasks built successfully.");		
+		LOGGER.info("All SPRQL tasks built successfully.");	
 
 		LOGGER.info("Loading generating data, in order to compute gold standard...");
 		// load generated creative works to virtuoso, in order to compute the gold standard
 		loadFirstNVersions(numberOfVersions);
-				
+			
 		// compute expected answers for all tasks
 		LOGGER.info("Computing expected answers for generated SPARQL tasks...");
 		computeExpectedAnswers();
@@ -1106,7 +1106,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	}	
 	@Override
     public void receiveCommand(byte command, byte[] data) {
-        if (command == VirtuosoSystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
+        if (command == SystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
         	versionLoadedFromSystemMutex.release();
         }
         super.receiveCommand(command, data);
