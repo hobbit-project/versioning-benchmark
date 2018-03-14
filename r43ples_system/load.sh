@@ -2,9 +2,6 @@
 
 JAR=r43ples-console-client.jar
 CONFIG=conf/r43ples.tdb.conf
-#CONFIG=conf/r43ples.stardog.conf
-#CONFIG=conf/r43ples.virtuoso.conf
-
 
 VERSION_NUMBER=$1
 GRAPH=http://test.com/r43ples
