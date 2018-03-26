@@ -232,7 +232,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 
         // wait for the system to terminate
         LOGGER.info("Waiting for the system to terminate.");
-        waitForSystemToFinish(1000 * 60 * 5);
+        waitForSystemToFinish(1000 * 60 * 25);
         LOGGER.info("System terminated.");
         
         // pass the number of versions composing the dataset to the environment 

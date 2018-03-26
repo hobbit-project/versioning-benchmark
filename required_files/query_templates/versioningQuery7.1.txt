@@ -10,11 +10,11 @@ WHERE {
    SELECT (COUNT(*) AS ?ViPlus1_news_items_added )
    WHERE { 
    	GRAPH {{{graphViPlus1}}} { ?creativeWork a cwork:NewsItem } 
-   	MINUS { GRAPH {{{graphVi}}} { ?creativeWork a cwork:NewsItem } } }
+   	FILTER (NOT EXISTS { GRAPH {{{graphVi}}} { ?creativeWork a cwork:NewsItem } } }
 } . 
 { 
    SELECT (COUNT(*) AS ?ViPlus2_news_items_added)
    WHERE { 
    	GRAPH {{{graphViPlus2}}} { ?creativeWork a cwork:NewsItem } 
-   	MINUS { GRAPH {{{graphViPlus1}}} { ?creativeWork a cwork:NewsItem } } }
+   	FILTER (NOT EXISTS { GRAPH {{{graphViPlus1}}} { ?creativeWork a cwork:NewsItem } } }
 } . }

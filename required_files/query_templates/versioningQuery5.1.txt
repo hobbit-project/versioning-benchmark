@@ -1,12 +1,14 @@
 #  Query Type: 5, Delta materialization
 
-SELECT * WHERE { 
-{ 
-   SELECT * WHERE { 
-      GRAPH {{{graphVmax}}} { ?s ?p ?o } 
-      MINUS { GRAPH {{{graphVhistorical}}} { ?s ?p ?o } } }
-} UNION { 
-   SELECT * WHERE { 
-      GRAPH {{{graphVhistorical}}} { ?s ?p ?o } 
-      MINUS { GRAPH {{{graphVmax}}} { ?s ?p ?o } } }
-} }
+SELECT * 
+WHERE {
+  { 
+    GRAPH {{{graphVmax}}} { ?s ?p ?o } .
+    FILTER (NOT EXISTS { GRAPH {{{graphVhistorical}}} { ?s ?p ?o } }) 
+  }
+  UNION
+  { 
+    GRAPH {{{graphVhistorical}}} { ?s1 ?p1 ?o1 } .
+    FILTER (NOT EXISTS { GRAPH {{{graphVmax}}} { ?s1 ?p1 ?o1 } }) 
+  }
+}
