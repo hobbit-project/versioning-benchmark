@@ -323,7 +323,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Getting Data Generator's properites from the environment...");
 		
 		Map<String, String> env = System.getenv();
-		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0);
+		// Assume that in v0Size the 40362 triples of DBpedia initial dataset 
+		// plus the 8146 ontologies triples are included
+		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0) - 48508 ;
 		numberOfVersions = (Integer) getFromEnv(env, VersioningConstants.NUMBER_OF_VERSIONS, 0);
 		subGeneratorSeed = (Integer) getFromEnv(env, VersioningConstants.DATA_GENERATOR_SEED, 0) + getGeneratorId();
 		versionInsertionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_INSERTION_RATIO, 5);
