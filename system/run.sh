@@ -15,12 +15,15 @@ echo $(date +%H:%M:%S.%N | cut -b1-12)" : Adjusted NumberOfBuffers="$NumberOfBuf
 echo $(date +%H:%M:%S.%N | cut -b1-12)" : Adjusted MaxDirtyBuffers="$MaxDirtyBuffers
 
 # adjust query performance settings
-total_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
-AsyncQueueMaxThreads=$(awk "BEGIN {printf \"%d\", $total_cores*1.5}")
-sed -i -e "s/AsyncQueueMaxThreads 	 	= 10/AsyncQueueMaxThreads          = $AsyncQueueMaxThreads/g" virtuoso.ini 
-sed -i -e "s/ThreadsPerQuery 	 	= 4/ThreadsPerQuery          = $total_cores/g" virtuoso.ini
-echo $(date +%H:%M:%S.%N | cut -b1-12)" : Adjusted AsyncQueueMaxThreads="$AsyncQueueMaxThreads
-echo $(date +%H:%M:%S.%N | cut -b1-12)" : Adjusted ThreadsPerQuery="$total_cores
+total_threads=$(cat /proc/cpuinfo | grep processor | wc -l)
+sed -i -e "s/AsyncQueueMaxThreads 	 	= 10/AsyncQueueMaxThreads          = $total_threads/g" virtuoso.ini 
+sed -i -e "s/ThreadsPerQuery 	 	= 4/ThreadsPerQuery          = $total_threads/g" virtuoso.ini
+echo $(date +%H:%M:%S.%N | cut -b1-12)" : Adjusted AsyncQueueMaxThreads="$total_threads
+echo $(date +%H:%M:%S.%N | cut -b1-12)" : Adjusted ThreadsPerQuery="$total_threads
+
+#test
+cpu_cores=$(cat /proc/cpuinfo | grep "cpu cores" | head -n 1)
+echo $(date +%H:%M:%S.%N | cut -b1-12)" : cpu_cores="$cpu_cores
 
 echo $(date +%H:%M:%S.%N | cut -b1-12)" : Starting OpenLink Virtuoso Universal Server..."
 virtuoso-t -f > /versioning/virtuoso_run.log 2>&1 &
