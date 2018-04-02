@@ -30,4 +30,3 @@
 <http://www.bbc.co.uk/ontologies/cms/locator> <http://www.w3.org/2000/01/rdf-schema#comment> "Associates a thing with a locator in a CMS"^^<http://www.w3.org/2001/XMLSchema#string> .
 <http://www.bbc.co.uk/ontologies/cms/locator> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://www.bbc.co.uk/ontologies/cms/> .
 <http://www.bbc.co.uk/ontologies/cms/locator> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.bbc.co.uk/ontologies/cms/Locator> .
-_:genid1 <http://www.ontotext.com/owlim/system#schemaTransaction> "" .
