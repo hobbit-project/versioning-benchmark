@@ -107,7 +107,6 @@
 <http://www.geonames.org/ontology#featureClass> <http://www.w3.org/2000/01/rdf-schema#label> "feature class"@en .
 <http://www.geonames.org/ontology#featureClass> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.geonames.org/ontology#Class> .
 <http://www.geonames.org/ontology#featureCode> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
-<http://www.geonames.org/ontology#featureCode> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
 <http://www.geonames.org/ontology#featureCode> <http://www.w3.org/2000/01/rdf-schema#comment> "Type of the feature, as defined in geonames taxonomy."@en .
 <http://www.geonames.org/ontology#featureCode> <http://www.w3.org/2000/01/rdf-schema#domain> <http://www.geonames.org/ontology#Feature> .
 <http://www.geonames.org/ontology#featureCode> <http://www.w3.org/2000/01/rdf-schema#label> "feature code"@en .
