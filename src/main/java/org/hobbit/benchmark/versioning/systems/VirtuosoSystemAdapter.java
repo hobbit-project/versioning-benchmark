@@ -184,16 +184,18 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			LOGGER.info("All data of version " + loadingNumber + " received. Proceed to the loading of such version.");
 			loadVersion("http://graph.version." + loadingNumber);
 			
+			File theDir = new File(datasetFolderName);
+			for (File f : theDir.listFiles()) {
+				f.delete();
+			}
+			
 			LOGGER.info("Send signal to Benchmark Controller that all data of version " + loadingNumber + " successfully loaded.");
 			try {
 				sendToCmdQueue(SystemAdapterConstants.BULK_LOADING_DATA_FINISHED);
 			} catch (IOException e) {
 				LOGGER.error("Exception while sending signal that all data of version " + loadingNumber + " successfully loaded.", e);
 			}
-			File theDir = new File(datasetFolderName);
-			for (File f : theDir.listFiles()) {
-				f.delete();
-			}
+			
 			loadingNumber++;
 			dataLoadingFinished = lastLoadingPhase;
     	}
