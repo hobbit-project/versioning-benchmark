@@ -11,6 +11,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.NumberFormat;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,6 +50,8 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	private int loadingNumber = 0;
 	private String datasetFolderName;
 	private String virtuosoContName = "localhost";
+	
+	private long spaceBefore = 0;
 
 	@Override
     public void init() throws Exception {
@@ -53,6 +61,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
         File theDir = new File(datasetFolderName);
 		theDir.mkdir();
 		LOGGER.info("Virtuoso initialized successfully .");
+		spaceBefore = Files.getFileStore(Paths.get("/")).getUsableSpace();
     }
 
 	/* (non-Javadoc)
@@ -93,7 +102,14 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	public void receiveGeneratedTask(String tId, byte[] data) {
 		if(dataLoadingFinished) {
 			LOGGER.info("Task " + tId + " received from task generator");
-			
+			if(tId.equals("0")) {
+				try {
+					long storageSpaceCost = spaceBefore - Files.getFileStore(Paths.get("/")).getUsableSpace();
+					LOGGER.info("Storage space cost: " + storageSpaceCost);
+				} catch (IOException e) {
+					LOGGER.error("An error occured while getting total usable space");
+				}
+			}
 			// read the query
 			ByteBuffer buffer = ByteBuffer.wrap(data);
 			String queryText = RabbitMQUtils.readString(buffer);

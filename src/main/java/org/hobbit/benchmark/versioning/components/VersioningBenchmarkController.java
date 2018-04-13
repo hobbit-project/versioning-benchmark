@@ -2,6 +2,7 @@ package org.hobbit.benchmark.versioning.components;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,6 +15,8 @@ import org.hobbit.benchmark.versioning.util.SystemAdapterConstants;
 import org.hobbit.core.Commands;
 import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractBenchmarkController;
+import org.hobbit.core.components.utils.SystemResourceUsageRequester;
+import org.hobbit.core.data.usage.ResourceUsageInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,6 +189,28 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         super.receiveCommand(command, data);
     }
 	
+	private void getSystemStorageSpace() {
+		Map<String, String> env = System.getenv();
+		String sessionId = env.getOrDefault(Constants.HOBBIT_SESSION_ID_KEY, null);
+		if (sessionId == null) {
+            LOGGER.error("Couldn't get value of " + Constants.HOBBIT_SESSION_ID_KEY + ". Aborting.");
+        }
+		SystemResourceUsageRequester resUsageRequester = SystemResourceUsageRequester.create(this, sessionId);
+		ResourceUsageInformation info = resUsageRequester.getSystemResourceUsage();
+		if (info != null) {
+            LOGGER.info(info.toString());
+        } else {
+            LOGGER.warn("got null as response");
+        }
+		if (resUsageRequester != null) {
+            try {
+				resUsageRequester.close();
+			} catch (IOException e) {
+				LOGGER.error("An error occured while closing SystemResourceUsageRequester");
+			}
+        }
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -199,6 +224,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         sendToCmdQueue(Commands.DATA_GENERATOR_START_SIGNAL);
 		LOGGER.info("Start signals sent to Data and Task Generators");
 
+		getSystemStorageSpace();
 		// iterate through different versions starting from version 0
 		for (int v=0; v<numOfVersions; v++) {			
 			// wait for all data generators to sent data of version v to system adapter
@@ -219,6 +245,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	        LOGGER.info("Waiting for the system to load data of version " + v);
 			versionLoadedMutex.acquire();
 		}
+		getSystemStorageSpace();
 
         // wait for the data generators to finish their work
         LOGGER.info("Waiting for the data generators to finish their work.");
