@@ -61,7 +61,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
         File theDir = new File(datasetFolderName);
 		theDir.mkdir();
 		LOGGER.info("Virtuoso initialized successfully .");
-		spaceBefore = Files.getFileStore(Paths.get("/")).getUsableSpace();
+		spaceBefore = Files.getFileStore(Paths.get("/usr/local/virtuoso-opensource/var/lib/virtuoso/db/")).getUsableSpace();
     }
 
 	/* (non-Javadoc)
@@ -104,7 +104,7 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			LOGGER.info("Task " + tId + " received from task generator");
 			if(tId.equals("0")) {
 				try {
-					long storageSpaceCost = spaceBefore - Files.getFileStore(Paths.get("/")).getUsableSpace();
+					long storageSpaceCost = spaceBefore - Files.getFileStore(Paths.get("/usr/local/virtuoso-opensource/var/lib/virtuoso/db/")).getUsableSpace();
 					LOGGER.info("Storage space cost: " + storageSpaceCost);
 				} catch (IOException e) {
 					LOGGER.error("An error occured while getting total usable space");
