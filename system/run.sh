@@ -21,10 +21,6 @@ sed -i -e "s/ThreadsPerQuery 	 	= 4/ThreadsPerQuery          = $total_threads/g"
 echo $(date +%H:%M:%S.%N | cut -b1-12)" : Adjusted AsyncQueueMaxThreads="$total_threads
 echo $(date +%H:%M:%S.%N | cut -b1-12)" : Adjusted ThreadsPerQuery="$total_threads
 
-#test
-cpu_cores=$(cat /proc/cpuinfo | grep "cpu cores" | head -n 1)
-echo $(date +%H:%M:%S.%N | cut -b1-12)" : cpu_cores="$cpu_cores
-
 echo $(date +%H:%M:%S.%N | cut -b1-12)" : Starting OpenLink Virtuoso Universal Server..."
 virtuoso-t -f > /versioning/virtuoso_run.log 2>&1 &
 seconds_passed=0
