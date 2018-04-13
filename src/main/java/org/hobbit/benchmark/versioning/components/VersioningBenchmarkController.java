@@ -188,18 +188,18 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
         	prevLoadingStartedTime = currTimeMillis;
-        	getSystemResourceUsage();
+        	this.getSystemResourceUsageInformation();
         	versionLoadedMutex.release();
         } 
         super.receiveCommand(command, data);
     }
 	
-	private void getSystemResourceUsage() {
+	private void getSystemResourceUsageInformation() {
 		ResourceUsageInformation info = resUsageRequester.getSystemResourceUsage();
 		if (info != null) {
             LOGGER.info(info.toString());
         } else {
-            LOGGER.warn("got null as response");
+            LOGGER.info("got null as response");
         }
 	}
 	
@@ -216,7 +216,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         sendToCmdQueue(Commands.DATA_GENERATOR_START_SIGNAL);
 		LOGGER.info("Start signals sent to Data and Task Generators");
 
-		getSystemResourceUsage();
+		this.getSystemResourceUsageInformation();
 		// iterate through different versions starting from version 0
 		for (int v = 0; v < numOfVersions; v++) {			
 			// wait for all data generators to sent data of version v to system adapter
