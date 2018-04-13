@@ -324,8 +324,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		Map<String, String> env = System.getenv();
 		// Assume that in v0Size the 40362 triples of DBpedia initial dataset 
-		// plus the 8146 ontologies triples are included
-		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0) - 48508 ;
+		// plus the 8135 ontologies triples are included
+		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0) - 48497 ;
 		numberOfVersions = (Integer) getFromEnv(env, VersioningConstants.NUMBER_OF_VERSIONS, 0);
 		subGeneratorSeed = (Integer) getFromEnv(env, VersioningConstants.DATA_GENERATOR_SEED, 0) + getGeneratorId();
 		versionInsertionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_INSERTION_RATIO, 5);
@@ -531,19 +531,20 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	}
 	
 	private int getVersionSize(int versionNum) {
-		int triplesNum = 0;
 		String sparqlQueryString = ""
 				+ "SELECT (COUNT(*) AS ?cnt) "
 				+ "FROM <http://graph.version." + versionNum + "> "
 				+ "WHERE { ?s ?p ?o }";
 		
-		Query countQuery = QueryFactory.create(sparqlQueryString);
-		QueryExecution cQexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", countQuery);
-		ResultSet results = cQexec.execSelect();
-		if(results.hasNext()) {
-			triplesNum = results.next().getLiteral("cnt").getInt();
+		try (QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", sparqlQueryString)) {
+			ResultSet results = ResultSetFactory.makeRewindable(qexec.execSelect());
+			if(results.hasNext()) {
+				return results.next().getLiteral("cnt").getInt();
+			}
+		} catch (Exception e) {
+			LOGGER.error("Exception caught during the computation of version " + versionNum + " triples number.", e);
 		}
-		return triplesNum;
+		return 0;
 	}
 		
 	public void computeExpectedAnswers() {	
@@ -557,29 +558,25 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			ResultSetRewindable results = null;
 
 			// execute the query on top of virtuoso to compute the expected answers
-			Query query = QueryFactory.create(task.getQuery());
-			QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", query);
 			long queryStart = System.currentTimeMillis();
-			try {
+			try (QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", task.getQuery())) {
 				results = ResultSetFactory.makeRewindable(qexec.execSelect());
 			} catch (Exception e) {
 				LOGGER.error("Exception caught during the computation of task " + task.getTaskId() + " expected answers.", e);
-			}				
-			long queryEnd = System.currentTimeMillis();
+			}
+			long queryEnd = System.currentTimeMillis();			
 
 			// update the task by setting its expected results
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			ResultSetFormatter.outputAsJSON(outputStream, results);
-			byte[] expectedAnswers = outputStream.toByteArray();
 			//debug
 			LOGGER.info("Expected answers for task " + task.getTaskId() + " computed"
 					+ ". Type: " + task.getQueryType() + "." + task.getQuerySubType() 
 					+ ", ResultsNum: " + results.size() 
 					+ ", Time: " + (queryEnd - queryStart) + " ms.");			
 
-			task.setExpectedAnswers(expectedAnswers);
+			task.setExpectedAnswers(outputStream.toByteArray());
 			tasks.set(Integer.parseInt(task.getTaskId()), task);
-			qexec.close();
 		}	
 	}
 	
