@@ -49,14 +49,12 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private AtomicInteger numberOfMessages = new AtomicInteger(0);
     
     private SystemResourceUsageRequester resUsageRequester = null;
-    
+        
 	@Override
 	public void init() throws Exception {
         LOGGER.info("Initilalizing Benchmark Controller...");
         super.init();
-        
-        resUsageRequester = SystemResourceUsageRequester.create(this, getHobbitSessionId());
-        
+               
 		numberOfDataGenerators = (Integer) getPropertyOrDefault(PREFIX + "hasNumberOfGenerators", 1);
 		int v0Size =  (Integer) getPropertyOrDefault(PREFIX + "v0SizeInTriples", 1000000);
 		int generatorSeed = (Integer) getPropertyOrDefault(PREFIX + "generatorSeed", 0);
@@ -116,6 +114,9 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		
 		waitForComponentsToInitialize();
 		LOGGER.info("All components initilized.");
+		
+//		LOGGER.info("Creating requester for system resource usage information...");
+//		resUsageRequester = SystemResourceUsageRequester.create(this, this.getHobbitSessionId());
 	}
 	
 	/**
@@ -179,28 +180,35 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	numberOfMessages.addAndGet(dataGenNumOfMessages);
         	
         	// signal sent from data generator that all its data generated successfully
-        	LOGGER.info("Recieved signal from Data Generator " + dataGeneratorId + " that all data (#" + dataGenNumOfMessages + ") of version " + loadedVersion + " successfully sent to System Adapter.");
+        	LOGGER.info("Recieved signal from Data Generator " + dataGeneratorId + " that all data (#" + dataGenNumOfMessages + ") of version " + loadedVersion + " successfully sent to the system.");
         	versionSentMutex.release();
 	    } else if (command == SystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
-            // signal sent from system adapter that a version loaded successfully
-	    	LOGGER.info("Recieved signal that all data of version " + loadedVersion + " successfully loaded from system.");
+            // signal sent from the system that a version loaded successfully
+	    	LOGGER.info("Recieved signal that all data of version " + loadedVersion + " successfully loaded by the system.");
         	long currTimeMillis = System.currentTimeMillis();
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
-        	prevLoadingStartedTime = currTimeMillis;
-        	this.getSystemResourceUsageInformation();
+        	
+        	// DEBUG - gather resource usage after the system loaded the data
+        	LOGGER.info("System resource usage after loading data of version "+ (loadedVersion - 1));
+        	getSystemResourceUsageInformation();
         	versionLoadedMutex.release();
-        } 
+        	
+        } else if (command == Commands.SYSTEM_READY_SIGNAL) {
+        	LOGGER.info("System ready. Creating requester for system resource usage information...");
+    		resUsageRequester = SystemResourceUsageRequester.create(this, this.getHobbitSessionId());
+        }
         super.receiveCommand(command, data);
     }
 	
 	private void getSystemResourceUsageInformation() {
 		ResourceUsageInformation info = resUsageRequester.getSystemResourceUsage();
 		if (info != null) {
-            LOGGER.info(info.toString());
+            LOGGER.info(info.getDiskStats().toString());
         } else {
             LOGGER.info("got null as response");
         }
+		
 	}
 	
 	/*
@@ -216,17 +224,18 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         sendToCmdQueue(Commands.DATA_GENERATOR_START_SIGNAL);
 		LOGGER.info("Start signals sent to Data and Task Generators");
 
-		this.getSystemResourceUsageInformation();
+		LOGGER.info("System resource usage after loading but before data loading");
+		getSystemResourceUsageInformation();
 		// iterate through different versions starting from version 0
 		for (int v = 0; v < numOfVersions; v++) {			
 			// wait for all data generators to sent data of version v to system adapter
-			LOGGER.info("Waiting for all data generators to send data of version " + v + " to system adapter.");
+			LOGGER.info("Waiting for all data generators to send data of version " + v + " to the system.");
 			versionSentMutex.acquire(numberOfDataGenerators);
 			LOGGER.info("Signal from all data generators received.");
 			
-			// Send signal that all data, generated and sent to system adapter successfully.
+			// Send signal that all data, generated and sent to the system successfully.
 			// The number of messages along with a flag is also sent
-			LOGGER.info("Send signal to System Adapter that the sending of all data of version " + v + " from Data Generators have finished.");
+			LOGGER.info("Send signal to the system that the sending of all data of version " + v + " from Data Generators have finished.");
 			ByteBuffer buffer = ByteBuffer.allocate(5);
 	        buffer.putInt(numberOfMessages.get());
 	        buffer.put(v == numOfVersions - 1 ? (byte) 1 : (byte) 0);
@@ -237,29 +246,42 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	        LOGGER.info("Waiting for the system to load data of version " + v);
 			versionLoadedMutex.acquire();
 		}
+		
+		LOGGER.info("System resource usage after loading but before datagen finised:");
+    	getSystemResourceUsageInformation();
 
         // wait for the data generators to finish their work
         LOGGER.info("Waiting for the data generators to finish their work.");
         waitForDataGenToFinish();
         LOGGER.info("Data generators finished.");
         
-        if (resUsageRequester != null) {
+    	LOGGER.info("System resource usage after datagen finised:");
+    	getSystemResourceUsageInformation();
+        
+
+        // wait for the task generators to finish their work
+        LOGGER.info("Waiting for the task generators to finish their work.");
+        waitForTaskGenToFinish();
+        LOGGER.info("Task generators finished.");
+        
+        LOGGER.info("System resource usage after taskgen finised:");
+    	getSystemResourceUsageInformation();
+
+        // wait for the system to terminate
+        LOGGER.info("Waiting for the system to terminate.");
+        waitForSystemToFinish(1000 * 60 * 25);
+        LOGGER.info("System terminated.");
+        
+        LOGGER.info("System resource usage after system finised");
+    	getSystemResourceUsageInformation();
+    	
+    	if (resUsageRequester != null) {
             try {
 				resUsageRequester.close();
 			} catch (IOException e) {
 				LOGGER.error("An error occured while closing SystemResourceUsageRequester");
 			}
         }
-
-        // wait for the task generators to finish their work
-        LOGGER.info("Waiting for the task generators to finish their work.");
-        waitForTaskGenToFinish();
-        LOGGER.info("Task generators finished.");
-
-        // wait for the system to terminate
-        LOGGER.info("Waiting for the system to terminate.");
-        waitForSystemToFinish(1000 * 60 * 25);
-        LOGGER.info("System terminated.");
         
         // pass the number of versions composing the dataset to the environment 
         // variables of the evaluation module
