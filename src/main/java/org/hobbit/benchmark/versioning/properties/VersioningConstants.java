@@ -40,7 +40,9 @@ public final class VersioningConstants {
 	public static final String AVG_APPLIED_CHANGES_PS = "avg_applied_changes_ps";
 	
 	public static final String STORAGE_COST = "storage_cost";
-	
+
+	public static final String STORAGE_COST_VALUE = "storage_cost_value";
+
 	public static final String QT_1_AVG_EXEC_TIME = "query_type_1_avgerage_execution_time";
 
 	public static final String QT_2_AVG_EXEC_TIME = "query_type_2_avgerage_execution_time";

@@ -2,7 +2,6 @@ package org.hobbit.benchmark.versioning.components;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,7 +32,6 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private String[] evalModuleEnvVariables = null;
     private String[] dataGenEnvVariables = null;
     private String[] evalStorageEnvVariables = null;
-    
     
     private Semaphore versionSentMutex = new Semaphore(0);
     private Semaphore versionLoadedMutex = new Semaphore(0);
@@ -114,9 +112,6 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		
 		waitForComponentsToInitialize();
 		LOGGER.info("All components initilized.");
-		
-//		LOGGER.info("Creating requester for system resource usage information...");
-//		resUsageRequester = SystemResourceUsageRequester.create(this, this.getHobbitSessionId());
 	}
 	
 	/**
@@ -188,28 +183,11 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	long currTimeMillis = System.currentTimeMillis();
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
-        	
-        	// DEBUG - gather resource usage after the system loaded the data
-        	LOGGER.info("System resource usage after loading data of version "+ (loadedVersion - 1));
-        	getSystemResourceUsageInformation();
         	versionLoadedMutex.release();
         	
-        } else if (command == Commands.SYSTEM_READY_SIGNAL) {
-        	LOGGER.info("System ready. Creating requester for system resource usage information...");
-    		resUsageRequester = SystemResourceUsageRequester.create(this, this.getHobbitSessionId());
         }
         super.receiveCommand(command, data);
     }
-	
-	private void getSystemResourceUsageInformation() {
-		ResourceUsageInformation info = resUsageRequester.getSystemResourceUsage();
-		if (info != null) {
-            LOGGER.info(info.getDiskStats().toString());
-        } else {
-            LOGGER.info("got null as response");
-        }
-		
-	}
 	
 	/*
 	 * (non-Javadoc)
@@ -224,8 +202,22 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         sendToCmdQueue(Commands.DATA_GENERATOR_START_SIGNAL);
 		LOGGER.info("Start signals sent to Data and Task Generators");
 
-		LOGGER.info("System resource usage after loading but before data loading");
-		getSystemResourceUsageInformation();
+		LOGGER.info("Creating requester for system resource usage information.");
+		resUsageRequester = SystemResourceUsageRequester.create(this, getHobbitSessionId());
+		Thread.sleep(1000 * 10);
+		LOGGER.info("SystemResourceUsageRequester: " + resUsageRequester.toString());
+
+		LOGGER.info("Measuring system's usable space before data loading");
+		long usableSpaceBefore = 0;
+		ResourceUsageInformation infoBefore = resUsageRequester.getSystemResourceUsage();
+		if (infoBefore.getDiskStats() != null) {
+			usableSpaceBefore = infoBefore.getDiskStats().getFsSizeSum();
+			LOGGER.info("System's usable space before data loading: " + usableSpaceBefore);
+		} else {
+			LOGGER.info(infoBefore.toString());
+			LOGGER.info("Got null as response.");
+		}
+		
 		// iterate through different versions starting from version 0
 		for (int v = 0; v < numOfVersions; v++) {			
 			// wait for all data generators to sent data of version v to system adapter
@@ -242,42 +234,40 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	        prevLoadingStartedTime = System.currentTimeMillis();
 	        sendToCmdQueue(SystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED, buffer.array());
 	        numberOfMessages.set(0);
-	        
 	        LOGGER.info("Waiting for the system to load data of version " + v);
 			versionLoadedMutex.acquire();
 		}
-		
-		LOGGER.info("System resource usage after loading but before datagen finised:");
-    	getSystemResourceUsageInformation();
 
         // wait for the data generators to finish their work
         LOGGER.info("Waiting for the data generators to finish their work.");
         waitForDataGenToFinish();
-        LOGGER.info("Data generators finished.");
-        
-    	LOGGER.info("System resource usage after datagen finised:");
-    	getSystemResourceUsageInformation();
-        
+        LOGGER.info("Data generators finished.");       
 
         // wait for the task generators to finish their work
         LOGGER.info("Waiting for the task generators to finish their work.");
         waitForTaskGenToFinish();
         LOGGER.info("Task generators finished.");
         
-        LOGGER.info("System resource usage after taskgen finised:");
-    	getSystemResourceUsageInformation();
+        LOGGER.info("Computing system's storage space overhead after data loading");
+        ResourceUsageInformation infoAfter = resUsageRequester.getSystemResourceUsage();
+        long storageSpaceCost = 0;
+		if (infoAfter.getDiskStats() != null) {
+			storageSpaceCost = infoAfter.getDiskStats().getFsSizeSum() - usableSpaceBefore;
+			LOGGER.info("System's storage space overhead after data loading: " + storageSpaceCost);
+		} else {
+			LOGGER.info(infoAfter.toString());
+			LOGGER.info("Got null as response.");
+		}
 
         // wait for the system to terminate
         LOGGER.info("Waiting for the system to terminate.");
         waitForSystemToFinish(1000 * 60 * 25);
         LOGGER.info("System terminated.");
-        
-        LOGGER.info("System resource usage after system finised");
-    	getSystemResourceUsageInformation();
     	
     	if (resUsageRequester != null) {
             try {
 				resUsageRequester.close();
+		        LOGGER.info("Resource Usage Requester closed successfully.");
 			} catch (IOException e) {
 				LOGGER.error("An error occured while closing SystemResourceUsageRequester");
 			}
@@ -299,6 +289,10 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
         			String.format(VersioningConstants.LOADING_TIMES, version) + "=" + loadingTimes[version]);
         }
+        
+        // pass the storage space cost as an environment variable
+        evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables,VersioningConstants.STORAGE_COST_VALUE + "=" + storageSpaceCost);
+        
         // create the evaluation module
         createEvaluationModule(EVALUATION_MODULE_CONTAINER_IMAGE, evalModuleEnvVariables);
         
