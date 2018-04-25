@@ -23,9 +23,9 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningBenchmarkController.class);
 
-	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:2.1";
-	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:2.1";
-	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:2.1";
+	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:2.1.0";
+	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:2.1.0";
+	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:2.1.0";
 	
 	private static final String PREFIX = "http://w3id.org/hobbit/versioning-benchmark/vocab#";
 	
