@@ -6,15 +6,15 @@ package org.hobbit.benchmark.versioning.systems;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -44,6 +44,9 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	private int loadingNumber = 0;
 	private String datasetFolderName;
 	private String virtuosoContName = "localhost";
+	
+	private long spaceBefore = 0;
+	private long spaceBefore2 = 0;
 
 	@Override
     public void init() throws Exception {
@@ -53,6 +56,8 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
         File theDir = new File(datasetFolderName);
 		theDir.mkdir();
 		LOGGER.info("Virtuoso initialized successfully .");
+		spaceBefore = Files.getFileStore(Paths.get("/")).getUsableSpace();
+		spaceBefore2 = Files.getFileStore(Paths.get("/")).getUsableSpace();
     }
 
 	/* (non-Javadoc)
@@ -67,16 +72,11 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		dataBuffer.get(dataContentBytes, 0, dataBuffer.remaining());
 		
 		if (dataContentBytes.length != 0) {
-			FileOutputStream fos = null;
 			try {
 				if (fileName.contains("/")) {
 					fileName = fileName.replaceAll("[^/]*[/]", "");
 				}
-				fos = new FileOutputStream(datasetFolderName + File.separator + fileName);
-				IOUtils.write(dataContentBytes, fos);
-				fos.close();
-			} catch (FileNotFoundException e) {
-				LOGGER.error("Exception while creating/opening files to write received data.", e);
+				FileUtils.writeByteArrayToFile(new File(datasetFolderName + File.separator + fileName), dataContentBytes);
 			} catch (IOException e) {
 				LOGGER.error("Exception while writing data file", e);
 			}
@@ -93,7 +93,14 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	public void receiveGeneratedTask(String tId, byte[] data) {
 		if(dataLoadingFinished) {
 			LOGGER.info("Task " + tId + " received from task generator");
-			
+			if(tId.equals("0")) {
+				try {
+					long storageSpaceCost = spaceBefore2 - Files.getFileStore(Paths.get("/")).getUsableSpace();
+					LOGGER.info("Overall Storage space cost: " + storageSpaceCost);
+				} catch (IOException e) {
+					LOGGER.error("An error occured while getting total usable space");
+				}
+			}
 			// read the query
 			ByteBuffer buffer = ByteBuffer.wrap(data);
 			String queryText = RabbitMQUtils.readString(buffer);
@@ -168,16 +175,28 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			LOGGER.info("All data of version " + loadingNumber + " received. Proceed to the loading of such version.");
 			loadVersion("http://graph.version." + loadingNumber);
 			
+			File theDir = new File(datasetFolderName);
+			for (File f : theDir.listFiles()) {
+				f.delete();
+			}
+			
+			long storageSpaceCost = 0;
+			try {
+				storageSpaceCost = spaceBefore - Files.getFileStore(Paths.get("/")).getUsableSpace();
+				spaceBefore = Files.getFileStore(Paths.get("/")).getUsableSpace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			LOGGER.info("Storage space cost after loading of version " + loadingNumber +": "+ storageSpaceCost);
+			
 			LOGGER.info("Send signal to Benchmark Controller that all data of version " + loadingNumber + " successfully loaded.");
 			try {
 				sendToCmdQueue(SystemAdapterConstants.BULK_LOADING_DATA_FINISHED);
 			} catch (IOException e) {
 				LOGGER.error("Exception while sending signal that all data of version " + loadingNumber + " successfully loaded.", e);
 			}
-			File theDir = new File(datasetFolderName);
-			for (File f : theDir.listFiles()) {
-				f.delete();
-			}
+			
 			loadingNumber++;
 			dataLoadingFinished = lastLoadingPhase;
     	}
