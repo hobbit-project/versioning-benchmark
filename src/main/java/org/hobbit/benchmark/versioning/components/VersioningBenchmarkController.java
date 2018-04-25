@@ -47,6 +47,8 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private AtomicInteger numberOfMessages = new AtomicInteger(0);
     
     private SystemResourceUsageRequester resUsageRequester = null;
+    private long systemInitialUsableSpace = 0;
+    private long systemStorageSpaceCost = 0;
         
 	@Override
 	public void init() throws Exception {
@@ -183,8 +185,14 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	long currTimeMillis = System.currentTimeMillis();
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
-        	versionLoadedMutex.release();
         	
+	    	LOGGER.info("Waiting 15 seconds...");
+        	try {
+				Thread.sleep(1000 * 15);
+			} catch (InterruptedException e) {
+		    	LOGGER.error("An error occured while waiting.", e);
+			}
+        	versionLoadedMutex.release();
         }
         super.receiveCommand(command, data);
     }
@@ -204,15 +212,12 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 
 		LOGGER.info("Creating requester for system resource usage information.");
 		resUsageRequester = SystemResourceUsageRequester.create(this, getHobbitSessionId());
-		Thread.sleep(1000 * 10);
-		LOGGER.info("SystemResourceUsageRequester: " + resUsageRequester.toString());
 
 		LOGGER.info("Measuring system's usable space before data loading");
-		long usableSpaceBefore = 0;
 		ResourceUsageInformation infoBefore = resUsageRequester.getSystemResourceUsage();
 		if (infoBefore.getDiskStats() != null) {
-			usableSpaceBefore = infoBefore.getDiskStats().getFsSizeSum();
-			LOGGER.info("System's usable space before data loading: " + usableSpaceBefore);
+			systemInitialUsableSpace = infoBefore.getDiskStats().getFsSizeSum();
+			LOGGER.info("System's usable space before data loading: " + systemInitialUsableSpace);
 		} else {
 			LOGGER.info(infoBefore.toString());
 			LOGGER.info("Got null as response.");
@@ -250,10 +255,9 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         
         LOGGER.info("Computing system's storage space overhead after data loading");
         ResourceUsageInformation infoAfter = resUsageRequester.getSystemResourceUsage();
-        long storageSpaceCost = 0;
-		if (infoAfter.getDiskStats() != null) {
-			storageSpaceCost = infoAfter.getDiskStats().getFsSizeSum() - usableSpaceBefore;
-			LOGGER.info("System's storage space overhead after data loading: " + storageSpaceCost);
+        if (infoAfter.getDiskStats() != null) {
+        	systemStorageSpaceCost = infoAfter.getDiskStats().getFsSizeSum() - systemInitialUsableSpace;
+			LOGGER.info("System's storage space overhead after data loading: " + systemStorageSpaceCost);
 		} else {
 			LOGGER.info(infoAfter.toString());
 			LOGGER.info("Got null as response.");
@@ -291,7 +295,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         }
         
         // pass the storage space cost as an environment variable
-        evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables,VersioningConstants.STORAGE_COST_VALUE + "=" + storageSpaceCost);
+        evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables,VersioningConstants.STORAGE_COST_VALUE + "=" + systemStorageSpaceCost);
         
         // create the evaluation module
         createEvaluationModule(EVALUATION_MODULE_CONTAINER_IMAGE, evalModuleEnvVariables);
