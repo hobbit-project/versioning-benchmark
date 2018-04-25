@@ -14,6 +14,8 @@ import org.hobbit.benchmark.versioning.util.SystemAdapterConstants;
 import org.hobbit.core.Commands;
 import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractBenchmarkController;
+import org.hobbit.core.components.utils.SystemResourceUsageRequester;
+import org.hobbit.core.data.usage.ResourceUsageInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,16 +23,15 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningBenchmarkController.class);
 
-	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:2.0";
-	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:2.0";
-	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:2.0";
+	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:develop";
+	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:develop";
+	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:develop";
 	
 	private static final String PREFIX = "http://w3id.org/hobbit/versioning-benchmark/vocab#";
 	
     private String[] evalModuleEnvVariables = null;
     private String[] dataGenEnvVariables = null;
     private String[] evalStorageEnvVariables = null;
-    
     
     private Semaphore versionSentMutex = new Semaphore(0);
     private Semaphore versionLoadedMutex = new Semaphore(0);
@@ -44,19 +45,23 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private AtomicIntegerArray triplesToBeDeleted;
     private AtomicIntegerArray triplesToBeLoaded;
     private AtomicInteger numberOfMessages = new AtomicInteger(0);
-
+    
+    private SystemResourceUsageRequester resUsageRequester = null;
+    private long systemInitialUsableSpace = 0;
+    private long systemStorageSpaceCost = 0;
+        
 	@Override
 	public void init() throws Exception {
         LOGGER.info("Initilalizing Benchmark Controller...");
         super.init();
-        
-		numberOfDataGenerators = (Integer) getProperty(PREFIX + "hasNumberOfGenerators", 1);
-		int v0Size =  (Integer) getProperty(PREFIX + "v0SizeInTriples", 1000000);
-		int generatorSeed = (Integer) getProperty(PREFIX + "generatorSeed", 0);
-		numOfVersions =  (Integer) getProperty(PREFIX + "numberOfVersions", 12);
-		int insRatio = (Integer) getProperty(PREFIX + "versionInsertionRatio", 5);
-		int delRatio = (Integer) getProperty(PREFIX + "versionDeletionRatio", 3);
-		String dataForm = (String) getProperty(PREFIX + "generatedDataForm", "ic");
+               
+		numberOfDataGenerators = (Integer) getPropertyOrDefault(PREFIX + "hasNumberOfGenerators", 1);
+		int v0Size =  (Integer) getPropertyOrDefault(PREFIX + "v0SizeInTriples", 1000000);
+		int generatorSeed = (Integer) getPropertyOrDefault(PREFIX + "generatorSeed", 0);
+		numOfVersions =  (Integer) getPropertyOrDefault(PREFIX + "numberOfVersions", 12);
+		int insRatio = (Integer) getPropertyOrDefault(PREFIX + "versionInsertionRatio", 5);
+		int delRatio = (Integer) getPropertyOrDefault(PREFIX + "versionDeletionRatio", 3);
+		String dataForm = (String) getPropertyOrDefault(PREFIX + "generatedDataForm", "ic");
 		
 		loadingTimes = new long[numOfVersions];
 		triplesToBeAdded = new AtomicIntegerArray(numOfVersions);
@@ -119,7 +124,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
      * @return				the value of requested parameter
      */
 	@SuppressWarnings("unchecked")
-	private <T> T getProperty(String property, T defaultValue) {
+	private <T> T getPropertyOrDefault(String property, T defaultValue) {
 		T propertyValue = null;
 		NodeIterator iterator = benchmarkParamModel
 				.listObjectsOfProperty(benchmarkParamModel
@@ -172,17 +177,23 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	numberOfMessages.addAndGet(dataGenNumOfMessages);
         	
         	// signal sent from data generator that all its data generated successfully
-        	LOGGER.info("Recieved signal from Data Generator " + dataGeneratorId + " that all data (#" + dataGenNumOfMessages + ") of version " + loadedVersion + " successfully sent to System Adapter.");
+        	LOGGER.info("Recieved signal from Data Generator " + dataGeneratorId + " that all data (#" + dataGenNumOfMessages + ") of version " + loadedVersion + " successfully sent to the system.");
         	versionSentMutex.release();
 	    } else if (command == SystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
-            // signal sent from system adapter that a version loaded successfully
-	    	LOGGER.info("Recieved signal that all data of version " + loadedVersion + " successfully loaded from system.");
+            // signal sent from the system that a version loaded successfully
+	    	LOGGER.info("Recieved signal that all data of version " + loadedVersion + " successfully loaded by the system.");
         	long currTimeMillis = System.currentTimeMillis();
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
-        	prevLoadingStartedTime = currTimeMillis;
+        	
+	    	LOGGER.info("Waiting 15 seconds...");
+        	try {
+				Thread.sleep(1000 * 15);
+			} catch (InterruptedException e) {
+		    	LOGGER.error("An error occured while waiting.", e);
+			}
         	versionLoadedMutex.release();
-        } 
+        }
         super.receiveCommand(command, data);
     }
 	
@@ -199,23 +210,35 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         sendToCmdQueue(Commands.DATA_GENERATOR_START_SIGNAL);
 		LOGGER.info("Start signals sent to Data and Task Generators");
 
+		LOGGER.info("Creating requester for system resource usage information.");
+		resUsageRequester = SystemResourceUsageRequester.create(this, getHobbitSessionId());
+
+		LOGGER.info("Measuring system's usable space before data loading");
+		ResourceUsageInformation infoBefore = resUsageRequester.getSystemResourceUsage();
+		if (infoBefore.getDiskStats() != null) {
+			systemInitialUsableSpace = infoBefore.getDiskStats().getFsSizeSum();
+			LOGGER.info("System's usable space before data loading: " + systemInitialUsableSpace);
+		} else {
+			LOGGER.info(infoBefore.toString());
+			LOGGER.info("Got null as response.");
+		}
+		
 		// iterate through different versions starting from version 0
-		for (int v=0; v<numOfVersions; v++) {			
+		for (int v = 0; v < numOfVersions; v++) {			
 			// wait for all data generators to sent data of version v to system adapter
-			LOGGER.info("Waiting for all data generators to send data of version " + v + " to system adapter.");
+			LOGGER.info("Waiting for all data generators to send data of version " + v + " to the system.");
 			versionSentMutex.acquire(numberOfDataGenerators);
 			LOGGER.info("Signal from all data generators received.");
 			
-			// Send signal that all data, generated and sent to system adapter successfully.
+			// Send signal that all data, generated and sent to the system successfully.
 			// The number of messages along with a flag is also sent
-			LOGGER.info("Send signal to System Adapter that the sending of all data of version " + v + " from Data Generators have finished.");
+			LOGGER.info("Send signal to the system that the sending of all data of version " + v + " from Data Generators have finished.");
 			ByteBuffer buffer = ByteBuffer.allocate(5);
 	        buffer.putInt(numberOfMessages.get());
 	        buffer.put(v == numOfVersions - 1 ? (byte) 1 : (byte) 0);
 	        prevLoadingStartedTime = System.currentTimeMillis();
 	        sendToCmdQueue(SystemAdapterConstants.BULK_LOAD_DATA_GEN_FINISHED, buffer.array());
 	        numberOfMessages.set(0);
-	        
 	        LOGGER.info("Waiting for the system to load data of version " + v);
 			versionLoadedMutex.acquire();
 		}
@@ -223,22 +246,40 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         // wait for the data generators to finish their work
         LOGGER.info("Waiting for the data generators to finish their work.");
         waitForDataGenToFinish();
-        LOGGER.info("Data generators finished.");
+        LOGGER.info("Data generators finished.");       
 
         // wait for the task generators to finish their work
         LOGGER.info("Waiting for the task generators to finish their work.");
         waitForTaskGenToFinish();
         LOGGER.info("Task generators finished.");
+        
+        LOGGER.info("Computing system's storage space overhead after data loading");
+        ResourceUsageInformation infoAfter = resUsageRequester.getSystemResourceUsage();
+        if (infoAfter.getDiskStats() != null) {
+        	systemStorageSpaceCost = infoAfter.getDiskStats().getFsSizeSum() - systemInitialUsableSpace;
+			LOGGER.info("System's storage space overhead after data loading: " + systemStorageSpaceCost);
+		} else {
+			LOGGER.info(infoAfter.toString());
+			LOGGER.info("Got null as response.");
+		}
 
         // wait for the system to terminate
         LOGGER.info("Waiting for the system to terminate.");
         waitForSystemToFinish(1000 * 60 * 25);
         LOGGER.info("System terminated.");
+    	
+    	if (resUsageRequester != null) {
+            try {
+				resUsageRequester.close();
+		        LOGGER.info("Resource Usage Requester closed successfully.");
+			} catch (IOException e) {
+				LOGGER.error("An error occured while closing SystemResourceUsageRequester");
+			}
+        }
         
         // pass the number of versions composing the dataset to the environment 
         // variables of the evaluation module
         evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, VersioningConstants.TOTAL_VERSIONS + "=" + numOfVersions);
-        
         // pass the loading times and the number of triples that have to be loaded to 
         // the environment variables of the evaluation module, so that it can compute
         // the ingestion and applied changes speeds
@@ -252,6 +293,10 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables, 
         			String.format(VersioningConstants.LOADING_TIMES, version) + "=" + loadingTimes[version]);
         }
+        
+        // pass the storage space cost as an environment variable
+        evalModuleEnvVariables = ArrayUtils.add(evalModuleEnvVariables,VersioningConstants.STORAGE_COST_VALUE + "=" + systemStorageSpaceCost);
+        
         // create the evaluation module
         createEvaluationModule(EVALUATION_MODULE_CONTAINER_IMAGE, evalModuleEnvVariables);
         

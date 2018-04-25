@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class VersioningEvaluationModule extends AbstractEvaluationModule {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningEvaluationModule.class);
-
+	
     private Model finalModel = ModelFactory.createDefaultModel();
     
     private Property INITIAL_VERSION_INGESTION_SPEED = null;
@@ -81,10 +81,11 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         	is.reportSuccess(version, triplesToBeAdded, triplesToBeDeleted, triplesToBeLoaded, loadingTime);
         }
         
+        storageCost = Integer.parseInt(env.get(String.format(VersioningConstants.STORAGE_COST_VALUE))) / (1024f * 1024f);
+        
         INITIAL_VERSION_INGESTION_SPEED = initFinalModelFromEnv(env, VersioningConstants.INITIAL_VERSION_INGESTION_SPEED);
         AVG_APPLIED_CHANGES_PS = initFinalModelFromEnv(env, VersioningConstants.AVG_APPLIED_CHANGES_PS);
         STORAGE_COST = initFinalModelFromEnv(env, VersioningConstants.STORAGE_COST);
-        
         QT_1_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_1_AVG_EXEC_TIME);        
         QT_2_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_2_AVG_EXEC_TIME);
         QT_3_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_3_AVG_EXEC_TIME);
@@ -94,7 +95,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         QT_7_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_7_AVG_EXEC_TIME);
         QT_8_AVG_EXEC_TIME = initFinalModelFromEnv(env, VersioningConstants.QT_8_AVG_EXEC_TIME);
         QUERY_FAILURES = initFinalModelFromEnv(env, VersioningConstants.QUERY_FAILURES);        
-        QUERIES_PER_SECOND = initFinalModelFromEnv(env, VersioningConstants.QUERIES_PER_SECOND);        
+        QUERIES_PER_SECOND = initFinalModelFromEnv(env, VersioningConstants.QUERIES_PER_SECOND);       
 
 		LOGGER.info("Evaluation Module initialized successfully.");
     }

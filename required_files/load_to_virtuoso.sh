@@ -77,6 +77,7 @@ for ((i=0; i<$NUMBER_OF_VERSIONS; i++)); do
       cp $DATASETS_PATH/c$i/generatedCreativeWorks*.added.nt $DATASETS_PATH_FINAL/v$i
    fi
    end_compute=$(($(date +%s%N)/1000000))
+   sleep 2s
 
    # prepare bulk load
    $VIRTUOSO_BIN/isql-v 1111 dba dba exec="ld_dir('$DATASETS_PATH_FINAL/v$i', '*', '$GRAPH_NAME$i');" > /dev/null
