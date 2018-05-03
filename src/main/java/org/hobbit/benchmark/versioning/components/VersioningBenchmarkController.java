@@ -185,13 +185,6 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	long currTimeMillis = System.currentTimeMillis();
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
-        	
-	    	LOGGER.info("Waiting 15 seconds...");
-        	try {
-				Thread.sleep(1000 * 15);
-			} catch (InterruptedException e) {
-		    	LOGGER.error("An error occured while waiting.", e);
-			}
         	versionLoadedMutex.release();
         }
         super.receiveCommand(command, data);
