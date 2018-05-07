@@ -18,8 +18,28 @@ prll_rdf_loader_run() {
    done
    wait
    $VIRTUOSO_BIN/isql-v 1111 dba dba exec="checkpoint;" > /dev/null
-   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="delete from load_list;" > /dev/null
+   
+   # if there are files that failed to be loaded reload them until the succeed
+   errors=$($VIRTUOSO_BIN/isql-v 1111 dba dba exec="select count(*) from load_list where ll_error is not null;" | sed -n 9p)
+   files=$($VIRTUOSO_BIN/isql-v 1111 dba dba exec="select ll_file from load_list where ll_error is not null;" | sed '1,8d' | head -n $errors)
+
+   while [ "$errors" -gt "0" ]; do
+      echo "The following "$errors" file(s) failed to be loaded. "
+  	  echo $files
+  	  echo "Retrying..."
+	  $VIRTUOSO_BIN/isql-v 1111 dba dba exec="update load_list set ll_state = 0, ll_error = null where ll_error is not null;" > /dev/null
+      for ((j=0; j<$1; j++)); do  
+         $VIRTUOSO_BIN/isql-v 1111 dba dba exec="rdf_loader_run();" > /dev/null &
+      done
+      wait
+      $VIRTUOSO_BIN/isql-v 1111 dba dba exec="checkpoint;" > /dev/null
+	  errors=$($VIRTUOSO_BIN/isql-v 1111 dba dba exec="select count(*) from load_list where ll_error is not null;" | sed -n 9p)
+   done
+   
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="checkpoint;" > /dev/null
    $VIRTUOSO_BIN/isql-v 1111 dba dba exec="set isolation='committed';" > /dev/null
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="delete from load_list;" > /dev/null
+   echo "All data files loaded successfully"
 }
 
 # prepare cw data files for loading
@@ -77,7 +97,6 @@ for ((i=0; i<$NUMBER_OF_VERSIONS; i++)); do
       cp $DATASETS_PATH/c$i/generatedCreativeWorks*.added.nt $DATASETS_PATH_FINAL/v$i
    fi
    end_compute=$(($(date +%s%N)/1000000))
-   sleep 2s
 
    # prepare bulk load
    $VIRTUOSO_BIN/isql-v 1111 dba dba exec="ld_dir('$DATASETS_PATH_FINAL/v$i', '*', '$GRAPH_NAME$i');" > /dev/null

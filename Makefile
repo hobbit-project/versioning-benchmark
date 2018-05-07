@@ -22,5 +22,5 @@ dockerize-evalmodule:
 	docker push git.project-hobbit.eu:4567/papv/versioningevaluationmodule:$(tag)
 
 dockerize-virtuoso-baseline:
-	docker build -f docker/versioningvirtuososystemadapter.docker -t git.project-hobbit.eu:4567/papv/versioningsystem:$(tag) .
-	docker push git.project-hobbit.eu:4567/papv/versioningsystem:$(tag)
+	docker build -f docker/versioningvirtuososystemadapter.docker -t git.project-hobbit.eu:4567/papv/systems/versioningsystem:$(tag) .
+	docker push git.project-hobbit.eu:4567/papv/systems/versioningsystem:$(tag)
