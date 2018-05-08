@@ -23,9 +23,9 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningBenchmarkController.class);
 
-	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:develop";
-	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:develop";
-	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:develop";
+	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:2.1.0";
+	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:2.1.0";
+	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:2.1.0";
 	
 	private static final String PREFIX = "http://w3id.org/hobbit/versioning-benchmark/vocab#";
 	
@@ -185,13 +185,6 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	long currTimeMillis = System.currentTimeMillis();
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
-        	
-	    	LOGGER.info("Waiting 15 seconds...");
-        	try {
-				Thread.sleep(1000 * 15);
-			} catch (InterruptedException e) {
-		    	LOGGER.error("An error occured while waiting.", e);
-			}
         	versionLoadedMutex.release();
         }
         super.receiveCommand(command, data);

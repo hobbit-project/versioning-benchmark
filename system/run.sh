@@ -32,10 +32,11 @@ do
    sleep 1
    seconds_passed=$((seconds_passed+1))
    echo $seconds_passed >> out.txt
-   if [ $seconds_passed -gt 120 ]; then
-      echo $(date +%H:%M:%S.%N | cut -b1-12)" : Could not start Virtuoso Server. Timeout: [2 min]"
-      echo "Exiting..."
-      exit
+   if [ $seconds_passed -gt 20 ]; then
+      echo $(date +%H:%M:%S.%N | cut -b1-12)" : Could not start Virtuoso Server. Timeout: [20 sec]"
+      echo "Retrying..."
+      seconds_passed=0
+      virtuoso-t -f > /versioning/virtuoso_run.log 2>&1 &
    fi
 done
 
