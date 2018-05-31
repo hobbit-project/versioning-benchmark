@@ -1,26 +1,32 @@
-# Versioning benchmark
+# The Semantic Publishing Versioning Benchmark (SPVB)
 
-Versioning benchmark SPBv test the ability of versioning systems to efficiently manage evolving datasets and queries evaluated across the multiple versions of said datasets. It is based upon [LDBC’s Semantic Publishing Benchmark](https://github.com/ldbc/ldbc_spb_bm_2.0) for RDF database engines inspired by the Media/Publishing industry, particularly by the BBC’s Dynamic Semantic Publishing approach.
+The Semantic Publishing Versioning Benchmark (SPVB) aims to test the ability of versioning systems to efficiently manage evolving Linked Data datasets and queries evaluated across multiple versions of these datasets. It acts like a Benchmark Generator, as it generates both the data and the queries needed to test the performance of the versioning systems. 
 
-# Uploading Benchmark to HOBBIT Platform
-Guidelines on how to upload a benchmark can be found here: https://github.com/hobbit-project/platform/wiki/Benchmark-your-system
+The data generator of SPVB uses the data generator of Linked Data Benchmark Council ([LDBC](http://www.ldbcouncil.org/)) Semantic Publishing Benchmark ([SPB](http://ldbcouncil.org/developer/spb)) as well as real [DBpedia](http://wiki.dbpedia.org/) data. SPVB is not tailored to any versioning strategy (the way that versions are stored) and can produce data of different sizes, that can be altered in order to create arbitrary numbers of versions using configurable insertion and deletion ratios. In particular, the following parameters can be set to configure the data generation process:
+
+**Configuration Parameters**:
+
+* **Number of versions** defines the number of versions to produce. The default value is `5`.
+* **Size** defines the size of the initial version of the dataset in terms of triples. The default value is `100000`.
+* **Version insertion ratio** defines the proportion of added triples between two consecutive versions. The default value is `15%`.
+* **Version deletion ratio** defines the proportion of deleted triples between two consecutive versions. The default value is `10%`.
+* **Generated data form**: Since each system implements a different versioning strategy, it requires the generated data in a specific form. SPVB’s data generator can output the data as i) an *Independent Copy* (suitable for systems that implement the full materialization strategy), ii) as a *Changeset* − set of added and deleted triples (suitable for systems implementing the delta-based or annotated triples versioning strategies) or iii) both as an independent copy and changeset (suitable for systems implementing a hybrid strategy). The default value is `Independent Copies (IC)`.
+* **Generator seed** is used to set the random seed for the data generator. This seed is used to control all random data generation happening in SPVB. The default value is `100`.
+
+The generated SPARQL queries are of different types and are partially based on a subset of the 25 query templates defined in the context of DBpedia SPARQL Benchmark ([DBPSB](http://aksw.org/Projects/DBPSB.html)).
+
+
+# KPIs
+
+SPVB evaluates the correctness and performance of the system under test through the following Key Performance Indicators (KPIs)
+
+* **Query failures**: The number of queries that failed to execute.
+* **Throughput (in queries per second)**: The execution rate per second for all queries.
+* **Initial version ingestion speed (in triples per second)**: The total triples that can be loaded per second for the dataset’s initial version.
+* **Applied changes speed (in triples per second)**: The average number of changes that can be stored by the benchmarked system per second after the loading of all new versions.
+* **Storage space cost (in MB)**: This KPI measures the total storage space required to store all versions.
+* **Average query execution time (in ms)**: The average execution time, in milliseconds for each one of the eight versioning query types.
 
 # Running the Benchmark
-If you want to run SPBv, please follow the guidelines found here: https://github.com/hobbit-project/platform/wiki/Experiments
+If you want to run SPVB using the platform, please follow the guidelines found here: https://github.com/hobbit-project/platform/wiki/Experiments
 
-**Description of SPBv parameters**:
-* Generator seed: The random seed used for the data generator. The default value is 100.
-
-* Generated data format: The erialization format for generated synthetic data. Available options are: TriG, TriX, N-Triples, N-Quads, N3, RDF/XML, RDF/JSON and Turtle. The default value is N-Triples.
-
-* Seed year: Defines a seed year that will be used as starting point for generating the Creative Works date properties. The default value is set to 2016.
-
-* Number of data generators: The number of Data Generators for this experiment. The default value is 1.
-
-* Substitution parameters amount: The ammount of queries that will be produced for each query type. The default value is set to 2.
-
-* Generation period in years: Defines the period in years of generated data, starting from ''seed year''. The default value is 1 
-  
-* Size of generated dataset: The size of the dataset that will be generated (including all versions) in terms of triples. The default value is 50000.
-
-* Number of versions:  The number of different versions that will be produced. The default value is 12.
