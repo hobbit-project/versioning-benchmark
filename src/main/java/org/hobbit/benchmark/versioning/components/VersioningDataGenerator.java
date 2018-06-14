@@ -986,7 +986,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	    				numberOfmessages.incrementAndGet();
 	    			}
 	    		} else if(sentDataForm.equals("ic") || sentDataForm.equals("both")) {
-		    		// if the benchmark is configured by the system to send independent copy of each version.
+		    		// if the benchmark is configured by the system to send an independent copy of each version.
 	    			// send the final data that previously computed when computed expected answers.
 	    			File dataPath = new File(generatedDatasetPath + File.separator + "final" + File.separator + "v" + version);
 	    			List<File> dataFiles = (List<File>) FileUtils.listFiles(dataPath, new String[] { "nt" }, false);
@@ -1106,6 +1106,13 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	@Override
     public void receiveCommand(byte command, byte[] data) {
         if (command == SystemAdapterConstants.BULK_LOADING_DATA_FINISHED) {
+        	// add a delay of 2 seconds between loading phases in order to let cAdvisor
+        	// to update its metrics (housekeeping interval of 1s)
+	        try {
+				Thread.sleep(1000 * 2);
+			} catch (InterruptedException e) {
+            	LOGGER.error("An error occured while waitting between loading phases.");
+			}
         	versionLoadedFromSystemMutex.release();
         }
         super.receiveCommand(command, data);
