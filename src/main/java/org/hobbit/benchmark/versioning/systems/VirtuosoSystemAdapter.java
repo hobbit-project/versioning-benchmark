@@ -51,11 +51,13 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	@Override
     public void init() throws Exception {
 		LOGGER.info("Initializing virtuoso test system...");
+		LOGGER.info("Usage bytes before init: " + (Files.getFileStore(Paths.get("/")).getTotalSpace() - Files.getFileStore(Paths.get("/")).getUnallocatedSpace()));
         super.init();	
         datasetFolderName = "/versioning/data/";
         File theDir = new File(datasetFolderName);
 		theDir.mkdir();
 		LOGGER.info("Virtuoso initialized successfully .");
+		LOGGER.info("Usage bytes after init: " + (Files.getFileStore(Paths.get("/")).getTotalSpace() - Files.getFileStore(Paths.get("/")).getUnallocatedSpace()));
 		spaceBefore = Files.getFileStore(Paths.get("/")).getUsableSpace();
 		spaceBefore2 = Files.getFileStore(Paths.get("/")).getUsableSpace();
     }
@@ -64,8 +66,17 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 	 * @see org.hobbit.core.components.TaskReceivingComponent#receiveGeneratedData(byte[])
 	 */
 	public void receiveGeneratedData(byte[] data) {		
+		
 		ByteBuffer dataBuffer = ByteBuffer.wrap(data);
 		String fileName = RabbitMQUtils.readString(dataBuffer);
+		
+		try {
+			LOGGER.info("Usage bytes before " + fileName + " recieved: " + (Files.getFileStore(Paths.get("/")).getTotalSpace() - Files.getFileStore(Paths.get("/")).getUnallocatedSpace()));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 
 		// read the data contents
 		byte[] dataContentBytes = new byte[dataBuffer.remaining()];
@@ -84,6 +95,13 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 		
 		if(totalReceived.incrementAndGet() == totalSent.get()) {
 			allVersionDataReceivedMutex.release();
+		}
+		
+		try {
+			LOGGER.info("Usage bytes after " + fileName + " recieved: " + (Files.getFileStore(Paths.get("/")).getTotalSpace() - Files.getFileStore(Paths.get("/")).getUnallocatedSpace()));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 
@@ -173,8 +191,19 @@ public class VirtuosoSystemAdapter extends AbstractSystemAdapter {
 			}
 			
 			LOGGER.info("All data of version " + loadingNumber + " received. Proceed to the loading of such version.");
+			try {
+				LOGGER.info("Usage bytes before data loading: " + (Files.getFileStore(Paths.get("/")).getTotalSpace() - Files.getFileStore(Paths.get("/")).getUnallocatedSpace()));
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			loadVersion("http://graph.version." + loadingNumber);
-			
+			try {
+				LOGGER.info("Usage bytes after data loading: " + (Files.getFileStore(Paths.get("/")).getTotalSpace() - Files.getFileStore(Paths.get("/")).getUnallocatedSpace()));
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			File theDir = new File(datasetFolderName);
 			for (File f : theDir.listFiles()) {
 				f.delete();
