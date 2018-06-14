@@ -17,7 +17,7 @@ $VIRTUOSO_BIN/isql-v $ADDRESS:$PORT exec="DB.DBA.RDF_OBJ_FT_RULE_DEL (null, null
 $VIRTUOSO_BIN/isql-v $ADDRESS:$PORT exec="ld_dir('"$FOLDER"', '*', '"$GRAPHURI"');" > /dev/null 2>&1
 for i in `seq 1 $NUMBER_OF_LOADERS`;
 do
-    $VIRTUOSO_BIN/isql-v $ADDRESS:$PORT exec="rdf_loader_run()" & > /dev/null 2>&1
+    $VIRTUOSO_BIN/isql-v $ADDRESS:$PORT exec="rdf_loader_run()" > /dev/null 2>&1 &
 done
 wait
 
