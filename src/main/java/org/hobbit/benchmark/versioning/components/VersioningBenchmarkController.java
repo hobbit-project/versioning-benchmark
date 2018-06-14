@@ -185,6 +185,15 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	long currTimeMillis = System.currentTimeMillis();
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
+        	
+        	// add a delay of 2 seconds between loading phases in order to let cAdvisor
+        	// to update its metrics (housekeeping interval of 1s)
+	        try {
+				Thread.sleep(1000 * 2);
+			} catch (InterruptedException e) {
+            	LOGGER.error("An error occured while waitting between loading phases.");
+			}
+	        
         	versionLoadedMutex.release();
         }
         super.receiveCommand(command, data);
