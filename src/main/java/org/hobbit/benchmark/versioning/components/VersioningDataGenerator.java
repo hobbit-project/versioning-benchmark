@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -27,10 +29,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetFormatter;
@@ -83,6 +83,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int versionDeletionRatio;
 	private String serializationFormat;
 	private String sentDataForm;
+	private String enabledQueryTypesParam;
 	private String generatedDatasetPath = "/versioning/data";
 	private String initialVersionDataPath = generatedDatasetPath + File.separator + "v0";
 	private String ontologiesPath = "/versioning/ontologies";
@@ -93,6 +94,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int[] triplesExpectedToBeDeleted;
 	private int[] triplesExpectedToBeLoaded;
 	private int[] cwsToBeLoaded;
+	
+	private Properties enabledQueryTypes = new Properties();
 	
 	private AtomicInteger numberOfmessages = new AtomicInteger(0);
 	
@@ -146,6 +149,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		triplesExpectedToBeDeleted = new int[numberOfVersions];
 		triplesExpectedToBeLoaded = new int[numberOfVersions];
 		cwsToBeLoaded = new int[numberOfVersions];
+		
+		// load the enabled queries 
+		enabledQueryTypes.load(new StringReader(enabledQueryTypesParam.replaceAll(";", "\n")));
 		
 		// Given the above input, update configuration files that are necessary for data generation
 		reInitializeSPBProperties();
@@ -320,7 +326,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	}
 	
 	public void initFromEnv() {
-		LOGGER.info("Getting Data Generator's properites from the environment...");
+		LOGGER.info("Getting data generator configuration parameters...");
 		
 		Map<String, String> env = System.getenv();
 		// Assume that in v0Size the 40362 triples of DBpedia initial dataset 
@@ -328,9 +334,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0) - 48497 ;
 		numberOfVersions = (Integer) getFromEnv(env, VersioningConstants.NUMBER_OF_VERSIONS, 0);
 		subGeneratorSeed = (Integer) getFromEnv(env, VersioningConstants.DATA_GENERATOR_SEED, 0) + getGeneratorId();
-		versionInsertionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_INSERTION_RATIO, 5);
-		versionDeletionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_DELETION_RATIO, 3);
+		versionInsertionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_INSERTION_RATIO, 0);
+		versionDeletionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_DELETION_RATIO, 0);
 		sentDataForm = (String) getFromEnv(env, VersioningConstants.SENT_DATA_FORM, "");
+		enabledQueryTypesParam = (String) getFromEnv(env, VersioningConstants.ENABLED_QUERY_TYPES, "");
 	}	
 	
 	/*
@@ -588,27 +595,34 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		String queryString;
 		
 		// QT1
-		queryString = compileMustacheTemplate(1, queryIndex++, 0);
-		tasks.add(new Task(1, 1, Integer.toString(taskId++), queryString, null));
-		try {
-			FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery1.1.1.sparql"), queryString);
-		} catch (IOException e) {
-			LOGGER.error("Exception caught during saving of generated task : ", e);
+		if(enabledQueryTypes.getProperty("QT1").equals("1")) {
+			queryString = compileMustacheTemplate(1, queryIndex, 0);
+			tasks.add(new Task(1, 1, Integer.toString(taskId++), queryString, null));
+			try {
+				FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery1.1.1.sparql"), queryString);
+			} catch (IOException e) {
+				LOGGER.error("Exception caught during saving of generated task : ", e);
+			}
 		}
+		queryIndex++;
 		
 		// QT2
-		querySubstParamCount = 5;
-		for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
-			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
-				queryString = compileMustacheTemplate(2, queryIndex, querySubstParam);
-				tasks.add(new Task(2, querySubType, Integer.toString(taskId++), queryString, null));
-				try {
-					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery2." + querySubType + "." + querySubstParam + ".sparql"), queryString);
-				} catch (IOException e) {
-					LOGGER.error("Exception caught during saving of generated task : ", e);
+		if(enabledQueryTypes.getProperty("QT2").equals("1")) {
+			querySubstParamCount = 5;
+			for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
+				for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
+					queryString = compileMustacheTemplate(2, queryIndex, querySubstParam);
+					tasks.add(new Task(2, querySubType, Integer.toString(taskId++), queryString, null));
+					try {
+						FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery2." + querySubType + "." + querySubstParam + ".sparql"), queryString);
+					} catch (IOException e) {
+						LOGGER.error("Exception caught during saving of generated task : ", e);
+					}
 				}
+				queryIndex++;
 			}
-			queryIndex++;
+		} else {
+			queryIndex += Statistics.VERSIONING_SUB_QUERIES_COUNT;
 		}
 		
 		// if there is only one version return
@@ -617,33 +631,39 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		// QT3
 		// if the total number of versions is lower than 1 there are no historical versions
-		querySubstParamCount = 3;
-		for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions ; querySubstParam++) {
-			queryString = compileMustacheTemplate(3, queryIndex, querySubstParam);
-			tasks.add(new Task(3, 1, Integer.toString(taskId++), queryString, null));
-			try {
-				FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery3.1." + querySubstParam + ".sparql"), queryString);
-			} catch (IOException e) {
-				LOGGER.error("Exception caught during saving of generated task : ", e);
-			}
-		}
-		queryIndex++;
-		
-		// QT4
-		// if the total number of versions is lower than 1 there are no historical versions
-		querySubstParamCount = 3;
-		for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
-			// if there are less than four versions take all the historical ones
-			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions; querySubstParam++) {
-				queryString = compileMustacheTemplate(4, queryIndex, querySubstParam);
-				tasks.add(new Task(4, querySubType, Integer.toString(taskId++), queryString, null));
+		if(enabledQueryTypes.getProperty("QT3").equals("1")) {
+			querySubstParamCount = 3;
+			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions ; querySubstParam++) {
+				queryString = compileMustacheTemplate(3, queryIndex, querySubstParam);
+				tasks.add(new Task(3, 1, Integer.toString(taskId++), queryString, null));
 				try {
-					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery4." + querySubType + "." + querySubstParam + ".sparql"), queryString);
+					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery3.1." + querySubstParam + ".sparql"), queryString);
 				} catch (IOException e) {
 					LOGGER.error("Exception caught during saving of generated task : ", e);
 				}
 			}
-			queryIndex++;
+		} 
+		queryIndex++;
+		
+		// QT4
+		// if the total number of versions is lower than 1 there are no historical versions
+		if(enabledQueryTypes.getProperty("QT4").equals("1")) {
+			querySubstParamCount = 3;
+			for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
+				// if there are less than four versions take all the historical ones
+				for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions; querySubstParam++) {
+					queryString = compileMustacheTemplate(4, queryIndex, querySubstParam);
+					tasks.add(new Task(4, querySubType, Integer.toString(taskId++), queryString, null));
+					try {
+						FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery4." + querySubType + "." + querySubstParam + ".sparql"), queryString);
+					} catch (IOException e) {
+						LOGGER.error("Exception caught during saving of generated task : ", e);
+					}
+				}
+				queryIndex++;
+			}
+		} else {
+			queryIndex += Statistics.VERSIONING_SUB_QUERIES_COUNT;
 		}
 		
 		// if the total number of versions is lower than 5 read deltas for all the historical ones
@@ -654,65 +674,75 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			querySubstParamCount = 4;
 		}
 		// QT5
-		for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
-			queryString = compileMustacheTemplate(5, queryIndex, querySubstParam);
-			tasks.add(new Task(5, 1, Integer.toString(taskId++), queryString, null));
-			try {
-				FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery5.1." + querySubstParam + ".sparql"), queryString);
-			} catch (IOException e) {
-				LOGGER.error("Exception caught during saving of generated task : ", e);
+		if(enabledQueryTypes.getProperty("QT5").equals("1")) {
+			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
+				queryString = compileMustacheTemplate(5, queryIndex, querySubstParam);
+				tasks.add(new Task(5, 1, Integer.toString(taskId++), queryString, null));
+				try {
+					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery5.1." + querySubstParam + ".sparql"), queryString);
+				} catch (IOException e) {
+					LOGGER.error("Exception caught during saving of generated task : ", e);
+				}
 			}
 		}
 		queryIndex++;
 		
 		// QT6
 		// same querySubstParamCount as QT5
-		for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
-			queryString = compileMustacheTemplate(6, queryIndex, querySubstParam);
-			tasks.add(new Task(6, 1, Integer.toString(taskId++), queryString, null));
-			try {
-				FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery6.1." + querySubstParam + ".sparql"), queryString);
-			} catch (IOException e) {
-				LOGGER.error("Exception caught during saving of generated task : ", e);
-			}
-		}
-		queryIndex++;
-		
-		// QT7
-		// can not be supported when we have 2 or less total versions, as there cannot exist cross-deltas
-		querySubstParamCount = 3;
-		for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions - 1; querySubstParam++) {
-			queryString = compileMustacheTemplate(7, queryIndex, querySubstParam);
-			tasks.add(new Task(7, 1, Integer.toString(taskId++), queryString, null));
-			try {
-				FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery7.1." + querySubstParam + ".sparql"), queryString);
-			} catch (IOException e) {
-				LOGGER.error("Exception caught during saving of generated task : ", e);
-			}
-		}
-		queryIndex++;
-		
-		// QT8
-		if (numberOfVersions == 2) {
-			querySubstParamCount = 1;
-		} else if(numberOfVersions == 3) {
-			querySubstParamCount = 3;
-		} else if(numberOfVersions == 4) {
-			querySubstParamCount = 5;
-		} else {
-			querySubstParamCount = 6;
-		}
-		for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
+		if(enabledQueryTypes.getProperty("QT6").equals("1")) {
 			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
-				queryString = compileMustacheTemplate(8, queryIndex, querySubstParam);
-				tasks.add(new Task(8, querySubType, Integer.toString(taskId++), queryString, null));
+				queryString = compileMustacheTemplate(6, queryIndex, querySubstParam);
+				tasks.add(new Task(6, 1, Integer.toString(taskId++), queryString, null));
 				try {
-					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery8." + querySubType + "." + querySubstParam + ".sparql"), queryString);
+					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery6.1." + querySubstParam + ".sparql"), queryString);
 				} catch (IOException e) {
 					LOGGER.error("Exception caught during saving of generated task : ", e);
 				}
 			}
-			queryIndex++;
+		}
+		queryIndex++;
+
+		// QT7
+		// can not be supported when we have 2 or less total versions, as there cannot exist cross-deltas
+		if(enabledQueryTypes.getProperty("QT7").equals("1")) {
+			querySubstParamCount = 3;
+			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions - 1; querySubstParam++) {
+				queryString = compileMustacheTemplate(7, queryIndex, querySubstParam);
+				tasks.add(new Task(7, 1, Integer.toString(taskId++), queryString, null));
+				try {
+					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery7.1." + querySubstParam + ".sparql"), queryString);
+				} catch (IOException e) {
+					LOGGER.error("Exception caught during saving of generated task : ", e);
+				}
+			}
+		}
+		queryIndex++;
+
+		// QT8
+		if(enabledQueryTypes.getProperty("QT8").equals("1")) {
+			if (numberOfVersions == 2) {
+				querySubstParamCount = 1;
+			} else if(numberOfVersions == 3) {
+				querySubstParamCount = 3;
+			} else if(numberOfVersions == 4) {
+				querySubstParamCount = 5;
+			} else {
+				querySubstParamCount = 6;
+			}
+			for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
+				for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
+					queryString = compileMustacheTemplate(8, queryIndex, querySubstParam);
+					tasks.add(new Task(8, querySubType, Integer.toString(taskId++), queryString, null));
+					try {
+						FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery8." + querySubType + "." + querySubstParam + ".sparql"), queryString);
+					} catch (IOException e) {
+						LOGGER.error("Exception caught during saving of generated task : ", e);
+					}
+				}
+				queryIndex++;
+			}
+		} else {
+			queryIndex += Statistics.VERSIONING_SUB_QUERIES_COUNT;
 		}
 	}
 	
