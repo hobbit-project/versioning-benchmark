@@ -11,6 +11,7 @@ The data generator of SPVB uses the data generator of Linked Data Benchmark Coun
 * **Version insertion ratio** defines the proportion of added triples between two consecutive versions. The default value is `15%`.
 * **Version deletion ratio** defines the proportion of deleted triples between two consecutive versions. The default value is `10%`.
 * **Generated data form**: Since each system implements a different versioning strategy, it requires the generated data in a specific form. SPVB’s data generator can output the data as i) an *Independent Copy* (suitable for systems that implement the full materialization strategy), ii) as a *Changeset* − set of added and deleted triples (suitable for systems implementing the delta-based or annotated triples versioning strategies) or iii) both as an independent copy and changeset (suitable for systems implementing a hybrid strategy). The default value is `Independent Copies (IC)`.
+* **Enable/Disable Query Types** let the system under test to determine the query types for which will be tested in.
 * **Generator seed** is used to set the random seed for the data generator. This seed is used to control all random data generation happening in SPVB. The default value is `100`.
 
 The generated SPARQL queries are of different types and are partially based on a subset of the 25 query templates defined in the context of DBpedia SPARQL Benchmark ([DBPSB](http://aksw.org/Projects/DBPSB.html)).

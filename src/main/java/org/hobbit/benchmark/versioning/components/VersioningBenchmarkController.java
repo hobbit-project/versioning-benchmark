@@ -23,9 +23,9 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningBenchmarkController.class);
 
-	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:2.1.0";
-	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:2.1.0";
-	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:2.1.0";
+	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:2.2.0";
+	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:2.2.0";
+	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:2.2.0";
 	
 	private static final String PREFIX = "http://w3id.org/hobbit/versioning-benchmark/vocab#";
 	
@@ -62,6 +62,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		int insRatio = (Integer) getPropertyOrDefault(PREFIX + "versionInsertionRatio", 5);
 		int delRatio = (Integer) getPropertyOrDefault(PREFIX + "versionDeletionRatio", 3);
 		String dataForm = (String) getPropertyOrDefault(PREFIX + "generatedDataForm", "ic");
+		String enabledQueries = (String) getPropertyOrDefault(PREFIX + "enableDisableQT", "QT1=1;QT2=1;QT3=1;QT4=1;QT5=1;QT6=1;QT7=1;QT8=1");
 		
 		loadingTimes = new long[numOfVersions];
 		triplesToBeAdded = new AtomicIntegerArray(numOfVersions);
@@ -76,8 +77,10 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 				VersioningConstants.NUMBER_OF_VERSIONS + "=" + numOfVersions,
 				VersioningConstants.VERSION_INSERTION_RATIO + "=" + insRatio,
 				VersioningConstants.VERSION_DELETION_RATIO + "=" + delRatio,
-				VersioningConstants.SENT_DATA_FORM + "=" + dataForm
+				VersioningConstants.SENT_DATA_FORM + "=" + dataForm,
+				VersioningConstants.ENABLED_QUERY_TYPES + "=" + enabledQueries
 		};
+		LOGGER.info(enabledQueries);
 		
 		// evaluation module environmental values
 		evalModuleEnvVariables = new String[] {

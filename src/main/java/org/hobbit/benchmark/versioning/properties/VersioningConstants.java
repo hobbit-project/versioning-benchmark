@@ -28,7 +28,9 @@ public final class VersioningConstants {
 	public static final String NUMBER_OF_VERSIONS = "number_of_versions";
 					
 	public static final String SENT_DATA_FORM = "sent_data_form";
-		
+
+	public static final String ENABLED_QUERY_TYPES = "enabled_query_types";
+
 	// =============== TASK GENERATOR CONSTANTS ===============
 
 	public static final String NUMBER_OF_TASK_GENERATORS= "task_generators_number";
