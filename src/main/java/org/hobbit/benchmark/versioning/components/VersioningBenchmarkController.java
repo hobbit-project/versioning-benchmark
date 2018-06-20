@@ -62,7 +62,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		int insRatio = (Integer) getPropertyOrDefault(PREFIX + "versionInsertionRatio", 5);
 		int delRatio = (Integer) getPropertyOrDefault(PREFIX + "versionDeletionRatio", 3);
 		String dataForm = (String) getPropertyOrDefault(PREFIX + "generatedDataForm", "ic");
-		String enabledQueries = (String) getPropertyOrDefault(PREFIX + "enableDisableQT", "QT1=1;QT2=1;QT3=1;QT4=1;QT5=1;QT6=1;QT7=1;QT8=1");
+		String enabledQueries = (String) getPropertyOrDefault(PREFIX + "enableDisableQT", "QT1=1, QT2=1, QT3=1, QT4=1, QT5=1, QT6=1, QT7=1, QT8=1");
 		
 		loadingTimes = new long[numOfVersions];
 		triplesToBeAdded = new AtomicIntegerArray(numOfVersions);
@@ -242,22 +242,24 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         // wait for the data generators to finish their work
         LOGGER.info("Waiting for the data generators to finish their work.");
         waitForDataGenToFinish();
-        LOGGER.info("Data generators finished.");       
-
-        // wait for the task generators to finish their work
-        LOGGER.info("Waiting for the task generators to finish their work.");
-        waitForTaskGenToFinish();
-        LOGGER.info("Task generators finished.");
+        LOGGER.info("Data generators finished.");
         
         LOGGER.info("Computing system's storage space overhead after data loading");
         ResourceUsageInformation infoAfter = resUsageRequester.getSystemResourceUsage();
         if (infoAfter.getDiskStats() != null) {
-        	systemStorageSpaceCost = infoAfter.getDiskStats().getFsSizeSum() - systemInitialUsableSpace;
+        	long systemFinalUsableSpace = infoAfter.getDiskStats().getFsSizeSum();
+        	systemStorageSpaceCost = systemFinalUsableSpace - systemInitialUsableSpace;
+			LOGGER.info("System's usable space after data loading: " + systemFinalUsableSpace);
 			LOGGER.info("System's storage space overhead after data loading: " + systemStorageSpaceCost);
 		} else {
 			LOGGER.info(infoAfter.toString());
 			LOGGER.info("Got null as response.");
 		}
+
+        // wait for the task generators to finish their work
+        LOGGER.info("Waiting for the task generators to finish their work.");
+        waitForTaskGenToFinish();
+        LOGGER.info("Task generators finished.");        
 
         // wait for the system to terminate
         LOGGER.info("Waiting for the system to terminate.");

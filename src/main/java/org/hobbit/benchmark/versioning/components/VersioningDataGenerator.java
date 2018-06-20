@@ -1056,6 +1056,12 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	    	}
 		} catch (Exception e) {
             LOGGER.error("Exception while sending generated data to System Adapter.", e);
+        } finally {
+        	// Add a delay of 1 minute after the bulk loading phase has ended. 
+        	// This is required in order to get reliable results regarding the final system's resource 
+        	// usage, since in cAdvisor the period for disk stats collection is hard-coded at 1 minute
+    		LOGGER.info("Waiting one minute after the bulk loading phase has ended...");
+            Thread.sleep(1000 * 60);
         }
 		
         try {
