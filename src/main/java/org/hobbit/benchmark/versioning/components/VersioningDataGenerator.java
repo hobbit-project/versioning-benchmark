@@ -25,6 +25,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
@@ -151,7 +153,13 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		cwsToBeLoaded = new int[numberOfVersions];
 		
 		// load the enabled queries 
-		enabledQueryTypes.load(new StringReader(enabledQueryTypesParam.replaceAll(";", "\n")));
+		Pattern pattern = Pattern.compile("QT([1-8])=([0|1])[^\\w]*");
+		Matcher matcher = pattern.matcher(enabledQueryTypesParam);
+		String enabledQueryTypesParamProp = "";
+		while (matcher.find()) {
+			enabledQueryTypesParamProp += "QT" + matcher.group(1) + "=" + matcher.group(2) + "\n";
+		}
+		enabledQueryTypes.load(new StringReader(enabledQueryTypesParamProp));
 		
 		// Given the above input, update configuration files that are necessary for data generation
 		reInitializeSPBProperties();
@@ -595,7 +603,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		String queryString;
 		
 		// QT1
-		if(enabledQueryTypes.getProperty("QT1").equals("1")) {
+		if(enabledQueryTypes.getProperty("QT1", "0").equals("1")) {
 			queryString = compileMustacheTemplate(1, queryIndex, 0);
 			tasks.add(new Task(1, 1, Integer.toString(taskId++), queryString, null));
 			try {
@@ -607,7 +615,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		queryIndex++;
 		
 		// QT2
-		if(enabledQueryTypes.getProperty("QT2").equals("1")) {
+		if(enabledQueryTypes.getProperty("QT2", "0").equals("1")) {
 			querySubstParamCount = 5;
 			for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
 				for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
@@ -631,7 +639,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		// QT3
 		// if the total number of versions is lower than 1 there are no historical versions
-		if(enabledQueryTypes.getProperty("QT3").equals("1")) {
+		if(enabledQueryTypes.getProperty("QT3", "0").equals("1")) {
 			querySubstParamCount = 3;
 			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions ; querySubstParam++) {
 				queryString = compileMustacheTemplate(3, queryIndex, querySubstParam);
@@ -647,7 +655,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		// QT4
 		// if the total number of versions is lower than 1 there are no historical versions
-		if(enabledQueryTypes.getProperty("QT4").equals("1")) {
+		if(enabledQueryTypes.getProperty("QT4", "0").equals("1")) {
 			querySubstParamCount = 3;
 			for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
 				// if there are less than four versions take all the historical ones
@@ -674,7 +682,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			querySubstParamCount = 4;
 		}
 		// QT5
-		if(enabledQueryTypes.getProperty("QT5").equals("1")) {
+		if(enabledQueryTypes.getProperty("QT5", "0").equals("1")) {
 			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
 				queryString = compileMustacheTemplate(5, queryIndex, querySubstParam);
 				tasks.add(new Task(5, 1, Integer.toString(taskId++), queryString, null));
@@ -689,7 +697,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		// QT6
 		// same querySubstParamCount as QT5
-		if(enabledQueryTypes.getProperty("QT6").equals("1")) {
+		if(enabledQueryTypes.getProperty("QT6", "0").equals("1")) {
 			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
 				queryString = compileMustacheTemplate(6, queryIndex, querySubstParam);
 				tasks.add(new Task(6, 1, Integer.toString(taskId++), queryString, null));
@@ -704,7 +712,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		// QT7
 		// can not be supported when we have 2 or less total versions, as there cannot exist cross-deltas
-		if(enabledQueryTypes.getProperty("QT7").equals("1")) {
+		if(enabledQueryTypes.getProperty("QT7", "0").equals("1")) {
 			querySubstParamCount = 3;
 			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions - 1; querySubstParam++) {
 				queryString = compileMustacheTemplate(7, queryIndex, querySubstParam);
@@ -719,7 +727,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		queryIndex++;
 
 		// QT8
-		if(enabledQueryTypes.getProperty("QT8").equals("1")) {
+		if(enabledQueryTypes.getProperty("QT8", "0").equals("1")) {
 			if (numberOfVersions == 2) {
 				querySubstParamCount = 1;
 			} else if(numberOfVersions == 3) {
