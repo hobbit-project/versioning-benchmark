@@ -38,7 +38,6 @@ import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.query.ResultSetRewindable;
 import org.hobbit.benchmark.versioning.Task;
-import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.benchmark.versioning.util.FTPUtils;
 import org.hobbit.benchmark.versioning.util.SystemAdapterConstants;
@@ -190,6 +189,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// ontologies triples included
 		triplesExpectedToBeAdded[0] = dataGenerator.getTriplesGeneratedSoFar().intValue() + VersioningConstants.ONTOLOGIES_TRIPLES; 
 		triplesExpectedToBeDeleted[0] = 0;
+		triplesExpectedToBeLoaded[0] = triplesExpectedToBeAdded[0];
+		LOGGER.info("triplesExpectedToBeLoaded-0: " + triplesExpectedToBeLoaded[0]);
 
 		// Generate the change sets. Additions and deletions are supported.
 		// TODO: support changes
@@ -256,13 +257,21 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			preVersionDeletedCWs = currVersionDeletedCreativeWorks;
 			triplesExpectedToBeDeleted[i] = currVersionDeletedTriples;
 			long deleteSetEnd = System.currentTimeMillis();
-			LOGGER.info("Deleteset of total " + String.format(Locale.US, "%,d", preVersionDeletedCWs).replace(',', '.') + " Creative Works generated successfully. Triples: " + String.format(Locale.US, "%,d", currVersionDeletedTriples).replace(',', '.') + " . Target: " + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.') + " triples. Time: " + (deleteSetEnd - deleteSetStart) + " ms.");
+			LOGGER.info("Deleteset of total " 
+					+ String.format(Locale.US, "%,d", preVersionDeletedCWs).replace(',', '.') + " creative works generated successfully. "
+					+ "Triples: " + String.format(Locale.US, "%,d", currVersionDeletedTriples).replace(',', '.') + ". "
+					+ "Target: " + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.') + " triples. "
+					+ "Time: " + (deleteSetEnd - deleteSetStart) + " ms.");
 
 			// produce the add set
 			LOGGER.info("Generating version " + i + " add-set.");
 			dataGenerator.produceAdded(destinationPath, triplesToBeAdded);
 			triplesExpectedToBeAdded[i] = dataGenerator.getTriplesGeneratedSoFar().intValue();
-
+			
+			// for the generated version compute the number of triples (creative works + ontologies) that expected 
+			// to be loaded by the system, so the evaluation module can compute the ingestion and average changes speeds.
+			triplesExpectedToBeLoaded[i] = triplesExpectedToBeLoaded[i-1] + triplesExpectedToBeAdded[i] - triplesExpectedToBeDeleted[i];
+			LOGGER.info("triplesExpectedToBeLoaded-" + i + ": " + triplesExpectedToBeLoaded[i]);
 		}
 		long changeSetEnd = System.currentTimeMillis();
 		LOGGER.info("All changesets generated successfully. Time: " + (changeSetEnd - changeSetStart) + " ms.");
@@ -272,16 +281,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		// construct all versions as independent copies
 		constructVersions();
-
-		// load generated creative works to virtuoso, in order to compute the gold standard
-		LOGGER.info("Loading generating data...");
-		loadFirstNVersions(numberOfVersions);
-		
-		// compute the number of triples that expected to be loaded by the system.
-		// so the evaluation module can compute the ingestion and average changes speeds
-		for (int version = 0; version < numberOfVersions; version++) {
-			triplesExpectedToBeLoaded[version] = getVersionSize(version);
-		}
 		
 		// if all query types are disabled skip this part
 		if(!allQueriesDisabled) {
@@ -403,34 +402,29 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		List<File> deletedDataFiles = (List<File>) FileUtils.listFiles(changesetsDbpediaPathFile, new String[] { "deleted.nt" }, false);
 		Collections.sort(deletedDataFiles);
 		
-		// if the number of versions that have to be produced is larger than the total 5 of dbpedia
-		// determine in which versions the dbpedia ones will be assigned
-		dbPediaVersionsDistribution = new int[numberOfVersions];
+		// equally distribute the 5 versions of dbpedia to the number of total ones
+		dbPediaVersionsDistribution = new int[numberOfVersions];		
 		if(numberOfVersions > 5) {
 			LOGGER.info("Distributing the 5 DBpedia versions to the total " + numberOfVersions + " produced...");
 			Arrays.fill(dbPediaVersionsDistribution, 0);
 			for(int dbpediaVersion = 0; dbpediaVersion < VersioningConstants.DBPEDIA_VERSIONS; dbpediaVersion++) {
 				int versionIndex = Math.round((numberOfVersions - 1) * (dbpediaVersion / 4f));
 				dbPediaVersionsDistribution[versionIndex] = 1;
-				triplesExpectedToBeAdded[versionIndex] += triplesToBeAdded[dbpediaVersion];
-				triplesExpectedToBeDeleted[versionIndex] += triplesToBeDeleted[dbpediaVersion];
 			}
 		} else {
 			LOGGER.info("Assigning the first " + numberOfVersions + " DBpedia versions to the total " + numberOfVersions + " produced...");
 			Arrays.fill(dbPediaVersionsDistribution, 1);
-			for(int dbpediaVersion = 0; dbpediaVersion < numberOfVersions; dbpediaVersion++) {
-				triplesExpectedToBeAdded[dbpediaVersion] += triplesToBeAdded[dbpediaVersion];
-				triplesExpectedToBeDeleted[dbpediaVersion] += triplesToBeDeleted[dbpediaVersion];
-			}
 		}	
 		
 		LOGGER.info("Distribution: " + Arrays.toString(dbPediaVersionsDistribution));
 		
-		// copy the dbpedia file to the appropriate version dir, (when dbPediaVersionsDistribution[i] = 1)
-		for (int i = 0, dbpediaIndex = 0; i < dbPediaVersionsDistribution.length; i++) {
-			if (dbPediaVersionsDistribution[i] == 1) {
+		// Copy the dbpedia file to the appropriate version dir, (when dbPediaVersionsDistribution[i] = 1)
+		// Also, for each version compute the total number of triples that have to be added, deleted or loaded 
+		// in order to let the evaluation module to calculate the appropriate KPIs
+		for (int version = 0, dbpediaIndex = 0; version < dbPediaVersionsDistribution.length; version++) {
+			if (dbPediaVersionsDistribution[version] == 1) {
 				try {
-					String destinationParent = generatedDatasetPath + File.separator + (i == 0 ? "v" : "c") + i + File.separator;							
+					String destinationParent = generatedDatasetPath + File.separator + (version == 0 ? "v" : "c") + version + File.separator;							
 
 					// copy the final dbpedia file that will be used from the datagenerator
 					File finalFrom = finalDbpediaFiles.get(dbpediaIndex);
@@ -442,18 +436,28 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					File addedTo = new File(destinationParent + addedFrom.getName());
 					FileUtils.copyFile(addedFrom, addedTo);
 					
-					if(i > 0) {
+					if(version > 0) {
 						// copy the deletset that will be sent to the system
 						// dbpediaIndex-1 because for version 0 we do not have deleted triples
 						File deletedFrom = deletedDataFiles.get(dbpediaIndex - 1);
 						File deletedTo = new File(destinationParent + deletedFrom.getName());
 						FileUtils.copyFile(deletedFrom, deletedTo);
 					}
-					dbpediaIndex++;
+					
+					// enhance the version's total triples to be added with the dbpedia ones
+					triplesExpectedToBeAdded[version] += triplesToBeAdded[dbpediaIndex];
+					
+					// enhance the version's total triples to be deleted with the dbpedia ones
+					triplesExpectedToBeDeleted[version] += triplesToBeDeleted[dbpediaIndex];
 				} catch(IOException e) {
 					LOGGER.error("Exception caught during the copy of dbpedia files to the appropriate version dir", e);
+				} finally {
+					dbpediaIndex++;
 				}
 			}
+			// compute version's total triples that have to be loaded
+			triplesExpectedToBeLoaded[version] += Arrays.stream(triplesToBeAdded, 0, dbpediaIndex).sum();
+			triplesExpectedToBeLoaded[version] -= Arrays.stream(triplesToBeDeleted, 0, dbpediaIndex).sum();
 		}
 	}
 
@@ -561,23 +565,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				} 
 		}
 		return compiledQuery;
-	}
-	
-	private int getVersionSize(int versionNum) {
-		String sparqlQueryString = ""
-				+ "SELECT (COUNT(*) AS ?cnt) "
-				+ "FROM <http://graph.version." + versionNum + "> "
-				+ "WHERE { ?s ?p ?o }";
-		
-		try (QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", sparqlQueryString)) {
-			ResultSet results = ResultSetFactory.makeRewindable(qexec.execSelect());
-			if(results.hasNext()) {
-				return results.next().getLiteral("cnt").getInt();
-			}
-		} catch (Exception e) {
-			LOGGER.error("Exception caught during the computation of version " + versionNum + " triples number.", e);
-		}
-		return 0;
 	}
 		
 	public void computeExpectedAnswers() {		
