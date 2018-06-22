@@ -77,7 +77,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         	int triplesToBeAdded = Integer.parseInt(env.get(String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_ADDED, version)));
         	int triplesToBeDeleted = Integer.parseInt(env.get(String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_DELETED, version)));
         	int triplesToBeLoaded = Integer.parseInt(env.get(String.format(VersioningConstants.VERSION_TRIPLES_TO_BE_LOADED, version)));
-        	LOGGER.info("version " + version + " loaded in " + loadingTime + " ms (" + triplesToBeLoaded + " triples had to be loaded).");
+        	LOGGER.info("version " + version + "(+" + triplesToBeAdded + ", -" + triplesToBeDeleted + ", total=" + triplesToBeLoaded + ") loaded in " + loadingTime + " ms.");
         	is.reportSuccess(version, triplesToBeAdded, triplesToBeDeleted, triplesToBeLoaded, loadingTime);
         }
         
