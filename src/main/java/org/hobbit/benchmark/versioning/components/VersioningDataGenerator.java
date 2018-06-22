@@ -187,7 +187,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		DataGenerator dataGenerator = new DataGenerator(randomGenerator, configuration, definitions, dataGeneratorWorkers, totalTriples, maxTriplesPerFile, initialVersionDataPath, serializationFormat);
 		dataGenerator.produceData();
 		cwsToBeLoaded[0] = v0SizeInTriples;
-		triplesExpectedToBeAdded[0] = dataGenerator.getTriplesGeneratedSoFar().intValue();
+		// ontologies triples included
+		triplesExpectedToBeAdded[0] = dataGenerator.getTriplesGeneratedSoFar().intValue() + VersioningConstants.ONTOLOGIES_TRIPLES; 
 		triplesExpectedToBeDeleted[0] = 0;
 
 		// Generate the change sets. Additions and deletions are supported.
@@ -356,7 +357,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		Map<String, String> env = System.getenv();
 		// Assume that in v0Size the 40362 triples of DBpedia initial dataset 
 		// plus the 8135 ontologies triples are included
-		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0) - 40362 - 8135;
+		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0) - VersioningConstants.DBPEDIA_ADDED_TRIPLES_V0 - VersioningConstants.ONTOLOGIES_TRIPLES;
 		numberOfVersions = (Integer) getFromEnv(env, VersioningConstants.NUMBER_OF_VERSIONS, 0);
 		subGeneratorSeed = (Integer) getFromEnv(env, VersioningConstants.DATA_GENERATOR_SEED, 0) + getGeneratorId();
 		versionInsertionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_INSERTION_RATIO, 0);

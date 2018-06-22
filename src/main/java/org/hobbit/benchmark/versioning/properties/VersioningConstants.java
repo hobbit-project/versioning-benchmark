@@ -98,5 +98,10 @@ public final class VersioningConstants {
 	public static final int DBPEDIA_ADDED_TRIPLES_V4 = 32884;
 
 	public static final int DBPEDIA_DELETED_TRIPLES_V4 = 21957;
+	
+	// =============== ontologies data stats ===============
+	
+	public static final int ONTOLOGIES_TRIPLES = 8135;
+
 
 }
