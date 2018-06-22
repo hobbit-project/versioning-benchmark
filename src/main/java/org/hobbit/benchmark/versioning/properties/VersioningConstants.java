@@ -101,7 +101,7 @@ public final class VersioningConstants {
 	
 	// =============== ontologies data stats ===============
 	
-	public static final int ONTOLOGIES_TRIPLES = 8135;
+	public static final int ONTOLOGIES_TRIPLES = 8134;
 
 
 }
