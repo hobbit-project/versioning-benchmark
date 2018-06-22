@@ -268,7 +268,20 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		// Evenly distribute the 5 dbpedia versions to the total number of versions that were generated
 		distributeDBpediaVersions();
+		
+		// construct all versions as independent copies
+		constructVersions();
 
+		// load generated creative works to virtuoso, in order to compute the gold standard
+		LOGGER.info("Loading generating data...");
+		loadFirstNVersions(numberOfVersions);
+		
+		// compute the number of triples that expected to be loaded by the system.
+		// so the evaluation module can compute the ingestion and average changes speeds
+		for (int version = 0; version < numberOfVersions; version++) {
+			triplesExpectedToBeLoaded[version] = getVersionSize(version);
+		}
+		
 		// if all query types are disabled skip this part
 		if(!allQueriesDisabled) {
 			LOGGER.info("Generating tasks...");
@@ -277,23 +290,22 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			String queriesPath = System.getProperty("user.dir") + File.separator + "query_templates";
 			versioningMustacheTemplatesHolder.loadFrom(queriesPath);		
 			generateQuerySubstitutionParameters();
+
 			// initialize substitution parameters
 			String substitutionParametersPath = System.getProperty("user.dir") + File.separator + "substitution_parameters";
 			LOGGER.info("Initializing parameters for SPARQL query tasks...");
 			substitutionQueryParametersManager.initVersioningSubstitutionParameters(substitutionParametersPath, false, false);
 			LOGGER.info("Query parameters initialized successfully.");
+
 			// build mustache templates to create queries
 			LOGGER.info("Building SPRQL tasks...");
 			buildSPRQLQueries();
-			LOGGER.info("All SPRQL tasks built successfully.");	
+			LOGGER.info("All SPRQL tasks built successfully.");					
 
-			LOGGER.info("Loading generating data, in order to compute gold standard...");
-			// load generated creative works to virtuoso, in order to compute the gold standard
-			loadFirstNVersions(numberOfVersions);
-				
 			// compute expected answers for all tasks
 			LOGGER.info("Computing expected answers for generated SPARQL tasks...");
 			computeExpectedAnswers();
+
 			LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");
 		}	
         LOGGER.info("Data Generator initialized successfully.");
@@ -344,7 +356,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		Map<String, String> env = System.getenv();
 		// Assume that in v0Size the 40362 triples of DBpedia initial dataset 
 		// plus the 8135 ontologies triples are included
-		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0) - 48497 ;
+		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0) - 40362 - 8135;
 		numberOfVersions = (Integer) getFromEnv(env, VersioningConstants.NUMBER_OF_VERSIONS, 0);
 		subGeneratorSeed = (Integer) getFromEnv(env, VersioningConstants.DATA_GENERATOR_SEED, 0) + getGeneratorId();
 		versionInsertionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_INSERTION_RATIO, 0);
@@ -567,13 +579,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		return 0;
 	}
 		
-	public void computeExpectedAnswers() {	
-		// compute the number of triples that expected to be loaded by the system.
-		// so the evaluation module can compute the ingestion and average changes speeds
-		for (int version = 0; version < numberOfVersions; version++) {
-			triplesExpectedToBeLoaded[version] = getVersionSize(version);
-		}
-		
+	public void computeExpectedAnswers() {		
 		for (Task task : tasks) {			
 			ResultSetRewindable results = null;
 
@@ -1081,6 +1087,33 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
             LOGGER.error("Exception while sending tasks to Task Generator.", e);
         }
 	}
+	
+	// method for constructing all versions (from change-sets to independent copies)
+	public void constructVersions() {
+		LOGGER.info("Constructing all versions as independent copies...");
+		try {
+			String scriptFilePath = System.getProperty("user.dir") + File.separator + "versions_construction.sh";
+			String[] command = {"/bin/bash", scriptFilePath, Integer.toString(numberOfVersions) };
+			Process p = new ProcessBuilder(command).start();
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			String line;
+			while ((line = stdInput.readLine()) != null) {
+				LOGGER.info(line);
+			}
+			while ((line = stdError.readLine()) != null) {
+				LOGGER.info(line);
+			}
+			p.waitFor();
+			LOGGER.info("All versions constructed successfully.");
+			stdInput.close();
+			stdError.close();
+		} catch (IOException e) {
+            LOGGER.error("Exception while executing script for loading data.", e);
+		} catch (InterruptedException e) {
+            LOGGER.error("Exception while executing script for loading data.", e);
+		}		
+	}
 
 	// method for loading to virtuoso the first N versions. e.g. for first 2 versions
 	// v0 and v1 will be loaded into.
@@ -1089,7 +1122,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load_to_virtuoso.sh";
-			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(serializationFormat), Integer.toString(n) };
+			String[] command = {"/bin/bash", scriptFilePath, Integer.toString(n) };
 			Process p = new ProcessBuilder(command).start();
 			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -1117,7 +1150,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load_version_to_virtuoso.sh";
-			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(serializationFormat), Integer.toString(version) };
+			String[] command = {"/bin/bash", scriptFilePath, Integer.toString(version) };
 			Process p = new ProcessBuilder(command).start();
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
