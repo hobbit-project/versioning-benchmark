@@ -98,7 +98,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int[] cwsToBeLoaded;
 	
 	private Properties enabledQueryTypes = new Properties();
-	
+	private boolean allQueriesDisabled = true;
+
 	private AtomicInteger numberOfmessages = new AtomicInteger(0);
 	
 	private Configuration configuration = new Configuration();
@@ -157,6 +158,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		Matcher matcher = pattern.matcher(enabledQueryTypesParam);
 		String enabledQueryTypesParamProp = "";
 		while (matcher.find()) {
+			allQueriesDisabled = allQueriesDisabled ? !matcher.group(2).equals("1") : false;
 			enabledQueryTypesParamProp += "QT" + matcher.group(1) + "=" + matcher.group(2) + "\n";
 		}
 		enabledQueryTypes.load(new StringReader(enabledQueryTypesParamProp));
@@ -267,30 +269,33 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// Evenly distribute the 5 dbpedia versions to the total number of versions that were generated
 		distributeDBpediaVersions();
 
-		LOGGER.info("Generating tasks...");
-		// 3) Generate SPARQL query tasks
-		// generate benchmark tasks substitution parameters
-		String queriesPath = System.getProperty("user.dir") + File.separator + "query_templates";
-		versioningMustacheTemplatesHolder.loadFrom(queriesPath);		
-		generateQuerySubstitutionParameters();
-		// initialize substitution parameters
-		String substitutionParametersPath = System.getProperty("user.dir") + File.separator + "substitution_parameters";
-		LOGGER.info("Initializing parameters for SPARQL query tasks...");
-		substitutionQueryParametersManager.initVersioningSubstitutionParameters(substitutionParametersPath, false, false);
-		LOGGER.info("Query parameters initialized successfully.");
-		// build mustache templates to create queries
-		LOGGER.info("Building SPRQL tasks...");
-		buildSPRQLQueries();
-		LOGGER.info("All SPRQL tasks built successfully.");	
+		// if all query types are disabled skip this part
+		if(!allQueriesDisabled) {
+			LOGGER.info("Generating tasks...");
+			// 3) Generate SPARQL query tasks
+			// generate benchmark tasks substitution parameters
+			String queriesPath = System.getProperty("user.dir") + File.separator + "query_templates";
+			versioningMustacheTemplatesHolder.loadFrom(queriesPath);		
+			generateQuerySubstitutionParameters();
+			// initialize substitution parameters
+			String substitutionParametersPath = System.getProperty("user.dir") + File.separator + "substitution_parameters";
+			LOGGER.info("Initializing parameters for SPARQL query tasks...");
+			substitutionQueryParametersManager.initVersioningSubstitutionParameters(substitutionParametersPath, false, false);
+			LOGGER.info("Query parameters initialized successfully.");
+			// build mustache templates to create queries
+			LOGGER.info("Building SPRQL tasks...");
+			buildSPRQLQueries();
+			LOGGER.info("All SPRQL tasks built successfully.");	
 
-		LOGGER.info("Loading generating data, in order to compute gold standard...");
-		// load generated creative works to virtuoso, in order to compute the gold standard
-		loadFirstNVersions(numberOfVersions);
-			
-		// compute expected answers for all tasks
-		LOGGER.info("Computing expected answers for generated SPARQL tasks...");
-		computeExpectedAnswers();
-		LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");	
+			LOGGER.info("Loading generating data, in order to compute gold standard...");
+			// load generated creative works to virtuoso, in order to compute the gold standard
+			loadFirstNVersions(numberOfVersions);
+				
+			// compute expected answers for all tasks
+			LOGGER.info("Computing expected answers for generated SPARQL tasks...");
+			computeExpectedAnswers();
+			LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");
+		}	
         LOGGER.info("Data Generator initialized successfully.");
 	}
 	
