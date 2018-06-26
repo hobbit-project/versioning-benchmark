@@ -234,8 +234,8 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		totalQueriesCount += qts7.getRunsCount();
 		totalQueriesCount += qts8.getRunsCount();
 		
-		qps = (float) totalQueriesCount / (totalQueriesExecutionTime / 1000);
-//		float QPSRounded = (float) (Math.round(QPS * 100.0) / 100.0);
+		float qps_curr = (float) totalQueriesCount / (totalQueriesExecutionTime / 1000);
+		qps = Double.isNaN(qps_curr) ? 0 : qps_curr;
 	}
 	
 	@Override

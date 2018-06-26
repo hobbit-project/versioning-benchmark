@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.hobbit.workpackage5</groupId>
-  <artifactId>versioning</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <groupId>org.hobbit</groupId>
+  <artifactId>spvb</artifactId>
+  <version>2.2.1</version>
   <packaging>jar</packaging>
-  <name>versioning</name>
-  <description>Source code for workpackage 5.2</description>
+  <name>Versioning Benchmark</name>
+  <description>SPVB source code</description>
   <url>http://maven.apache.org</url>
 
   <properties>
