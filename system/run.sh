@@ -44,4 +44,4 @@ echo $(date +%H:%M:%S.%N | cut -b1-12)" : Virtuoso Server started successfully."
 
 # run the system adapter
 echo $(date +%H:%M:%S.%N | cut -b1-12)" : Running the System adapter..."
-java -cp /versioning/versioning.jar org.hobbit.core.run.ComponentStarter org.hobbit.benchmark.versioning.systems.VirtuosoSystemAdapter
+java -Xmx4g -cp /versioning/versioning.jar org.hobbit.core.run.ComponentStarter org.hobbit.benchmark.versioning.systems.VirtuosoSystemAdapter
