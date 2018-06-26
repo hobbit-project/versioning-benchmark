@@ -1,9 +1,9 @@
-default: build dockerize
+default: build dockerize-all
 
 build:	
 	mvn clean package -U -Dmaven.test.skip=true
 
-dockerize: dockerize-controller dockerize-datagen dockerize-taskgen dockerize-evalmodule dockerize-virtuoso-baseline
+dockerize-all: dockerize-controller dockerize-datagen dockerize-taskgen dockerize-evalmodule dockerize-virtuoso-baseline
 	
 dockerize-controller:
 	docker build -f docker/versioningbenchmarkcontroller.docker -t git.project-hobbit.eu:4567/papv/versioningbenchmarkcontroller:$(tag) .

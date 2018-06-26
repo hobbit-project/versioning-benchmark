@@ -38,7 +38,6 @@ import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.query.ResultSetRewindable;
 import org.hobbit.benchmark.versioning.Task;
-import org.hobbit.benchmark.versioning.properties.RDFUtils;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.benchmark.versioning.util.FTPUtils;
 import org.hobbit.benchmark.versioning.util.SystemAdapterConstants;
@@ -98,7 +97,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int[] cwsToBeLoaded;
 	
 	private Properties enabledQueryTypes = new Properties();
-	
+	private boolean allQueriesDisabled = true;
+
 	private AtomicInteger numberOfmessages = new AtomicInteger(0);
 	
 	private Configuration configuration = new Configuration();
@@ -157,6 +157,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		Matcher matcher = pattern.matcher(enabledQueryTypesParam);
 		String enabledQueryTypesParamProp = "";
 		while (matcher.find()) {
+			allQueriesDisabled = allQueriesDisabled ? !matcher.group(2).equals("1") : false;
 			enabledQueryTypesParamProp += "QT" + matcher.group(1) + "=" + matcher.group(2) + "\n";
 		}
 		enabledQueryTypes.load(new StringReader(enabledQueryTypesParamProp));
@@ -185,8 +186,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		DataGenerator dataGenerator = new DataGenerator(randomGenerator, configuration, definitions, dataGeneratorWorkers, totalTriples, maxTriplesPerFile, initialVersionDataPath, serializationFormat);
 		dataGenerator.produceData();
 		cwsToBeLoaded[0] = v0SizeInTriples;
-		triplesExpectedToBeAdded[0] = dataGenerator.getTriplesGeneratedSoFar().intValue();
+		// ontologies triples included
+		triplesExpectedToBeAdded[0] = dataGenerator.getTriplesGeneratedSoFar().intValue() + VersioningConstants.ONTOLOGIES_TRIPLES; 
 		triplesExpectedToBeDeleted[0] = 0;
+		triplesExpectedToBeLoaded[0] = triplesExpectedToBeAdded[0];
+		LOGGER.info("triplesExpectedToBeLoaded-0: " + triplesExpectedToBeLoaded[0]);
 
 		// Generate the change sets. Additions and deletions are supported.
 		// TODO: support changes
@@ -253,44 +257,57 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			preVersionDeletedCWs = currVersionDeletedCreativeWorks;
 			triplesExpectedToBeDeleted[i] = currVersionDeletedTriples;
 			long deleteSetEnd = System.currentTimeMillis();
-			LOGGER.info("Deleteset of total " + String.format(Locale.US, "%,d", preVersionDeletedCWs).replace(',', '.') + " Creative Works generated successfully. Triples: " + String.format(Locale.US, "%,d", currVersionDeletedTriples).replace(',', '.') + " . Target: " + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.') + " triples. Time: " + (deleteSetEnd - deleteSetStart) + " ms.");
+			LOGGER.info("Deleteset of total " 
+					+ String.format(Locale.US, "%,d", preVersionDeletedCWs).replace(',', '.') + " creative works generated successfully. "
+					+ "Triples: " + String.format(Locale.US, "%,d", currVersionDeletedTriples).replace(',', '.') + ". "
+					+ "Target: " + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.') + " triples. "
+					+ "Time: " + (deleteSetEnd - deleteSetStart) + " ms.");
 
 			// produce the add set
 			LOGGER.info("Generating version " + i + " add-set.");
 			dataGenerator.produceAdded(destinationPath, triplesToBeAdded);
 			triplesExpectedToBeAdded[i] = dataGenerator.getTriplesGeneratedSoFar().intValue();
-
+			
+			// for the generated version compute the number of triples (creative works + ontologies) that expected 
+			// to be loaded by the system, so the evaluation module can compute the ingestion and average changes speeds.
+			triplesExpectedToBeLoaded[i] = triplesExpectedToBeLoaded[i-1] + triplesExpectedToBeAdded[i] - triplesExpectedToBeDeleted[i];
+			LOGGER.info("triplesExpectedToBeLoaded-" + i + ": " + triplesExpectedToBeLoaded[i]);
 		}
 		long changeSetEnd = System.currentTimeMillis();
 		LOGGER.info("All changesets generated successfully. Time: " + (changeSetEnd - changeSetStart) + " ms.");
 
 		// Evenly distribute the 5 dbpedia versions to the total number of versions that were generated
 		distributeDBpediaVersions();
+		
+		// construct all versions as independent copies
+		constructVersions();
+		
+		// if all query types are disabled skip this part
+		if(!allQueriesDisabled) {
+			LOGGER.info("Generating tasks...");
+			// 3) Generate SPARQL query tasks
+			// generate benchmark tasks substitution parameters
+			String queriesPath = System.getProperty("user.dir") + File.separator + "query_templates";
+			versioningMustacheTemplatesHolder.loadFrom(queriesPath);		
+			generateQuerySubstitutionParameters();
 
-		LOGGER.info("Generating tasks...");
-		// 3) Generate SPARQL query tasks
-		// generate benchmark tasks substitution parameters
-		String queriesPath = System.getProperty("user.dir") + File.separator + "query_templates";
-		versioningMustacheTemplatesHolder.loadFrom(queriesPath);		
-		generateQuerySubstitutionParameters();
-		// initialize substitution parameters
-		String substitutionParametersPath = System.getProperty("user.dir") + File.separator + "substitution_parameters";
-		LOGGER.info("Initializing parameters for SPARQL query tasks...");
-		substitutionQueryParametersManager.initVersioningSubstitutionParameters(substitutionParametersPath, false, false);
-		LOGGER.info("Query parameters initialized successfully.");
-		// build mustache templates to create queries
-		LOGGER.info("Building SPRQL tasks...");
-		buildSPRQLQueries();
-		LOGGER.info("All SPRQL tasks built successfully.");	
+			// initialize substitution parameters
+			String substitutionParametersPath = System.getProperty("user.dir") + File.separator + "substitution_parameters";
+			LOGGER.info("Initializing parameters for SPARQL query tasks...");
+			substitutionQueryParametersManager.initVersioningSubstitutionParameters(substitutionParametersPath, false, false);
+			LOGGER.info("Query parameters initialized successfully.");
 
-		LOGGER.info("Loading generating data, in order to compute gold standard...");
-		// load generated creative works to virtuoso, in order to compute the gold standard
-		loadFirstNVersions(numberOfVersions);
-			
-		// compute expected answers for all tasks
-		LOGGER.info("Computing expected answers for generated SPARQL tasks...");
-		computeExpectedAnswers();
-		LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");	
+			// build mustache templates to create queries
+			LOGGER.info("Building SPRQL tasks...");
+			buildSPRQLQueries();
+			LOGGER.info("All SPRQL tasks built successfully.");					
+
+			// compute expected answers for all tasks
+			LOGGER.info("Computing expected answers for generated SPARQL tasks...");
+			computeExpectedAnswers();
+
+			LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");
+		}	
         LOGGER.info("Data Generator initialized successfully.");
 	}
 	
@@ -339,7 +356,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		Map<String, String> env = System.getenv();
 		// Assume that in v0Size the 40362 triples of DBpedia initial dataset 
 		// plus the 8135 ontologies triples are included
-		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0) - 48497 ;
+		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0) - VersioningConstants.DBPEDIA_ADDED_TRIPLES_V0 - VersioningConstants.ONTOLOGIES_TRIPLES;
 		numberOfVersions = (Integer) getFromEnv(env, VersioningConstants.NUMBER_OF_VERSIONS, 0);
 		subGeneratorSeed = (Integer) getFromEnv(env, VersioningConstants.DATA_GENERATOR_SEED, 0) + getGeneratorId();
 		versionInsertionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_INSERTION_RATIO, 0);
@@ -385,34 +402,29 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		List<File> deletedDataFiles = (List<File>) FileUtils.listFiles(changesetsDbpediaPathFile, new String[] { "deleted.nt" }, false);
 		Collections.sort(deletedDataFiles);
 		
-		// if the number of versions that have to be produced is larger than the total 5 of dbpedia
-		// determine in which versions the dbpedia ones will be assigned
-		dbPediaVersionsDistribution = new int[numberOfVersions];
+		// equally distribute the 5 versions of dbpedia to the number of total ones
+		dbPediaVersionsDistribution = new int[numberOfVersions];		
 		if(numberOfVersions > 5) {
 			LOGGER.info("Distributing the 5 DBpedia versions to the total " + numberOfVersions + " produced...");
 			Arrays.fill(dbPediaVersionsDistribution, 0);
 			for(int dbpediaVersion = 0; dbpediaVersion < VersioningConstants.DBPEDIA_VERSIONS; dbpediaVersion++) {
 				int versionIndex = Math.round((numberOfVersions - 1) * (dbpediaVersion / 4f));
 				dbPediaVersionsDistribution[versionIndex] = 1;
-				triplesExpectedToBeAdded[versionIndex] += triplesToBeAdded[dbpediaVersion];
-				triplesExpectedToBeDeleted[versionIndex] += triplesToBeDeleted[dbpediaVersion];
 			}
 		} else {
 			LOGGER.info("Assigning the first " + numberOfVersions + " DBpedia versions to the total " + numberOfVersions + " produced...");
 			Arrays.fill(dbPediaVersionsDistribution, 1);
-			for(int dbpediaVersion = 0; dbpediaVersion < numberOfVersions; dbpediaVersion++) {
-				triplesExpectedToBeAdded[dbpediaVersion] += triplesToBeAdded[dbpediaVersion];
-				triplesExpectedToBeDeleted[dbpediaVersion] += triplesToBeDeleted[dbpediaVersion];
-			}
 		}	
 		
 		LOGGER.info("Distribution: " + Arrays.toString(dbPediaVersionsDistribution));
 		
-		// copy the dbpedia file to the appropriate version dir, (when dbPediaVersionsDistribution[i] = 1)
-		for (int i = 0, dbpediaIndex = 0; i < dbPediaVersionsDistribution.length; i++) {
-			if (dbPediaVersionsDistribution[i] == 1) {
+		// Copy the dbpedia file to the appropriate version dir, (when dbPediaVersionsDistribution[i] = 1)
+		// Also, for each version compute the total number of triples that have to be added, deleted or loaded 
+		// in order to let the evaluation module to calculate the appropriate KPIs
+		for (int version = 0, dbpediaIndex = 0; version < dbPediaVersionsDistribution.length; version++) {
+			if (dbPediaVersionsDistribution[version] == 1) {
 				try {
-					String destinationParent = generatedDatasetPath + File.separator + (i == 0 ? "v" : "c") + i + File.separator;							
+					String destinationParent = generatedDatasetPath + File.separator + (version == 0 ? "v" : "c") + version + File.separator;							
 
 					// copy the final dbpedia file that will be used from the datagenerator
 					File finalFrom = finalDbpediaFiles.get(dbpediaIndex);
@@ -424,18 +436,28 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					File addedTo = new File(destinationParent + addedFrom.getName());
 					FileUtils.copyFile(addedFrom, addedTo);
 					
-					if(i > 0) {
+					if(version > 0) {
 						// copy the deletset that will be sent to the system
 						// dbpediaIndex-1 because for version 0 we do not have deleted triples
 						File deletedFrom = deletedDataFiles.get(dbpediaIndex - 1);
 						File deletedTo = new File(destinationParent + deletedFrom.getName());
 						FileUtils.copyFile(deletedFrom, deletedTo);
 					}
-					dbpediaIndex++;
+					
+					// enhance the version's total triples to be added with the dbpedia ones
+					triplesExpectedToBeAdded[version] += triplesToBeAdded[dbpediaIndex];
+					
+					// enhance the version's total triples to be deleted with the dbpedia ones
+					triplesExpectedToBeDeleted[version] += triplesToBeDeleted[dbpediaIndex];
 				} catch(IOException e) {
 					LOGGER.error("Exception caught during the copy of dbpedia files to the appropriate version dir", e);
+				} finally {
+					dbpediaIndex++;
 				}
 			}
+			// compute version's total triples that have to be loaded
+			triplesExpectedToBeLoaded[version] += Arrays.stream(triplesToBeAdded, 0, dbpediaIndex).sum();
+			triplesExpectedToBeLoaded[version] -= Arrays.stream(triplesToBeDeleted, 0, dbpediaIndex).sum();
 		}
 	}
 
@@ -544,31 +566,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}
 		return compiledQuery;
 	}
-	
-	private int getVersionSize(int versionNum) {
-		String sparqlQueryString = ""
-				+ "SELECT (COUNT(*) AS ?cnt) "
-				+ "FROM <http://graph.version." + versionNum + "> "
-				+ "WHERE { ?s ?p ?o }";
 		
-		try (QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", sparqlQueryString)) {
-			ResultSet results = ResultSetFactory.makeRewindable(qexec.execSelect());
-			if(results.hasNext()) {
-				return results.next().getLiteral("cnt").getInt();
-			}
-		} catch (Exception e) {
-			LOGGER.error("Exception caught during the computation of version " + versionNum + " triples number.", e);
-		}
-		return 0;
-	}
-		
-	public void computeExpectedAnswers() {	
-		// compute the number of triples that expected to be loaded by the system.
-		// so the evaluation module can compute the ingestion and average changes speeds
-		for (int version = 0; version < numberOfVersions; version++) {
-			triplesExpectedToBeLoaded[version] = getVersionSize(version);
-		}
-		
+	public void computeExpectedAnswers() {		
 		for (Task task : tasks) {			
 			ResultSetRewindable results = null;
 
@@ -1056,6 +1055,12 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	    	}
 		} catch (Exception e) {
             LOGGER.error("Exception while sending generated data to System Adapter.", e);
+        } finally {
+        	// Add a delay of 1 minute after the bulk loading phase has ended. 
+        	// This is required in order to get reliable results regarding the final system's resource 
+        	// usage, since in cAdvisor the period for disk stats collection is hard-coded at 1 minute
+    		LOGGER.info("Waiting one minute after the bulk loading phase has ended...");
+            Thread.sleep(1000 * 60);
         }
 		
         try {
@@ -1070,6 +1075,33 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
             LOGGER.error("Exception while sending tasks to Task Generator.", e);
         }
 	}
+	
+	// method for constructing all versions (from change-sets to independent copies)
+	public void constructVersions() {
+		LOGGER.info("Constructing all versions as independent copies...");
+		try {
+			String scriptFilePath = System.getProperty("user.dir") + File.separator + "versions_construction.sh";
+			String[] command = {"/bin/bash", scriptFilePath, Integer.toString(numberOfVersions) };
+			Process p = new ProcessBuilder(command).start();
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			String line;
+			while ((line = stdInput.readLine()) != null) {
+				LOGGER.info(line);
+			}
+			while ((line = stdError.readLine()) != null) {
+				LOGGER.info(line);
+			}
+			p.waitFor();
+			LOGGER.info("All versions constructed successfully.");
+			stdInput.close();
+			stdError.close();
+		} catch (IOException e) {
+            LOGGER.error("Exception while executing script for loading data.", e);
+		} catch (InterruptedException e) {
+            LOGGER.error("Exception while executing script for loading data.", e);
+		}		
+	}
 
 	// method for loading to virtuoso the first N versions. e.g. for first 2 versions
 	// v0 and v1 will be loaded into.
@@ -1078,7 +1110,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load_to_virtuoso.sh";
-			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(serializationFormat), Integer.toString(n) };
+			String[] command = {"/bin/bash", scriptFilePath, Integer.toString(n) };
 			Process p = new ProcessBuilder(command).start();
 			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -1106,7 +1138,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		try {
 			String scriptFilePath = System.getProperty("user.dir") + File.separator + "load_version_to_virtuoso.sh";
-			String[] command = {"/bin/bash", scriptFilePath, RDFUtils.getFileExtensionFromRdfFormat(serializationFormat), Integer.toString(version) };
+			String[] command = {"/bin/bash", scriptFilePath, Integer.toString(version) };
 			Process p = new ProcessBuilder(command).start();
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
