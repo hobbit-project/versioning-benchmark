@@ -81,7 +81,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
         	is.reportSuccess(version, triplesToBeAdded, triplesToBeDeleted, triplesToBeLoaded, loadingTime);
         }
         
-        storageCost = Integer.parseInt(env.get(String.format(VersioningConstants.STORAGE_COST_VALUE))) / (1024f * 1024f);
+        storageCost = Long.parseLong(env.get(String.format(VersioningConstants.STORAGE_COST_VALUE))) / (1024f * 1024f);
         
         INITIAL_VERSION_INGESTION_SPEED = initFinalModelFromEnv(env, VersioningConstants.INITIAL_VERSION_INGESTION_SPEED);
         AVG_APPLIED_CHANGES_PS = initFinalModelFromEnv(env, VersioningConstants.AVG_APPLIED_CHANGES_PS);
