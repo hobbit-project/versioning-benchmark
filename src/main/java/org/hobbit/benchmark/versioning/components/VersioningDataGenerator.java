@@ -300,7 +300,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			// build mustache templates to create queries
 			LOGGER.info("Building SPRQL tasks...");
 			buildSPRQLQueries();
-			LOGGER.info("All SPRQL tasks built successfully.");					
+			LOGGER.info("All SPRQL tasks built successfully.");	
+			
+			// load generated data in order to compute the expected answers
+			loadFirstNVersions(numberOfVersions);
 
 			// compute expected answers for all tasks
 			LOGGER.info("Computing expected answers for generated SPARQL tasks...");
