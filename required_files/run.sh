@@ -43,4 +43,4 @@ echo $(date +%H:%M:%S.%N | cut -b1-12)" : Virtuoso Server started successfully."
 
 # run the data generator
 echo $(date +%H:%M:%S.%N | cut -b1-12)" : Running the Data Generator..."
-java -cp /versioning/versioning.jar org.hobbit.core.run.ComponentStarter org.hobbit.benchmark.versioning.components.VersioningDataGenerator
+java -Xmx128G -cp /versioning/versioning.jar org.hobbit.core.run.ComponentStarter org.hobbit.benchmark.versioning.components.VersioningDataGenerator
