@@ -73,7 +73,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningDataGenerator.class);
 		
 	private int numberOfVersions;
-	private int v0SizeInTriples;
+	private int v0CWSizeInTriples;
+	private int v0TotalSizeInTriples;
 	private int maxTriplesPerFile;
 	private int dataGeneratorWorkers;
 	private int seedYear;
@@ -94,7 +95,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int[] triplesExpectedToBeAdded;
 	private int[] triplesExpectedToBeDeleted;
 	private int[] triplesExpectedToBeLoaded;
-	private int[] cwsToBeLoaded;
+//	private int[] cwsToBeLoaded;
 	
 	private Properties enabledQueryTypes = new Properties();
 	private boolean allQueriesDisabled = true;
@@ -123,6 +124,16 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Initializing Data Generator '" + getGeneratorId() + "'");
 		super.init();
 		
+		// Initialize data generation parameters through the environment variables given by user
+		initFromEnv();
+		
+		triplesExpectedToBeAdded = new int[numberOfVersions];
+		triplesExpectedToBeDeleted = new int[numberOfVersions];
+		triplesExpectedToBeLoaded = new int[numberOfVersions];
+
+		// Evenly distribute the 5 dbpedia versions to the total number of versions that were generated
+		distributeDBpediaVersions();
+		
 		String configurationFile = System.getProperty("user.dir") + File.separator + "test.properties";
 		String definitionsFile = System.getProperty("user.dir") + File.separator + "definitions.properties";
 		String dictionaryFile = System.getProperty("user.dir") + File.separator + "WordsDictionary.txt";
@@ -144,13 +155,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		subsParametersAmount = configuration.getInt(Configuration.QUERY_SUBSTITUTION_PARAMETERS);
 		serializationFormat = configuration.getString(Configuration.GENERATE_CREATIVE_WORKS_FORMAT);
 		seedYear = definitions.getInt(Definitions.YEAR_SEED);
-		
-		// Initialize data generation parameters through the environment variables given by user
-		initFromEnv();
-		triplesExpectedToBeAdded = new int[numberOfVersions];
-		triplesExpectedToBeDeleted = new int[numberOfVersions];
-		triplesExpectedToBeLoaded = new int[numberOfVersions];
-		cwsToBeLoaded = new int[numberOfVersions];
 		
 		// load the enabled queries 
 		Pattern pattern = Pattern.compile("QT([1-8])=([0|1])[^\\w]*");
@@ -185,11 +189,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		long totalTriples = configuration.getLong(Configuration.DATASET_SIZE_TRIPLES);
 		DataGenerator dataGenerator = new DataGenerator(randomGenerator, configuration, definitions, dataGeneratorWorkers, totalTriples, maxTriplesPerFile, initialVersionDataPath, serializationFormat);
 		dataGenerator.produceData();
-		cwsToBeLoaded[0] = v0SizeInTriples;
+
 		// ontologies triples included
-		triplesExpectedToBeAdded[0] = dataGenerator.getTriplesGeneratedSoFar().intValue() + VersioningConstants.ONTOLOGIES_TRIPLES; 
+		triplesExpectedToBeAdded[0] += dataGenerator.getTriplesGeneratedSoFar().intValue() + VersioningConstants.ONTOLOGIES_TRIPLES; 
 		triplesExpectedToBeDeleted[0] = 0;
-		triplesExpectedToBeLoaded[0] = triplesExpectedToBeAdded[0];
+		triplesExpectedToBeLoaded[0] += triplesExpectedToBeAdded[0];
 		LOGGER.info("triplesExpectedToBeLoaded-0: " + triplesExpectedToBeLoaded[0]);
 
 		// Generate the change sets. Additions and deletions are supported.
@@ -201,9 +205,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			File theDir = new File(destinationPath);
 			theDir.mkdir();
 			
-			int triplesToBeAdded = Math.round(versionInsertionRatio / 100f * cwsToBeLoaded[i-1]);
-			int triplesToBeDeleted = Math.round(versionDeletionRatio / 100f * cwsToBeLoaded[i-1]);
-			cwsToBeLoaded[i] = cwsToBeLoaded[i-1] + triplesToBeAdded - triplesToBeDeleted;
+			int triplesToBeAdded = Math.round(versionInsertionRatio / 100f * triplesExpectedToBeLoaded[i-1]);
+			int triplesToBeDeleted = Math.round(versionDeletionRatio / 100f * triplesExpectedToBeLoaded[i-1]);
 			LOGGER.info("Generating version " + i + " changeset. Target: " + "[+" + String.format(Locale.US, "%,d", triplesToBeAdded).replace(',', '.') + " , -" + String.format(Locale.US, "%,d", triplesToBeDeleted).replace(',', '.') + "]");
 						
 			// produce the delete set
@@ -255,7 +258,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				currVersionDeletedCreativeWorks += cwToBeDeleted.size();
 			}
 			preVersionDeletedCWs = currVersionDeletedCreativeWorks;
-			triplesExpectedToBeDeleted[i] = currVersionDeletedTriples;
+			triplesExpectedToBeDeleted[i] += currVersionDeletedTriples;
 			long deleteSetEnd = System.currentTimeMillis();
 			LOGGER.info("Deleteset of total " 
 					+ String.format(Locale.US, "%,d", preVersionDeletedCWs).replace(',', '.') + " creative works generated successfully. "
@@ -266,18 +269,17 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			// produce the add set
 			LOGGER.info("Generating version " + i + " add-set.");
 			dataGenerator.produceAdded(destinationPath, triplesToBeAdded);
-			triplesExpectedToBeAdded[i] = dataGenerator.getTriplesGeneratedSoFar().intValue();
+			triplesExpectedToBeAdded[i] += dataGenerator.getTriplesGeneratedSoFar().intValue();
 			
 			// for the generated version compute the number of triples (creative works + ontologies) that expected 
 			// to be loaded by the system, so the evaluation module can compute the ingestion and average changes speeds.
-			triplesExpectedToBeLoaded[i] = triplesExpectedToBeLoaded[i-1] + triplesExpectedToBeAdded[i] - triplesExpectedToBeDeleted[i];
+			triplesExpectedToBeLoaded[i] += triplesExpectedToBeLoaded[i-1] + triplesExpectedToBeAdded[i] - triplesExpectedToBeDeleted[i];
 			LOGGER.info("triplesExpectedToBeLoaded-" + i + ": " + triplesExpectedToBeLoaded[i]);
 		}
 		long changeSetEnd = System.currentTimeMillis();
 		LOGGER.info("All changesets generated successfully. Time: " + (changeSetEnd - changeSetStart) + " ms.");
 
-		// Evenly distribute the 5 dbpedia versions to the total number of versions that were generated
-		distributeDBpediaVersions();
+		
 		
 		// construct all versions as independent copies
 		constructVersions();
@@ -359,7 +361,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		Map<String, String> env = System.getenv();
 		// Assume that in v0Size the 40362 triples of DBpedia initial dataset 
 		// plus the 8135 ontologies triples are included
-		v0SizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0) - VersioningConstants.DBPEDIA_ADDED_TRIPLES_V0 - VersioningConstants.ONTOLOGIES_TRIPLES;
+		v0TotalSizeInTriples = (Integer) getFromEnv(env, VersioningConstants.V0_SIZE_IN_TRIPLES, 0);
+		v0CWSizeInTriples = v0TotalSizeInTriples - VersioningConstants.DBPEDIA_ADDED_TRIPLES_V0 - VersioningConstants.ONTOLOGIES_TRIPLES;
 		numberOfVersions = (Integer) getFromEnv(env, VersioningConstants.NUMBER_OF_VERSIONS, 0);
 		subGeneratorSeed = (Integer) getFromEnv(env, VersioningConstants.DATA_GENERATOR_SEED, 0) + getGeneratorId();
 		versionInsertionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_INSERTION_RATIO, 0);
@@ -814,9 +817,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// the total size of dataset size, in order to let the ratio of the three types of 
 		// modeled data (clusterings, correlations, random) to be 33% : 33% : 33%
 		AllocationsUtil au = new AllocationsUtil();
-		int adjustedMajorEvents = (int) au.adjustAndGetMajorEventsAllocation(v0SizeInTriples);
-		int adjustedMinorEvents = (int) au.adjustAndGetMinorEventsAllocation(v0SizeInTriples);
-		int adjustedCorrelations= (int) au.adjustAndGetCorrelationsAllocation(v0SizeInTriples);
+		int adjustedMajorEvents = (int) au.adjustAndGetMajorEventsAllocation(v0CWSizeInTriples);
+		int adjustedMinorEvents = (int) au.adjustAndGetMinorEventsAllocation(v0CWSizeInTriples);
+		int adjustedCorrelations= (int) au.adjustAndGetCorrelationsAllocation(v0CWSizeInTriples);
 		
 		// distribute the major/minor events and correlations to the data generators
 		// as each generator has to produce the whole event/correlation in order to be valid
@@ -856,7 +859,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// ~160K triples per correlation
 		// The data generators with higher ids may have to generate no data 
 		int triplesBasedOnEvents = currDataGeneratorMajorEvents * 500000 + currDataGeneratorMinorEvents * 50000 + currDataGeneratorCorrelations * 160000;
-		int triplesBasedOnDataGenerators = v0SizeInTriples / numberOfGenerators;
+		int triplesBasedOnDataGenerators = v0CWSizeInTriples / numberOfGenerators;
 		int currDataGeneratorDatasetSizeInTriples = triplesBasedOnEvents > triplesBasedOnDataGenerators ? triplesBasedOnEvents : triplesBasedOnDataGenerators;
 
 		// compute the approximated number of triples that have been generated so far
@@ -869,10 +872,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// if the difference between the total size of triples and the approximated number of
 		// triples so far is lower than the number of triples that each data generator have to
 		// produce, let the number of generated triples to be such a difference.
-		currDataGeneratorDatasetSizeInTriples = (approxGeneratedTriplesSoFar + currDataGeneratorDatasetSizeInTriples) >  v0SizeInTriples ? v0SizeInTriples - approxGeneratedTriplesSoFar : currDataGeneratorDatasetSizeInTriples;
+		currDataGeneratorDatasetSizeInTriples = (approxGeneratedTriplesSoFar + currDataGeneratorDatasetSizeInTriples) >  v0CWSizeInTriples ? v0CWSizeInTriples - approxGeneratedTriplesSoFar : currDataGeneratorDatasetSizeInTriples;
 		// if the number of generated triples so far has reached the target, let the current data generator 
 		// to produce no triples			
-		currDataGeneratorDatasetSizeInTriples = approxGeneratedTriplesSoFar > v0SizeInTriples ? 0 : currDataGeneratorDatasetSizeInTriples;
+		currDataGeneratorDatasetSizeInTriples = approxGeneratedTriplesSoFar > v0CWSizeInTriples ? 0 : currDataGeneratorDatasetSizeInTriples;
 		
 		LOGGER.info("Generator '" + generatorId + "' will produce "+ (currDataGeneratorDatasetSizeInTriples > 0 ? "~" : "") 
 				+ currDataGeneratorDatasetSizeInTriples + " triples,"
