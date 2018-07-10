@@ -134,6 +134,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// Evenly distribute the 5 dbpedia versions to the total number of versions that were generated
 		distributeDBpediaVersions();
 		
+		LOGGER.info("triplesExpectedToBeLoaded after dbpedia: " + Arrays.toString(this.triplesExpectedToBeLoaded));
+		LOGGER.info("triplesExpectedToBeAdded after dbpedia: " + Arrays.toString(this.triplesExpectedToBeAdded));
+		LOGGER.info("triplesExpectedToBeDeleted after dbpedia: " + Arrays.toString(this.triplesExpectedToBeDeleted));
+		
 		String configurationFile = System.getProperty("user.dir") + File.separator + "test.properties";
 		String definitionsFile = System.getProperty("user.dir") + File.separator + "definitions.properties";
 		String dictionaryFile = System.getProperty("user.dir") + File.separator + "WordsDictionary.txt";
@@ -193,9 +197,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// ontologies triples included
 		triplesExpectedToBeAdded[0] += dataGenerator.getTriplesGeneratedSoFar().intValue() + VersioningConstants.ONTOLOGIES_TRIPLES; 
 		triplesExpectedToBeDeleted[0] = 0;
-		triplesExpectedToBeLoaded[0] += triplesExpectedToBeAdded[0];
-		LOGGER.info("triplesExpectedToBeLoaded-0: " + triplesExpectedToBeLoaded[0]);
-
+		triplesExpectedToBeLoaded[0] = triplesExpectedToBeAdded[0];
+		
 		// Generate the change sets. Additions and deletions are supported.
 		// TODO: support changes
 		int preVersionDeletedCWs = 0;
@@ -270,11 +273,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			LOGGER.info("Generating version " + i + " add-set.");
 			dataGenerator.produceAdded(destinationPath, triplesToBeAdded);
 			triplesExpectedToBeAdded[i] += dataGenerator.getTriplesGeneratedSoFar().intValue();
-			
+
 			// for the generated version compute the number of triples (creative works + ontologies) that expected 
 			// to be loaded by the system, so the evaluation module can compute the ingestion and average changes speeds.
 			triplesExpectedToBeLoaded[i] += triplesExpectedToBeLoaded[i-1] + triplesExpectedToBeAdded[i] - triplesExpectedToBeDeleted[i];
-			LOGGER.info("triplesExpectedToBeLoaded-" + i + ": " + triplesExpectedToBeLoaded[i]);
 		}
 		long changeSetEnd = System.currentTimeMillis();
 		LOGGER.info("All changesets generated successfully. Time: " + (changeSetEnd - changeSetStart) + " ms.");
@@ -461,9 +463,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 					dbpediaIndex++;
 				}
 			}
-			// compute version's total triples that have to be loaded
-			triplesExpectedToBeLoaded[version] += Arrays.stream(triplesToBeAdded, 0, dbpediaIndex).sum();
-			triplesExpectedToBeLoaded[version] -= Arrays.stream(triplesToBeDeleted, 0, dbpediaIndex).sum();
+//			// compute version's total triples that have to be loaded
+//			triplesExpectedToBeLoaded[version] += Arrays.stream(triplesToBeAdded, 0, dbpediaIndex).sum();
+//			triplesExpectedToBeLoaded[version] -= Arrays.stream(triplesToBeDeleted, 0, dbpediaIndex).sum();
 		}
 	}
 
@@ -1229,20 +1231,20 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 	public void sendAllToFTP() {
 		writeResults();
-		FTPUtils.sendToFtp("/versioning/data/v0/", "public/MOCHA_ESWC2018/Task3/data/changesets/c0", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c1/", "public/MOCHA_ESWC2018/Task3/data/changesets/c1", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c2/", "public/MOCHA_ESWC2018/Task3/data/changesets/c2", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c3/", "public/MOCHA_ESWC2018/Task3/data/changesets/c3", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c4/", "public/MOCHA_ESWC2018/Task3/data/changesets/c4", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v0/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v0", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v1/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v1", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v2/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v2", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v3/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v3", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v4/", "public/MOCHA_ESWC2018/Task3/data/independentcopies/v4", "nt");
-		FTPUtils.sendToFtp("/versioning/queries/", "public/MOCHA_ESWC2018/Task3/queries", "sparql");
-		FTPUtils.sendToFtp("/versioning/query_templates/", "public/MOCHA_ESWC2018/Task3/query_templates", "txt");
-		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/MOCHA_ESWC2018/Task3/substitution_parameters", "txt");
-		FTPUtils.sendToFtp("/versioning/results/", "public/MOCHA_ESWC2018/Task3/expected_results", "json");
+		FTPUtils.sendToFtp("/versioning/data/v0/", "public/SPVB-LS/test/data/changesets/c0", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c1/", "public/SPVB-LS/test/data/changesets/c1", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c2/", "public/SPVB-LS/test/data/changesets/c2", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c3/", "public/SPVB-LS/test/data/changesets/c3", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c4/", "public/SPVB-LS/test/data/changesets/c4", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v0/", "public/SPVB-LS/test/data/independentcopies/v0", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v1/", "public/SPVB-LS/test/data/independentcopies/v1", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v2/", "public/SPVB-LS/test/data/independentcopies/v2", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v3/", "public/SPVB-LS/test/data/independentcopies/v3", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v4/", "public/SPVB-LS/test/data/independentcopies/v4", "nt");
+		FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/test/queries", "sparql");
+		FTPUtils.sendToFtp("/versioning/query_templates/", "public/SPVB-LS/test/query_templates", "txt");
+		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/SPVB-LS/test/substitution_parameters", "txt");
+		FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/test/expected_results", "json");
 	}
 	
 	@Override
