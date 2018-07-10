@@ -1196,38 +1196,17 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		String resultsPath = System.getProperty("user.dir") + File.separator + "results";
 		File resultsDir = new File(resultsPath);
 		resultsDir.mkdirs();
-		// skip current version materialization query
-		int taskId = 0;
 		
-		// mind the non zero-based numbering of query types 
-		for (int queryType = 0; queryType < Statistics.VERSIONING_QUERIES_COUNT; queryType++) {
-			if (Arrays.asList(1,3,7).contains(queryType)) {
-				for (int querySubType = 0; querySubType < Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {	
-					for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
-						ByteBuffer expectedResultsBuffer = ByteBuffer.wrap(tasks.get(taskId++).getExpectedAnswers());
-						expectedResultsBuffer.getInt();
-						expectedResultsBuffer.getInt();
-						byte expectedDataBytes[] = RabbitMQUtils.readByteArray(expectedResultsBuffer);
-						try {
-							FileUtils.writeByteArrayToFile(new File(resultsDir + File.separator + "versionigQuery" + (queryType + 1) + "." + (querySubType + 1) + "." + (querySubstParam + 1) + "_results.json"), expectedDataBytes);
-						} catch (IOException e) {
-							LOGGER.error("Exception caught during saving of expected results: ", e);
-						}
-					}
-				}
-				continue;
-			}
-			for (int querySubstParam = 0; querySubstParam < subsParametersAmount; querySubstParam++) {
-				ByteBuffer expectedResultsBuffer = ByteBuffer.wrap(tasks.get(taskId++).getExpectedAnswers());
-				expectedResultsBuffer.getInt();
-				expectedResultsBuffer.getInt();
-				byte expectedDataBytes[] = RabbitMQUtils.readByteArray(expectedResultsBuffer);
-				try {
-					FileUtils.writeByteArrayToFile(new File(resultsDir + File.separator + "versionigQuery" + (queryType + 1) + ".1." + (querySubstParam + 1) + "_results.json"), expectedDataBytes);
-				} catch (IOException e) {
-					LOGGER.error("Exception caught during saving of expected results : ", e);
-				}
-				if (queryType == 0) break;
+		for (Task task : tasks) {
+			ByteBuffer expectedResultsBuffer = ByteBuffer.wrap(task.getExpectedAnswers());
+			int queryType = expectedResultsBuffer.getInt(); 
+			int querySubType = expectedResultsBuffer.getInt();
+			int querySubstParam = expectedResultsBuffer.getInt();
+			byte expectedDataBytes[] = RabbitMQUtils.readByteArray(expectedResultsBuffer);
+			try {
+				FileUtils.writeByteArrayToFile(new File(resultsDir + File.separator + "versionigQuery" + queryType + "." + querySubType + "." + querySubstParam + "_results.json"), expectedDataBytes);
+			} catch (IOException e) {
+				LOGGER.error("Exception caught during saving of expected results: ", e);
 			}
 		}
 	}
