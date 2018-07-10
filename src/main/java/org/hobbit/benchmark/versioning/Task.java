@@ -77,6 +77,7 @@ public class Task implements Serializable {
 		ByteBuffer buffer = ByteBuffer.allocate(8);
 		buffer.putInt(queryType);
 		buffer.putInt(querySubType);
+		buffer.putInt(querySubstitutionParam);
 		this.expectedAnswers = RabbitMQUtils.writeByteArrays(buffer.array(), new byte[][]{res}, null);
 	}
 	
