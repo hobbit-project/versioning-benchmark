@@ -33,7 +33,6 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.query.ResultSetRewindable;
@@ -314,7 +313,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			computeExpectedAnswers();
 
 			LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");
-		}	
+		}
+
+        LOGGER.info("Sending generated data, queries and expected answers to FTP server...");
+		sendAllToFTP(false);
+		
         LOGGER.info("Data Generator initialized successfully.");
 	}
 	
@@ -612,7 +615,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// QT1
 		if(enabledQueryTypes.getProperty("QT1", "0").equals("1")) {
 			queryString = compileMustacheTemplate(1, queryIndex, 0);
-			tasks.add(new Task(1, 1, Integer.toString(taskId++), queryString, null));
+			tasks.add(new Task(1, 1, 1, Integer.toString(taskId++), queryString, null));
 			try {
 				FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery1.1.1.sparql"), queryString);
 			} catch (IOException e) {
@@ -627,7 +630,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
 				for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
 					queryString = compileMustacheTemplate(2, queryIndex, querySubstParam);
-					tasks.add(new Task(2, querySubType, Integer.toString(taskId++), queryString, null));
+					tasks.add(new Task(2, querySubType, querySubstParam, Integer.toString(taskId++), queryString, null));
 					try {
 						FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery2." + querySubType + "." + querySubstParam + ".sparql"), queryString);
 					} catch (IOException e) {
@@ -650,7 +653,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			querySubstParamCount = 3;
 			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions ; querySubstParam++) {
 				queryString = compileMustacheTemplate(3, queryIndex, querySubstParam);
-				tasks.add(new Task(3, 1, Integer.toString(taskId++), queryString, null));
+				tasks.add(new Task(3, 1, querySubstParam, Integer.toString(taskId++), queryString, null));
 				try {
 					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery3.1." + querySubstParam + ".sparql"), queryString);
 				} catch (IOException e) {
@@ -668,7 +671,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				// if there are less than four versions take all the historical ones
 				for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions; querySubstParam++) {
 					queryString = compileMustacheTemplate(4, queryIndex, querySubstParam);
-					tasks.add(new Task(4, querySubType, Integer.toString(taskId++), queryString, null));
+					tasks.add(new Task(4, querySubType, querySubstParam, Integer.toString(taskId++), queryString, null));
 					try {
 						FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery4." + querySubType + "." + querySubstParam + ".sparql"), queryString);
 					} catch (IOException e) {
@@ -692,7 +695,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		if(enabledQueryTypes.getProperty("QT5", "0").equals("1")) {
 			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
 				queryString = compileMustacheTemplate(5, queryIndex, querySubstParam);
-				tasks.add(new Task(5, 1, Integer.toString(taskId++), queryString, null));
+				tasks.add(new Task(5, 1, querySubstParam, Integer.toString(taskId++), queryString, null));
 				try {
 					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery5.1." + querySubstParam + ".sparql"), queryString);
 				} catch (IOException e) {
@@ -707,7 +710,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		if(enabledQueryTypes.getProperty("QT6", "0").equals("1")) {
 			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
 				queryString = compileMustacheTemplate(6, queryIndex, querySubstParam);
-				tasks.add(new Task(6, 1, Integer.toString(taskId++), queryString, null));
+				tasks.add(new Task(6, 1, querySubstParam, Integer.toString(taskId++), queryString, null));
 				try {
 					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery6.1." + querySubstParam + ".sparql"), queryString);
 				} catch (IOException e) {
@@ -723,7 +726,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			querySubstParamCount = 3;
 			for(int querySubstParam = 1; querySubstParam <= querySubstParamCount && querySubstParam < numberOfVersions - 1; querySubstParam++) {
 				queryString = compileMustacheTemplate(7, queryIndex, querySubstParam);
-				tasks.add(new Task(7, 1, Integer.toString(taskId++), queryString, null));
+				tasks.add(new Task(7, 1, querySubstParam, Integer.toString(taskId++), queryString, null));
 				try {
 					FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery7.1." + querySubstParam + ".sparql"), queryString);
 				} catch (IOException e) {
@@ -747,7 +750,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			for (int querySubType = 1; querySubType <= Statistics.VERSIONING_SUB_QUERIES_COUNT; querySubType++) {
 				for(int querySubstParam = 1; querySubstParam <= querySubstParamCount; querySubstParam++) {
 					queryString = compileMustacheTemplate(8, queryIndex, querySubstParam);
-					tasks.add(new Task(8, querySubType, Integer.toString(taskId++), queryString, null));
+					tasks.add(new Task(8, querySubType, querySubstParam, Integer.toString(taskId++), queryString, null));
 					try {
 						FileUtils.writeStringToFile(new File(queriesPath + "versioningQuery8." + querySubType + "." + querySubstParam + ".sparql"), queryString);
 					} catch (IOException e) {
@@ -1229,22 +1232,26 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}
 	}
 
-	public void sendAllToFTP() {
+	public void sendAllToFTP(boolean proceed) {
+		if (!proceed) {
+			return;
+		}
 		writeResults();
-		FTPUtils.sendToFtp("/versioning/data/v0/", "public/SPVB-LS/test/data/changesets/c0", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c1/", "public/SPVB-LS/test/data/changesets/c1", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c2/", "public/SPVB-LS/test/data/changesets/c2", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c3/", "public/SPVB-LS/test/data/changesets/c3", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c4/", "public/SPVB-LS/test/data/changesets/c4", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v0/", "public/SPVB-LS/test/data/independentcopies/v0", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v1/", "public/SPVB-LS/test/data/independentcopies/v1", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v2/", "public/SPVB-LS/test/data/independentcopies/v2", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v3/", "public/SPVB-LS/test/data/independentcopies/v3", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v4/", "public/SPVB-LS/test/data/independentcopies/v4", "nt");
-		FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/test/queries", "sparql");
-		FTPUtils.sendToFtp("/versioning/query_templates/", "public/SPVB-LS/test/query_templates", "txt");
-		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/SPVB-LS/test/substitution_parameters", "txt");
-		FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/test/expected_results", "json");
+		String datasetType = "1m10v";
+		FTPUtils.sendToFtp("/versioning/data/v0/", "public/SPVB-LS/" + datasetType + "/data/changesets/c0", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c1/", "public/SPVB-LS/" + datasetType + "/data/changesets/c1", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c2/", "public/SPVB-LS/" + datasetType + "/data/changesets/c2", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c3/", "public/SPVB-LS/" + datasetType + "/data/changesets/c3", "nt");
+		FTPUtils.sendToFtp("/versioning/data/c4/", "public/SPVB-LS/" + datasetType + "/data/changesets/c4", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v0/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v0", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v1/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v1", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v2/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v2", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v3/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v3", "nt");
+		FTPUtils.sendToFtp("/versioning/data/final/v4/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v4", "nt");
+		FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/" + datasetType + "/queries", "sparql");
+		FTPUtils.sendToFtp("/versioning/query_templates/", "public/SPVB-LS/" + datasetType + "/query_templates", "txt");
+		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/SPVB-LS/" + datasetType + "/substitution_parameters", "txt");
+		FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/" + datasetType + "/expected_results", "json");
 	}
 	
 	@Override
