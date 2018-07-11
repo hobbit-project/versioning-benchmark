@@ -74,7 +74,7 @@ public class Task implements Serializable {
 	// the results are preceded by the query type as this information required
 	// by the evaluation module. 
 	public void setExpectedAnswers(byte[] res) {
-		ByteBuffer buffer = ByteBuffer.allocate(8);
+		ByteBuffer buffer = ByteBuffer.allocate(12);
 		buffer.putInt(queryType);
 		buffer.putInt(querySubType);
 		buffer.putInt(querySubstitutionParam);
