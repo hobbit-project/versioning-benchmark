@@ -596,7 +596,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			ResultSetFormatter.outputAsJSON(outputStream, results);
 			//debug
 			LOGGER.info("Expected answers for task " + task.getTaskId() + " computed"
-					+ ". Type: " + task.getQueryType() + "." + task.getQuerySubType() 
+					+ ". Type: " + task.getQueryType() + "." + task.getQuerySubType() + "." + task.getQuerySubstitutionParam()
 					+ ", ResultsNum: " + results.size() 
 					+ ", Time: " + (queryEnd - queryStart) + " ms.");			
 
