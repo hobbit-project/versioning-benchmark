@@ -133,10 +133,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		// Evenly distribute the 5 dbpedia versions to the total number of versions that were generated
 		distributeDBpediaVersions();
 		
-		LOGGER.info("triplesExpectedToBeLoaded after dbpedia: " + Arrays.toString(this.triplesExpectedToBeLoaded));
-		LOGGER.info("triplesExpectedToBeAdded after dbpedia: " + Arrays.toString(this.triplesExpectedToBeAdded));
-		LOGGER.info("triplesExpectedToBeDeleted after dbpedia: " + Arrays.toString(this.triplesExpectedToBeDeleted));
-		
 		String configurationFile = System.getProperty("user.dir") + File.separator + "test.properties";
 		String definitionsFile = System.getProperty("user.dir") + File.separator + "definitions.properties";
 		String dictionaryFile = System.getProperty("user.dir") + File.separator + "WordsDictionary.txt";
@@ -304,7 +300,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			LOGGER.info("Building SPRQL tasks...");
 			buildSPRQLQueries();
 			LOGGER.info("All SPRQL tasks built successfully.");	
-			
+//			if(!allQueriesDisabled) {
+			sendAllToFTP(true);
 			// load generated data in order to compute the expected answers
 			loadFirstNVersions(numberOfVersions);
 
@@ -316,7 +313,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}
 
         LOGGER.info("Sending generated data, queries and expected answers to FTP server...");
-		sendAllToFTP(false);
+		sendAllToFTP(true);
 		
         LOGGER.info("Data Generator initialized successfully.");
 	}
@@ -1215,22 +1212,17 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		if (!proceed) {
 			return;
 		}
-		writeResults();
-		String datasetType = "1m10v";
-		FTPUtils.sendToFtp("/versioning/data/v0/", "public/SPVB-LS/" + datasetType + "/data/changesets/c0", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c1/", "public/SPVB-LS/" + datasetType + "/data/changesets/c1", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c2/", "public/SPVB-LS/" + datasetType + "/data/changesets/c2", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c3/", "public/SPVB-LS/" + datasetType + "/data/changesets/c3", "nt");
-		FTPUtils.sendToFtp("/versioning/data/c4/", "public/SPVB-LS/" + datasetType + "/data/changesets/c4", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v0/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v0", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v1/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v1", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v2/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v2", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v3/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v3", "nt");
-		FTPUtils.sendToFtp("/versioning/data/final/v4/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v4", "nt");
+//		writeResults();
+		String datasetType = "1m" + numberOfVersions + "v";
+		for(int versionNum = 0; versionNum < numberOfVersions; versionNum++) {
+			FTPUtils.sendToFtp("/versioning/data/" + (versionNum == 0 ? "v" : "c") + versionNum + "/", "public/SPVB-LS/" + datasetType + "/data/changesets/c" + versionNum, "nt");
+			FTPUtils.sendToFtp("/versioning/data/final/v" + versionNum + "/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v" + versionNum, "nt");
+
+		}
 		FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/" + datasetType + "/queries", "sparql");
-		FTPUtils.sendToFtp("/versioning/query_templates/", "public/SPVB-LS/" + datasetType + "/query_templates", "txt");
-		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/SPVB-LS/" + datasetType + "/substitution_parameters", "txt");
-		FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/" + datasetType + "/expected_results", "json");
+//		FTPUtils.sendToFtp("/versioning/query_templates/", "public/SPVB-LS/" + datasetType + "/query_templates", "txt");
+//		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/SPVB-LS/" + datasetType + "/substitution_parameters", "txt");
+//		FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/" + datasetType + "/results", "json");
 	}
 	
 	@Override
