@@ -14,7 +14,7 @@ public class FTPUtils {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(FTPUtils.class);
 
-	public static void sendToFtp(String inputDir, String outputDir, String fileExtention) {
+	public static void sendToFtp(String inputDir, String outputDir, String fileExtention, boolean compress) {
 		FTPClient client = new FTPClient();
 		FileInputStream fis = null;
 		
@@ -50,9 +50,16 @@ public class FTPUtils {
             File inputDirFile = new File(inputDir);
     		List<File> inputFiles = (List<File>) FileUtils.listFiles(inputDirFile, new String[] { fileExtention }, true);
             for (File file : inputFiles) {
-            	fis = new FileInputStream(file);
-            	client.deleteFile(file.getAbsolutePath());
-            	client.storeFile(file.getName(), fis);
+            	if (compress) {
+            		Utils.compressGzipFile(file, file.getAbsolutePath() + ".gz");
+                	fis = new FileInputStream(file.getAbsolutePath() + ".gz");
+                	client.deleteFile(file.getAbsolutePath());
+                	client.storeFile(file.getName() + ".gz", fis);
+            	} else {
+            		fis = new FileInputStream(file);
+            		client.deleteFile(file.getAbsolutePath());
+            		client.storeFile(file.getName(), fis);
+            	}
             }
             client.logout();
         } catch (IOException e) {
