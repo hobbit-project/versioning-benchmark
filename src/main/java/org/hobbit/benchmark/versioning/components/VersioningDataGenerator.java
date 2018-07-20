@@ -33,6 +33,7 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.query.ResultSetRewindable;
@@ -40,6 +41,7 @@ import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.benchmark.versioning.util.FTPUtils;
 import org.hobbit.benchmark.versioning.util.SystemAdapterConstants;
+import org.hobbit.core.Commands;
 import org.hobbit.core.components.AbstractDataGenerator;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
@@ -187,7 +189,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("Generating Creative Works data files of the initial version...");
 		long totalTriples = configuration.getLong(Configuration.DATASET_SIZE_TRIPLES);
 		DataGenerator dataGenerator = new DataGenerator(randomGenerator, configuration, definitions, dataGeneratorWorkers, totalTriples, maxTriplesPerFile, initialVersionDataPath, serializationFormat);
+		long startGenerateV0 = System.currentTimeMillis();
 		dataGenerator.produceData();
+		long endGenerateV0 = System.currentTimeMillis();
+		LOGGER.info("[LS-DEBUG] generate v0: " +  (endGenerateV0 - startGenerateV0) + " ms.");
 
 		// ontologies triples included
 		triplesExpectedToBeAdded[0] += dataGenerator.getTriplesGeneratedSoFar().intValue() + VersioningConstants.ONTOLOGIES_TRIPLES; 
@@ -275,12 +280,21 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}
 		long changeSetEnd = System.currentTimeMillis();
 		LOGGER.info("All changesets generated successfully. Time: " + (changeSetEnd - changeSetStart) + " ms.");
+		LOGGER.info("[LS-DEBUG] change-sets time: " +  (changeSetEnd - changeSetStart) + " ms.");
 
 		
-		
 		// construct all versions as independent copies
+		long startConstructVersions = System.currentTimeMillis();
 		constructVersions();
+		long endConstructVersions = System.currentTimeMillis();
+		LOGGER.info("[LS-DEBUG] construct versions time: " +  (endConstructVersions - startConstructVersions) + " ms.");
 		
+		// send data to the FTP server
+		long startDataSent = System.currentTimeMillis();
+		sendToFTP(true, false, false);
+		long endDataSent = System.currentTimeMillis();
+		long upload = endDataSent - startDataSent;
+
 		// if all query types are disabled skip this part
 		if(!allQueriesDisabled) {
 			LOGGER.info("Generating tasks...");
@@ -300,21 +314,35 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			LOGGER.info("Building SPRQL tasks...");
 			buildSPRQLQueries();
 			LOGGER.info("All SPRQL tasks built successfully.");	
-//			if(!allQueriesDisabled) {
-			sendAllToFTP(true);
-			// load generated data in order to compute the expected answers
-			loadFirstNVersions(numberOfVersions);
 
+			// send queries to the FTP server
+			long startQueriesSent = System.currentTimeMillis();
+			sendToFTP(false, true, false);
+			long endQueriesSent = System.currentTimeMillis();
+			upload += endQueriesSent - startQueriesSent;
+
+			// load generated data in order to compute the expected answers
+			long startLoadData = System.currentTimeMillis();
+			loadFirstNVersions(numberOfVersions);
+			long endLoadData = System.currentTimeMillis();
+			LOGGER.info("[LS-DEBUG] load data time: " +  (endLoadData - startLoadData) + " ms.");
+
+//			Thread.sleep(1000 * 60 * 60);
 			// compute expected answers for all tasks
 			LOGGER.info("Computing expected answers for generated SPARQL tasks...");
+			long start = System.currentTimeMillis();
 			computeExpectedAnswers();
-
+			long end = System.currentTimeMillis();
 			LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");
+			LOGGER.info("[LS-DEBUG] compute expected answers time: " +  (end - start) + " ms.");
 		}
 
-        LOGGER.info("Sending generated data, queries and expected answers to FTP server...");
-		sendAllToFTP(true);
-		
+		// send results to the FTP server
+		long startResultsSent = System.currentTimeMillis();
+		sendToFTP(false, false, true);
+		long endResultsSent = System.currentTimeMillis();
+		upload += endResultsSent - startResultsSent;
+		LOGGER.info("[LS-DEBUG] upload data, queries and results: " + upload + " ms.");
         LOGGER.info("Data Generator initialized successfully.");
 	}
 	
@@ -371,6 +399,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		versionDeletionRatio = (Integer) getFromEnv(env, VersioningConstants.VERSION_DELETION_RATIO, 0);
 		sentDataForm = (String) getFromEnv(env, VersioningConstants.SENT_DATA_FORM, "");
 		enabledQueryTypesParam = (String) getFromEnv(env, VersioningConstants.ENABLED_QUERY_TYPES, "");
+		
+		LOGGER.info("[LS-DEBUG] size: " + v0TotalSizeInTriples);
+		LOGGER.info("[LS-DEBUG] versions: " + numberOfVersions);
 	}	
 	
 	/*
@@ -578,18 +609,40 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	public void computeExpectedAnswers() {		
 		for (Task task : tasks) {			
 			ResultSetRewindable results = null;
-
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			
 			// execute the query on top of virtuoso to compute the expected answers
 			long queryStart = System.currentTimeMillis();
 			try (QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:8890/sparql", task.getQuery())) {
-				results = ResultSetFactory.makeRewindable(qexec.execSelect());
+				ResultSet rs = qexec.execSelect();
+				while (rs == null ) {
+					LOGGER.info(task.getQuery());
+					LOGGER.info("Query could not be executed. Trying again...");
+					rs = qexec.execSelect();
+					Thread.sleep(1000);
+				}
+				results = ResultSetFactory.makeRewindable(rs);
 			} catch (Exception e) {
-				LOGGER.error("Exception caught during the computation of task " + task.getTaskId() + " expected answers.", e);
+				LOGGER.error(task.getQuery());
+				LOGGER.error("Problem while executing task " + task.getTaskId(), e);
+				try {
+					outputStream.write("{\"head\":{\"vars\":[\"xxx\"]},\"results\":{\"bindings\":[{\"xxx\":{\"type\":\"literal\",\"value\":\"XXX\"}}]}}".getBytes());
+					task.setExpectedAnswers(outputStream.toByteArray());
+					tasks.set(Integer.parseInt(task.getTaskId()), task);
+				} catch (IOException e1) {
+					LOGGER.error("Exception while writing/sending empty results of task " + task.getTaskId(), e);
+				}
+				continue;
 			}
-			long queryEnd = System.currentTimeMillis();			
+			long queryEnd = System.currentTimeMillis();	
+			
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//				LOGGER.error("An error occured while sleeping...", e);
+//			}
 
 			// update the task by setting its expected results
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			ResultSetFormatter.outputAsJSON(outputStream, results);
 			//debug
 			LOGGER.info("Expected answers for task " + task.getTaskId() + " computed"
@@ -987,6 +1040,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	// This method is used for sending the already generated data, tasks and gold standard
 	// to the appropriate components.
 	protected void generateData() throws Exception {
+		Thread.sleep(1000 * 60);
+		sendToCmdQueue(VersioningConstants.EXIT);
 		try {						
 			// Send data files to the system.
 			// Starting for version 0 and continue to the next one until reaching the last version.
@@ -1208,21 +1263,36 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}
 	}
 
-	public void sendAllToFTP(boolean proceed) {
-		if (!proceed) {
+	public void sendToFTP(boolean sendData, boolean sendQueries, boolean sendResults) {
+		if (!sendData && !sendQueries && !sendResults) {
 			return;
 		}
-//		writeResults();
-		String datasetType = "1m" + numberOfVersions + "v";
-		for(int versionNum = 0; versionNum < numberOfVersions; versionNum++) {
-			FTPUtils.sendToFtp("/versioning/data/" + (versionNum == 0 ? "v" : "c") + versionNum + "/", "public/SPVB-LS/" + datasetType + "/data/changesets/c" + versionNum, "nt");
-			FTPUtils.sendToFtp("/versioning/data/final/v" + versionNum + "/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v" + versionNum, "nt");
-
+		
+		String datasetSize = "NO_LS-";
+		if(v0TotalSizeInTriples == 1000000) {
+			datasetSize = "1M-";
+		} else if(v0TotalSizeInTriples == 5000000) {
+			datasetSize = "5M-";
+		} else if(v0TotalSizeInTriples == 10000000) {
+			datasetSize = "10M-";		
 		}
-		FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/" + datasetType + "/queries", "sparql");
+		
+		String datasetName = datasetSize + numberOfVersions + "V";
+		if (sendData) {
+			for(int versionNum = 0; versionNum < numberOfVersions; versionNum++) {
+				FTPUtils.sendToFtp("/versioning/data/" + (versionNum == 0 ? "v" : "c") + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/changesets/c" + versionNum, "nt");
+				FTPUtils.sendToFtp("/versioning/data/final/v" + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/independentcopies/v" + versionNum, "nt");
+			}
+		}
+		if(sendQueries) {
+			FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/" + datasetName + "/queries", "sparql");
+		}
+		if(sendResults) {
+			writeResults();
+			FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/" + datasetName + "/results", "json");
+		}
 //		FTPUtils.sendToFtp("/versioning/query_templates/", "public/SPVB-LS/" + datasetType + "/query_templates", "txt");
 //		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/SPVB-LS/" + datasetType + "/substitution_parameters", "txt");
-//		FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/" + datasetType + "/results", "json");
 	}
 	
 	@Override
