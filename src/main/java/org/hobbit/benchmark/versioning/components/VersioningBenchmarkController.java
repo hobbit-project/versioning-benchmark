@@ -23,9 +23,9 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersioningBenchmarkController.class);
 
-	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:2.2.1";
-	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:2.2.1";
-	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:2.2.1";
+	private static final String DATA_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningdatagenerator:dev";
+	private static final String TASK_GENERATOR_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningtaskgenerator:dev";
+	private static final String EVALUATION_MODULE_CONTAINER_IMAGE = "git.project-hobbit.eu:4567/papv/versioningevaluationmodule:dev";
 	
 	private static final String PREFIX = "http://w3id.org/hobbit/versioning-benchmark/vocab#";
 	
@@ -49,9 +49,13 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
     private SystemResourceUsageRequester resUsageRequester = null;
     private long systemInitialUsableSpace = 0;
     private long systemStorageSpaceCost = 0;
-        
+    
+    private long experimentTime = 0;
+    private long experimentStart = 0;
+    
 	@Override
 	public void init() throws Exception {
+		experimentStart = System.currentTimeMillis();
         LOGGER.info("Initilalizing Benchmark Controller...");
         super.init();
                
@@ -117,6 +121,8 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 		
 		waitForComponentsToInitialize();
 		LOGGER.info("All components initilized.");
+		
+		LOGGER.info("[LS-DEBUG] Experiment URI: " + experimentUri);
 	}
 	
 	/**
@@ -189,6 +195,12 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         	long versionLoadingTime = currTimeMillis - prevLoadingStartedTime;
         	loadingTimes[loadedVersion++] = versionLoadingTime;
         	versionLoadedMutex.release();
+        } else if (command == VersioningConstants.EXIT) {
+	    	LOGGER.info("Force exitting...");
+	    	experimentTime = System.currentTimeMillis() - experimentStart;
+			LOGGER.info("[LS-DEBUG] experiment time: " + experimentTime);
+			LOGGER.info("[LS-DEBUG] -----------------------------------------");
+        	System.exit(0);
         }
         super.receiveCommand(command, data);
     }
@@ -302,7 +314,7 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
         LOGGER.info("Waiting for the evaluation to finish.");
         waitForEvalComponentsToFinish();
         LOGGER.info("Evaluation finished.");
-
+        
         // Send the resultModul to the platform controller and terminate
         sendResultModel(this.resultModel);
         LOGGER.info("Evaluated results sent to the platform controller.");
