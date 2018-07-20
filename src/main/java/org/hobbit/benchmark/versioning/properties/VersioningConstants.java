@@ -11,7 +11,10 @@ public final class VersioningConstants {
 	
 	// =============== COMMAND QUEUE CONSTANTS ===============
 	
-	public static final byte DATA_GEN_VERSION_DATA_SENT = (byte) 301;
+	public static final byte DATA_GEN_VERSION_DATA_SENT = (byte) 255;
+	
+	public static final byte EXIT = (byte) 254;	
+
 		
 	// =============== DATA GENERATOR CONSTANTS ===============
 
@@ -102,6 +105,4 @@ public final class VersioningConstants {
 	// =============== ontologies data stats ===============
 	
 	public static final int ONTOLOGIES_TRIPLES = 8134;
-
-
 }
