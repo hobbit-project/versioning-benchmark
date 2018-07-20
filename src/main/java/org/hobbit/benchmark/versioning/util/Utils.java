@@ -1,5 +1,6 @@
 package org.hobbit.benchmark.versioning.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,11 +9,11 @@ import java.util.zip.GZIPOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileUtils {
+public class Utils {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 	
-	private static void compressGzipFile(String file, String gzipFile) {
+	private static FileInputStream compressGzipFile(File file, String gzipFile) {
         try {
             FileInputStream fis = new FileInputStream(file);
             FileOutputStream fos = new FileOutputStream(gzipFile);
