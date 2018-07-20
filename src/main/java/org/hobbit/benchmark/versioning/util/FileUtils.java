@@ -8,9 +8,9 @@ import java.util.zip.GZIPOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileUtil {
+public class FileUtils {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 	
 	private static void compressGzipFile(String file, String gzipFile) {
         try {
