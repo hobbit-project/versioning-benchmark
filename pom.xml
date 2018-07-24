@@ -87,14 +87,7 @@
 	    <groupId>org.apache.jena</groupId>
 	    <artifactId>jena-core</artifactId>
 	    <version>3.8.0</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
-	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-compress</artifactId>
-	    <version>1.17</version>
-	</dependency>
-	
+	</dependency>	
   </dependencies>
   
   <build>
