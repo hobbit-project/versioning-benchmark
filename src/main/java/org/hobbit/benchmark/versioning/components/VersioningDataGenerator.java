@@ -291,7 +291,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		// send data to the FTP server
 		long startDataSent = System.currentTimeMillis();
-		sendToFTP(true, false, false);
+		sendToFTP(true, false, false, true);
 		long endDataSent = System.currentTimeMillis();
 		long upload = endDataSent - startDataSent;
 
@@ -317,7 +317,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 			// send queries to the FTP server
 			long startQueriesSent = System.currentTimeMillis();
-			sendToFTP(false, true, false);
+			sendToFTP(false, true, false, false);
 			long endQueriesSent = System.currentTimeMillis();
 			upload += endQueriesSent - startQueriesSent;
 
@@ -339,7 +339,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		// send results to the FTP server
 		long startResultsSent = System.currentTimeMillis();
-		sendToFTP(false, false, true);
+		sendToFTP(false, false, true, false);
 		long endResultsSent = System.currentTimeMillis();
 		upload += endResultsSent - startResultsSent;
 		LOGGER.info("[LS-DEBUG] upload data, queries and results: " + upload + " ms.");
@@ -1263,33 +1263,36 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}
 	}
 
-	public void sendToFTP(boolean sendData, boolean sendQueries, boolean sendResults) {
+	public void sendToFTP(boolean sendData, boolean sendQueries, boolean sendResults, boolean compress) {
 		if (!sendData && !sendQueries && !sendResults) {
 			return;
 		}
-		
-		String datasetSize = "NO_LS-";
+		String datasetName = "TEST_";
+
 		if(v0TotalSizeInTriples == 1000000) {
-			datasetSize = "1M-";
+			datasetName += "1M-";
 		} else if(v0TotalSizeInTriples == 5000000) {
-			datasetSize = "5M-";
+			datasetName = "5M-";
 		} else if(v0TotalSizeInTriples == 10000000) {
-			datasetSize = "10M-";		
+			datasetName = "10M-";		
+		}
+		datasetName += numberOfVersions + "V";
+		if(compress) {
+			datasetName += "_compressed";
 		}
 		
-		String datasetName = datasetSize + numberOfVersions + "V";
 		if (sendData) {
 			for(int versionNum = 0; versionNum < numberOfVersions; versionNum++) {
-				FTPUtils.sendToFtp("/versioning/data/" + (versionNum == 0 ? "v" : "c") + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/changesets/c" + versionNum, "nt");
-				FTPUtils.sendToFtp("/versioning/data/final/v" + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/independentcopies/v" + versionNum, "nt");
+				FTPUtils.sendToFtp("/versioning/data/" + (versionNum == 0 ? "v" : "c") + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/changesets/c" + versionNum, "nt", compress);
+				FTPUtils.sendToFtp("/versioning/data/final/v" + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/independentcopies/v" + versionNum, "nt", compress);
 			}
 		}
 		if(sendQueries) {
-			FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/" + datasetName + "/queries", "sparql");
+			FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/" + datasetName + "/queries", "sparql", false);
 		}
 		if(sendResults) {
 			writeResults();
-			FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/" + datasetName + "/results", "json");
+			FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/" + datasetName + "/results", "json", false);
 		}
 //		FTPUtils.sendToFtp("/versioning/query_templates/", "public/SPVB-LS/" + datasetType + "/query_templates", "txt");
 //		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/SPVB-LS/" + datasetType + "/substitution_parameters", "txt");

@@ -199,6 +199,12 @@ public class VersioningBenchmarkController extends AbstractBenchmarkController {
 	    	LOGGER.info("Force exitting...");
 	    	experimentTime = System.currentTimeMillis() - experimentStart;
 			LOGGER.info("[LS-DEBUG] experiment time: " + experimentTime);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			LOGGER.info("[LS-DEBUG] -----------------------------------------");
         	System.exit(0);
         }

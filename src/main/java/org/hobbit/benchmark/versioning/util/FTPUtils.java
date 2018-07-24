@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.ftp.FTPClient;
@@ -17,6 +18,7 @@ public class FTPUtils {
 	public static void sendToFtp(String inputDir, String outputDir, String fileExtention, boolean compress) {
 		FTPClient client = new FTPClient();
 		FileInputStream fis = null;
+		GZIPOutputStream gzos = null; 
 		
         try {
         	client.connect("hobbitdata.informatik.uni-leipzig.de");
@@ -48,13 +50,14 @@ public class FTPUtils {
 
             LOGGER.info(client.printWorkingDirectory());
             File inputDirFile = new File(inputDir);
-    		List<File> inputFiles = (List<File>) FileUtils.listFiles(inputDirFile, new String[] { fileExtention }, true);
+    		List<File> inputFiles = (List<File>) FileUtils.listFiles(inputDirFile, new String[] { fileExtention }, false);
             for (File file : inputFiles) {
             	if (compress) {
-            		Utils.compressGzipFile(file, file.getAbsolutePath() + ".gz");
-                	fis = new FileInputStream(file.getAbsolutePath() + ".gz");
-                	client.deleteFile(file.getAbsolutePath());
-                	client.storeFile(file.getName() + ".gz", fis);
+            		File compressedFile = new File(file.getAbsolutePath() + ".gz");
+            		CompressUtils.compressGZIP(file, compressedFile);
+                	fis = new FileInputStream(compressedFile);
+                	client.deleteFile(compressedFile.getAbsolutePath());
+                	client.storeFile(compressedFile.getName(), fis);
             	} else {
             		fis = new FileInputStream(file);
             		client.deleteFile(file.getAbsolutePath());
@@ -68,6 +71,9 @@ public class FTPUtils {
         	try {
                 if (fis != null) {
                     fis.close();
+                }
+                if (gzos != null) {
+                	gzos.close();
                 }
                 client.disconnect();
             } catch (IOException e) {
