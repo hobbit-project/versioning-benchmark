@@ -275,8 +275,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}
 		long changeSetEnd = System.currentTimeMillis();
 		LOGGER.info("All changesets generated successfully. Time: " + (changeSetEnd - changeSetStart) + " ms.");
-
-		
 		
 		// construct all versions as independent copies
 		constructVersions();
@@ -300,8 +298,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			LOGGER.info("Building SPRQL tasks...");
 			buildSPRQLQueries();
 			LOGGER.info("All SPRQL tasks built successfully.");	
-//			if(!allQueriesDisabled) {
-			sendAllToFTP(true);
+
 			// load generated data in order to compute the expected answers
 			loadFirstNVersions(numberOfVersions);
 
@@ -311,11 +308,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 			LOGGER.info("Expected answers have computed successfully for all generated SPRQL tasks.");
 		}
-
-        LOGGER.info("Sending generated data, queries and expected answers to FTP server...");
-		sendAllToFTP(true);
-		
-        LOGGER.info("Data Generator initialized successfully.");
+		LOGGER.info("Data Generator initialized successfully.");
 	}
 	
 	public void parallelyExtract(int currVersion, String destinationPath) {
@@ -1208,21 +1201,24 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		}
 	}
 
-	public void sendAllToFTP(boolean proceed) {
-		if (!proceed) {
-			return;
-		}
-//		writeResults();
-		String datasetType = "1m" + numberOfVersions + "v";
-		for(int versionNum = 0; versionNum < numberOfVersions; versionNum++) {
-			FTPUtils.sendToFtp("/versioning/data/" + (versionNum == 0 ? "v" : "c") + versionNum + "/", "public/SPVB-LS/" + datasetType + "/data/changesets/c" + versionNum, "nt");
-			FTPUtils.sendToFtp("/versioning/data/final/v" + versionNum + "/", "public/SPVB-LS/" + datasetType + "/data/independentcopies/v" + versionNum, "nt");
+	public void sendToFTP(String ftpPath, boolean sendData, boolean sendQueries, boolean sendResults) {
+		String datasetName = v0TotalSizeInTriples + "-triples_" + numberOfVersions + "-v";
+		if(sendData) {
+			writeResults();
+			for(int versionNum = 0; versionNum < numberOfVersions; versionNum++) {
+				FTPUtils.sendToFtp("/versioning/data/" + (versionNum == 0 ? "v" : "c") + versionNum + "/", ftpPath + datasetName + "/data/changesets/c" + versionNum, "nt");
+				FTPUtils.sendToFtp("/versioning/data/final/v" + versionNum + "/", ftpPath + datasetName + "/data/independentcopies/v" + versionNum, "nt");
 
+			}
 		}
-		FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/" + datasetType + "/queries", "sparql");
-//		FTPUtils.sendToFtp("/versioning/query_templates/", "public/SPVB-LS/" + datasetType + "/query_templates", "txt");
-//		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/SPVB-LS/" + datasetType + "/substitution_parameters", "txt");
-//		FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/" + datasetType + "/results", "json");
+		if (sendQueries) {
+			FTPUtils.sendToFtp("/versioning/queries/", ftpPath + datasetName + "/queries", "sparql");
+		}
+		if (sendResults) {
+			FTPUtils.sendToFtp("/versioning/query_templates/", ftpPath + datasetName + "/query_templates", "txt");
+		}
+		FTPUtils.sendToFtp("/versioning/substitution_parameters/", ftpPath + datasetName + "/substitution_parameters", "txt");
+		FTPUtils.sendToFtp("/versioning/results/", ftpPath + datasetName + "/results", "json");
 	}
 	
 	@Override
