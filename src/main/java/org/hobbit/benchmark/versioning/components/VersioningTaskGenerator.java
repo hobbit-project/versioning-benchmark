@@ -46,7 +46,6 @@ public class VersioningTaskGenerator extends AbstractSequencingTaskGenerator {
 	        sendTaskToEvalStorage(taskId, timestamp, task.getExpectedAnswers());
 
 			LOGGER.info("Expected answers of task " + taskId + " sent to Evaluation Storage.");
-
 	    } catch (Exception e) {
 			LOGGER.error("Exception caught while reading the tasks and their expected answers", e);
 		}

@@ -126,6 +126,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 		// get the query type
 		int queryType = expectedBuffer.getInt();
 		int querySubType = expectedBuffer.getInt();
+		int querySustitutionParam = expectedBuffer.getInt();
 
 		
 		// get the expected results
@@ -199,7 +200,7 @@ public class VersioningEvaluationModule extends AbstractEvaluationModule {
 				}
 				break;
 		}
-		LOGGER.info((resultSetsEqual ? "[SUCCESS]" : "[FAIL]") + " - Task type: " + queryType + "." + querySubType + " executed in " + (responseReceivedTimestamp - taskSentTimestamp) + " ms and returned " + received.size() + "/" + expected.size() + " results.");
+		LOGGER.info((resultSetsEqual ? "[SUCCESS]" : "[FAIL]") + " - Task type: " + queryType + "." + querySubType + "." + querySustitutionParam + " executed in " + (responseReceivedTimestamp - taskSentTimestamp) + " ms and returned " + received.size() + "/" + expected.size() + " results.");
 	}
 	
 	private void computeTotalFailures() {
