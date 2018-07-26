@@ -87,9 +87,14 @@
 	    <groupId>org.apache.jena</groupId>
 	    <artifactId>jena-core</artifactId>
 	    <version>3.8.0</version>
-	</dependency>	
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
+	<dependency>
+	    <groupId>org.apache.commons</groupId>
+	    <artifactId>commons-csv</artifactId>
+	    <version>1.5</version>
+	</dependency>
   </dependencies>
-  
   <build>
   	<plugins>
   		<plugin>

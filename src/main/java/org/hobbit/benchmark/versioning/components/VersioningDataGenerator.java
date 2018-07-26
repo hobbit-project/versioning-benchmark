@@ -12,6 +12,8 @@ import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.SerializationUtils;
@@ -80,7 +84,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int seedYear;
 	private int generorPeriodYears;
 	private int subGeneratorSeed;
-	private int subsParametersAmount;
 	private int versionInsertionRatio;
 	private int versionDeletionRatio;
 	private String serializationFormat;
@@ -95,7 +98,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 	private int[] triplesExpectedToBeAdded;
 	private int[] triplesExpectedToBeDeleted;
 	private int[] triplesExpectedToBeLoaded;
-//	private int[] cwsToBeLoaded;
 	
 	private Properties enabledQueryTypes = new Properties();
 	private boolean allQueriesDisabled = true;
@@ -152,7 +154,6 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		
 		maxTriplesPerFile = configuration.getInt(Configuration.GENERATED_TRIPLES_PER_FILE);
 		dataGeneratorWorkers = configuration.getInt(Configuration.DATA_GENERATOR_WORKERS);
-		subsParametersAmount = configuration.getInt(Configuration.QUERY_SUBSTITUTION_PARAMETERS);
 		serializationFormat = configuration.getString(Configuration.GENERATE_CREATIVE_WORKS_FORMAT);
 		seedYear = definitions.getInt(Definitions.YEAR_SEED);
 		
@@ -344,6 +345,22 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		upload += endResultsSent - startResultsSent;
 		LOGGER.info("[LS-DEBUG] upload data, queries and results: " + upload + " ms.");
         LOGGER.info("Data Generator initialized successfully.");
+	}
+	
+	// For each version store the triples that have to be added, deleted and loaded.
+	// Such information required when the dataset is downloaded from the FTP 
+	public void storeDatasetInfo() {
+		try (
+			BufferedWriter writer = Files.newBufferedWriter(Paths.get(generatedDatasetPath + File.separator + "version_info.csv"));
+			CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("VersionNumber", "TriplesToBeAdded", "TriplesToBeDeleted", "TriplesToBeLoaded"));
+		) {
+			for(int version = 0; version < numberOfVersions; version++ ) {
+				csvPrinter.printRecord(version, triplesExpectedToBeAdded, triplesExpectedToBeDeleted, triplesExpectedToBeLoaded);
+			}
+			csvPrinter.flush();
+		} catch (IOException e) {
+			LOGGER.error("Exception caught while writting versions' info", e);
+		}
 	}
 	
 	public void parallelyExtract(int currVersion, String destinationPath) {
@@ -1267,20 +1284,8 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		if (!sendData && !sendQueries && !sendResults) {
 			return;
 		}
-		String datasetName = "TEST_";
+		String datasetName = (v0TotalSizeInTriples == 1000000 ? "1M-" : v0TotalSizeInTriples == 5000000 ? "5M-" : v0TotalSizeInTriples == 10000000 ? "10M-" : "TEST_") + numberOfVersions + "V" ;
 
-		if(v0TotalSizeInTriples == 1000000) {
-			datasetName += "1M-";
-		} else if(v0TotalSizeInTriples == 5000000) {
-			datasetName = "5M-";
-		} else if(v0TotalSizeInTriples == 10000000) {
-			datasetName = "10M-";		
-		}
-		datasetName += numberOfVersions + "V";
-		if(compress) {
-			datasetName += "_compressed";
-		}
-		
 		if (sendData) {
 			for(int versionNum = 0; versionNum < numberOfVersions; versionNum++) {
 				FTPUtils.sendToFtp("/versioning/data/" + (versionNum == 0 ? "v" : "c") + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/changesets/c" + versionNum, "nt", compress);
