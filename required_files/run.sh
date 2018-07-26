@@ -32,8 +32,8 @@ do
    sleep 1
    seconds_passed=$((seconds_passed+1))
    echo $seconds_passed >> out.txt
-   if [ $seconds_passed -gt 120 ]; then
-      echo $(date +%H:%M:%S.%N | cut -b1-12)" : Could not start Virtuoso Server. Timeout: [2 min]"
+   if [ $seconds_passed -gt 240 ]; then
+      echo $(date +%H:%M:%S.%N | cut -b1-12)" : Could not start Virtuoso Server. Timeout: [4 min]"
       echo "Exiting..."
       exit
    fi
