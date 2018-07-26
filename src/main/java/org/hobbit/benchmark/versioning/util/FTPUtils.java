@@ -25,13 +25,12 @@ public class FTPUtils {
 		
         try {
         	client.connect("hobbitdata.informatik.uni-leipzig.de");
-        	LOGGER.info("connected: " + client.sendNoOp());
+        	LOGGER.info(client.sendNoOp() ? "Connection established to FTP server" : "Could not connect to FTP server");
         	client.enterLocalPassiveMode();
-        	String username = "hobbit";
-            String pwd = "SHQsAeMbFRgzVbXHUBw9cuxmNdnrpVBWYRAEkjXHGgA2qusnMhtSLn78kxUHv4QNF8vMBeaArFXXEhDPkjB6JnNzUW2wg7CXFnsh";
-            LOGGER.info("login: " + client.login(username, pwd));
+        	String username = "****";
+            String pwd = "****";
+        	LOGGER.info(client.login(username, pwd) ? "Logged in" : "Not connected to FTP.");
             
-            LOGGER.info(client.printWorkingDirectory());
             // recursively create ftp folders if not exist
             boolean dirExists = true;
             String[] directories = outputDir.split("/");
@@ -51,12 +50,10 @@ public class FTPUtils {
             	}
             }
 
-            LOGGER.info(client.printWorkingDirectory());
             File inputDirFile = new File(inputDir);
     		List<File> inputFiles = (List<File>) FileUtils.listFiles(inputDirFile, new String[] { fileExtention }, false);
     		StringBuilder dataFiles = new StringBuilder();
             for (File file : inputFiles) {
-            	dataFiles.append(file.getName() + "\n");
             	if (compress) {
             		File compressedFile = new File(file.getAbsolutePath() + ".gz");
             		CompressUtils.compressGZIP(file, compressedFile);
@@ -64,10 +61,12 @@ public class FTPUtils {
                 	client.deleteFile(compressedFile.getAbsolutePath());
                 	client.setFileType(FTP.BINARY_FILE_TYPE);
                 	client.storeFile(compressedFile.getName(), fis);
+                	dataFiles.append(compressedFile.getName() + "\n");
             	} else {
             		fis = new FileInputStream(file);
             		client.deleteFile(file.getAbsolutePath());
             		client.storeFile(file.getName(), fis);
+                	dataFiles.append(file.getName() + "\n");
             	}
             }
             client.setFileType(FTP.ASCII_FILE_TYPE);
