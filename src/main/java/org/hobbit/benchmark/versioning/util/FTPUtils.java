@@ -84,6 +84,7 @@ public class FTPUtils {
             } catch (IOException e) {
     			e.printStackTrace();
             }
+        	LOGGER.info("All files from " + inputDir + "successfully sent to FTP.");
         }
 	}
 }

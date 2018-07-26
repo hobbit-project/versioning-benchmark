@@ -23,9 +23,6 @@ public class CompressUtils {
                 while((len=in.read(buffer)) != -1) {
                     out.write(buffer, 0, len);
                 }
-            } finally {
-        		LOGGER.info(input.getName() + " compressed successfully (" + input.length() + "-->" + output.length() + ")"
-        				+ "in " + (System.currentTimeMillis() - start) + " ms.");
             }
         }
     }
@@ -40,10 +37,6 @@ public class CompressUtils {
                     out.write(buffer, 0, len);
                 }
             }
-        } finally {
-        	LOGGER.info(input.getName() + " decompressed successfully (" + input.length() + "-->" + output.length() + ")"
-    				+ "in " + (System.currentTimeMillis() - start) + " ms.");
-        	input.delete();
         }
     }
 }
