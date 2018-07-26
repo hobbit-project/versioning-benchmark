@@ -42,7 +42,7 @@ prll_rdf_loader_run() {
 
 # prepare bulk loadmkdir $DATASETS_PATH_FINAL
 for ((i=0; i<$NUMBER_OF_VERSIONS; i++)); do
-   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="ld_dir('$DATASETS_PATH_FINAL/v$i', '*', '$GRAPH_NAME$i');" > /dev/null
+   $VIRTUOSO_BIN/isql-v 1111 dba dba exec="ld_dir('$DATASETS_PATH_FINAL/v$i', '*.nt', '$GRAPH_NAME$i');" > /dev/null
 done
 
 # bulk load
