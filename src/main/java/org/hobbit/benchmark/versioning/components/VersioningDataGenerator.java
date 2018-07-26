@@ -1289,8 +1289,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		if (sendData) {
 			for(int versionNum = 0; versionNum < numberOfVersions; versionNum++) {
-				FTPUtils.sendToFtp("/versioning/data/" + (versionNum == 0 ? "v" : "c") + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/changesets/c" + versionNum, "nt", compress);
-				FTPUtils.sendToFtp("/versioning/data/final/v" + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/independentcopies/v" + versionNum, "nt", compress);
+				// send the change-sets
+				// in the first change-set include the ontology files
+				FTPUtils.sendToFtp(generatedDatasetPath + (versionNum == 0 ? "/final/v" : "/c") + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/changesets/c" + versionNum, "nt", compress);
+				// send the independent copies
+				FTPUtils.sendToFtp(generatedDatasetPath + "/final/v" + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/independentcopies/v" + versionNum, "nt", compress);
 			}
 			FTPUtils.sendToFtp(generatedDatasetPath, "public/SPVB-LS/" + datasetName + "/data", "csv", false);
 		}
