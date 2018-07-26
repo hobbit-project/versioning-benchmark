@@ -282,6 +282,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("All changesets generated successfully. Time: " + (changeSetEnd - changeSetStart) + " ms.");
 		LOGGER.info("[LS-DEBUG] change-sets time: " +  (changeSetEnd - changeSetStart) + " ms.");
 
+		storeDatasetInfo();
 		
 		// construct all versions as independent copies
 		long startConstructVersions = System.currentTimeMillis();
@@ -355,7 +356,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("VersionNumber", "TriplesToBeAdded", "TriplesToBeDeleted", "TriplesToBeLoaded"));
 		) {
 			for(int version = 0; version < numberOfVersions; version++ ) {
-				csvPrinter.printRecord(version, triplesExpectedToBeAdded, triplesExpectedToBeDeleted, triplesExpectedToBeLoaded);
+				csvPrinter.printRecord(version, triplesExpectedToBeAdded[version], triplesExpectedToBeDeleted[version], triplesExpectedToBeLoaded[version]);
 			}
 			csvPrinter.flush();
 		} catch (IOException e) {
@@ -1291,9 +1292,10 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 				FTPUtils.sendToFtp("/versioning/data/" + (versionNum == 0 ? "v" : "c") + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/changesets/c" + versionNum, "nt", compress);
 				FTPUtils.sendToFtp("/versioning/data/final/v" + versionNum + "/", "public/SPVB-LS/" + datasetName + "/data/independentcopies/v" + versionNum, "nt", compress);
 			}
+			FTPUtils.sendToFtp(generatedDatasetPath, "public/SPVB-LS/" + datasetName + "/data", "csv", false);
 		}
 		if(sendQueries) {
-			FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/" + datasetName + "/queries", "sparql", compress);
+			FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/" + datasetName + "/queries", "sparql", false);
 		}
 		if(sendResults) {
 			writeResults();
