@@ -26,7 +26,6 @@ public class CompressUtils {
             } finally {
         		LOGGER.info(input.getName() + " compressed successfully (" + input.length() + "-->" + output.length() + ")"
         				+ "in " + (System.currentTimeMillis() - start) + " ms.");
-            	input.delete();
             }
         }
     }
