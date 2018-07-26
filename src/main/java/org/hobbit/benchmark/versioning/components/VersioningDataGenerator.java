@@ -41,7 +41,6 @@ import org.hobbit.benchmark.versioning.Task;
 import org.hobbit.benchmark.versioning.properties.VersioningConstants;
 import org.hobbit.benchmark.versioning.util.FTPUtils;
 import org.hobbit.benchmark.versioning.util.SystemAdapterConstants;
-import org.hobbit.core.Commands;
 import org.hobbit.core.components.AbstractDataGenerator;
 import org.hobbit.core.rabbit.RabbitMQUtils;
 import org.slf4j.Logger;
@@ -290,8 +289,9 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		LOGGER.info("[LS-DEBUG] construct versions time: " +  (endConstructVersions - startConstructVersions) + " ms.");
 		
 		// send data to the FTP server
+		boolean compress = true;
 		long startDataSent = System.currentTimeMillis();
-		sendToFTP(true, false, false, true);
+		sendToFTP(true, false, false, compress);
 		long endDataSent = System.currentTimeMillis();
 		long upload = endDataSent - startDataSent;
 
@@ -339,7 +339,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 
 		// send results to the FTP server
 		long startResultsSent = System.currentTimeMillis();
-		sendToFTP(false, false, true, false);
+		sendToFTP(false, false, true, compress);
 		long endResultsSent = System.currentTimeMillis();
 		upload += endResultsSent - startResultsSent;
 		LOGGER.info("[LS-DEBUG] upload data, queries and results: " + upload + " ms.");
@@ -1288,11 +1288,11 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			}
 		}
 		if(sendQueries) {
-			FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/" + datasetName + "/queries", "sparql", false);
+			FTPUtils.sendToFtp("/versioning/queries/", "public/SPVB-LS/" + datasetName + "/queries", "sparql", compress);
 		}
 		if(sendResults) {
 			writeResults();
-			FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/" + datasetName + "/results", "json", false);
+			FTPUtils.sendToFtp("/versioning/results/", "public/SPVB-LS/" + datasetName + "/results", "json", compress);
 		}
 //		FTPUtils.sendToFtp("/versioning/query_templates/", "public/SPVB-LS/" + datasetType + "/query_templates", "txt");
 //		FTPUtils.sendToFtp("/versioning/substitution_parameters/", "public/SPVB-LS/" + datasetType + "/substitution_parameters", "txt");
