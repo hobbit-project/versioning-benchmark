@@ -1285,7 +1285,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 		if (!sendData && !sendQueries && !sendResults) {
 			return;
 		}
-		String datasetName = (v0TotalSizeInTriples == 1000000 ? "1M-" : v0TotalSizeInTriples == 5000000 ? "5M-" : v0TotalSizeInTriples == 10000000 ? "10M-" : "TEST_") + numberOfVersions + "V" ;
+		String datasetName = v0TotalSizeInTriples + "T-" + numberOfVersions + "V" ;
 
 		if (sendData) {
 			for(int versionNum = 0; versionNum < numberOfVersions; versionNum++) {
