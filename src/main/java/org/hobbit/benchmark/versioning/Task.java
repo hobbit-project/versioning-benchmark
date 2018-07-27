@@ -31,6 +31,11 @@ public class Task implements Serializable {
 		this.expectedAnswers = expectedAnswers;
 	}
 	
+	public Task(String taskId) {
+		this.taskId = taskId;
+	}
+
+	
 	public void setId(String id) {
 		this.taskId = id;
 	}
