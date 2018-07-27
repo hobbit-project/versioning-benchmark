@@ -33,9 +33,9 @@ for ((i=0; i<$NUMBER_OF_VERSIONS; i++)); do
 
       # dbpedia
       # if current version contains dbpedia copy the dbpedia version, else copy the previous version
-      if ls $DATASETS_PATH/c$i/dbpedia_final/dbpedia_*_1000_entities.nt 1> /dev/null 2>&1; then
+      if ls $DATASETS_PATH/c$i/dbpedia_final/dbpedia_*_1000_entities.added.nt 1> /dev/null 2>&1; then
         # copy the current version
-        cp $DATASETS_PATH/c$i/dbpedia_final/dbpedia_*_1000_entities.nt $DATASETS_PATH_FINAL/v$i
+        cp $DATASETS_PATH/c$i/dbpedia_final/dbpedia_*_1000_entities.added.nt $DATASETS_PATH_FINAL/v$i
       else
 	 cp $DATASETS_PATH_FINAL/v$prev/dbpedia_*.nt $DATASETS_PATH_FINAL/v$i
       fi
