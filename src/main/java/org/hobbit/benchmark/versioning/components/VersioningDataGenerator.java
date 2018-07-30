@@ -1274,7 +1274,7 @@ public class VersioningDataGenerator extends AbstractDataGenerator {
 			int querySubstParam = expectedResultsBuffer.getInt();
 			byte expectedDataBytes[] = RabbitMQUtils.readByteArray(expectedResultsBuffer);
 			try {
-				FileUtils.writeByteArrayToFile(new File(resultsDir + File.separator + "versionigQuery" + queryType + "." + querySubType + "." + querySubstParam + "_results.json"), expectedDataBytes);
+				FileUtils.writeByteArrayToFile(new File(resultsDir + File.separator + "versioningQuery" + queryType + "." + querySubType + "." + querySubstParam + "_results.json"), expectedDataBytes);
 			} catch (IOException e) {
 				LOGGER.error("Exception caught during saving of expected results: ", e);
 			}
