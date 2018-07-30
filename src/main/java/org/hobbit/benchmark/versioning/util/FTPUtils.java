@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.ftp.FTP;
@@ -22,13 +22,16 @@ public class FTPUtils {
 		FTPClient client = new FTPClient();
 		FileInputStream fis = null;
 		ByteArrayInputStream dataFilesIS = null;
+		Properties ftpConfig = new Properties();
 		
         try {
         	client.connect("hobbitdata.informatik.uni-leipzig.de");
         	LOGGER.info(client.sendNoOp() ? "Connection established to FTP server" : "Could not connect to FTP server");
         	client.enterLocalPassiveMode();
-        	String username = "****";
-            String pwd = "****";
+        	
+    		ftpConfig.load(ClassLoader.getSystemResource("ftp.properties").openStream());
+        	String username = ftpConfig.getProperty("username");
+            String pwd = ftpConfig.getProperty("password");
         	LOGGER.info(client.login(username, pwd) ? "Logged in" : "Not connected to FTP.");
             
             // recursively create ftp folders if not exist
